@@ -151,7 +151,14 @@ func display(expr *Cell) {
 	case scm_symbol:
 		fmt.Printf("%s :: Symbol", expr.value.(string))
 	case scm_pair:
-		fmt.Printf("<#pair>")
+		fmt.Printf("(")
+		for e := expr.value.(*ScmPair); e != nil; e = e.cdr {
+			display(e.car)
+			if e.cdr != nil {
+				fmt.Printf(" ")
+			}
+		}
+		fmt.Printf(")")
 	default:
 		fmt.Printf("<#error>")
 	}
