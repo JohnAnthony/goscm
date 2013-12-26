@@ -167,10 +167,9 @@ func main() {
 	for {
 		// Read
 		expr := getexpr(reader)
-		display(expr)
-		fmt.Println("")
 		// Eval
 		// Print
-		
+		display(expr)
+		fmt.Println("")
 	}
 }
