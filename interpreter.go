@@ -32,6 +32,11 @@ type Instance struct {
 	running bool
 }
 
+func (inst *Instance) eval(expr *Cell) *Cell {
+	// TODO!
+	return nil
+}
+
 func NewInstance() *Instance {
 	return &Instance {
 		env: nil,
@@ -164,12 +169,14 @@ func display(expr *Cell) {
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
+	inst := NewInstance()
 	for {
 		// Read
 		expr := getexpr(reader)
 		// Eval
+		ret := inst.eval(expr)
 		// Print
-		display(expr)
+		display(ret)
 		fmt.Println("")
 	}
 }
