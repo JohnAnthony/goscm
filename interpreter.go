@@ -136,8 +136,6 @@ func getexpr(in *bufio.Reader) *Cell {
 }
 
 func display(expr *Cell) {
-	fmt.Printf("|> ")
-
 	if expr == nil {
 		fmt.Println("nil")
 		return
@@ -145,16 +143,16 @@ func display(expr *Cell) {
 	
 	switch expr.stype {
 	case scm_int:
-		fmt.Printf("%d :: Int", *expr.value.(*int))
+		fmt.Printf("%d", *expr.value.(*int))
 	case scm_string:
-		fmt.Printf("\"%s\" :: String", expr.value.(string))
+		fmt.Printf("\"%s\"", expr.value.(string))
 	case scm_symbol:
-		fmt.Printf("%s :: Symbol", expr.value.(string))
+		fmt.Printf("%s", expr.value.(string))
 	case scm_pair:
 		fmt.Printf("(")
-		for e := expr.value.(*ScmPair); e != nil; e = e.cdr {
-			display(e.car)
-			if e.cdr != nil {
+		for e := expr; e != nil; e = e.value.(*ScmPair).cdr {
+			display(e.value.(*ScmPair).car)
+			if e.value.(*ScmPair).cdr != nil {
 				fmt.Printf(" ")
 			}
 		}
@@ -162,8 +160,6 @@ func display(expr *Cell) {
 	default:
 		fmt.Printf("<#error>")
 	}
-
-	fmt.Println("")
 }
 
 func main() {
@@ -172,6 +168,7 @@ func main() {
 		// Read
 		expr := getexpr(reader)
 		display(expr)
+		fmt.Println("")
 		// Eval
 		// Print
 		
