@@ -13,6 +13,8 @@ const (
 	scm_string ScmType = iota
 	scm_int
 	scm_symbol
+	scm_pair
+	scm_pairclose
 )
 
 type ScmPair struct {
@@ -45,17 +47,7 @@ func isSpace(b byte) bool {
 	return false
 }
 
-func toktype(tok string) ScmType {
-	if tok[0] == '"' {
-		return scm_string
-	}
-	if tok[0] >= '0' && tok[0] <= '9' {
-		return scm_int
-	}
-	return scm_symbol
-}
-
-func gettoken(in *bufio.Reader) string {
+func getexpr(in *bufio.Reader) *Cell {
 	var c byte
 	symbol := make([]byte, 0)
 	
@@ -67,12 +59,51 @@ func gettoken(in *bufio.Reader) string {
 		}
 	}
 
+	// Scm Pair
 	if c == '(' {
-		return "("
+		var head *Cell = nil
+		nexp := getexpr(in)
+		if nexp == nil {
+			return nil
+		}
+
+		head = &Cell {
+			stype: scm_pair,
+			value: &ScmPair { car: nexp },
+		}
+		tip := head
+		for {
+			nexp = getexpr(in)
+			if nexp.stype == scm_pairclose {
+				tip.value.(*ScmPair).cdr = nil
+				break
+			}
+			tip.value.(*ScmPair).cdr = &Cell {
+				stype: scm_pair,
+				value: &ScmPair { car: nexp },
+			}
+			tip = tip.value.(*ScmPair).cdr
+		}
+		return head
 	}
 
+	// Scm Pair Close
 	if c == ')' {
-		return ")"
+		return &Cell {
+			stype: scm_pairclose,
+			value: ")",
+		}
+	}
+
+	// Handle strings
+	if c == '"' {
+		for c, _ = in.ReadByte(); c != '"'; c, _ = in.ReadByte() {
+			symbol = append(symbol, c)
+		}
+		return &Cell {
+			stype: scm_string,
+			value: string(symbol),
+		}
 	}
 
 	for !isSpace(c) && c != ')' {
@@ -84,52 +115,55 @@ func gettoken(in *bufio.Reader) string {
 		in.UnreadByte()
 	}
 
-	return string(symbol)
-}
-
-func getexpression(r *bufio.Reader) *Cell {
-	tok := gettoken(r)
-	t := toktype(tok)
-	cell := Cell {
-		stype: t,
-	}
-
-	switch t {
-	case scm_int:
-		n, err := strconv.Atoi(tok)
+	// Integers
+	if symbol[0] >= '0' && symbol[0] <= '9' {
+		n, err := strconv.Atoi(string(symbol))
 		if err != nil {
 			fmt.Println(err)
 		}
-		cell.value = &n
-	case scm_string:
-		cell.value = tok
-	case scm_symbol:
-		cell.value = tok
+		
+		return &Cell {
+			stype: scm_int,
+			value: &n,
+		}
 	}
-
-	return &cell
+	
+	// Symbol
+	return &Cell {
+		stype: scm_symbol,
+		value: string(symbol),
+	}
 }
 
 func display(expr *Cell) {
 	fmt.Printf("|> ")
 
+	if expr == nil {
+		fmt.Println("nil")
+		return
+	}
+	
 	switch expr.stype {
 	case scm_int:
-		fmt.Printf("%d :: Int\n", *expr.value.(*int))
+		fmt.Printf("%d :: Int", *expr.value.(*int))
 	case scm_string:
-		fmt.Printf("\"%s\" :: String\n", expr.value.(string))
+		fmt.Printf("\"%s\" :: String", expr.value.(string))
 	case scm_symbol:
-		fmt.Printf("%s :: Symbol\n", expr.value.(string))
+		fmt.Printf("%s :: Symbol", expr.value.(string))
+	case scm_pair:
+		fmt.Printf("<#pair>")
 	default:
-		fmt.Println("<#error>")
+		fmt.Printf("<#error>")
 	}
+
+	fmt.Println("")
 }
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		// Read
-		expr := getexpression(reader)
+		expr := getexpr(reader)
 		display(expr)
 		// Eval
 		// Print
