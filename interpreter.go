@@ -1,7 +1,6 @@
 package main
 
 // TODO:
-// define
 // lambda
 // Comments
 // quote '
@@ -12,6 +11,7 @@ package main
 // or
 // and
 // scm_float
+// Escaped characters
 
 import (
 	"bufio"
@@ -28,6 +28,7 @@ const (
 	scm_symbol
 	scm_pair
 	scm_pairclose
+	scm_func
 	scm_gofunc
 )
 
@@ -45,6 +46,7 @@ func NewEnvironment() *Cell {
 	var env *Cell = nil
 	env = AddRawGoFunc(env, "quote", scm_quote)
 	env = AddRawGoFunc(env, "define", scm_define)
+	env = AddRawGoFunc(env, "lambda", scm_lambda)
 	env = AddRawGoFunc(env, "cons", scm_cons)
 	env = AddRawGoFunc(env, "car", scm_car)
 	env = AddRawGoFunc(env, "cdr", scm_cdr)
@@ -65,52 +67,50 @@ func eval(env *Cell, expr *Cell) *Cell {
 		return expr
 	case scm_symbol:
 		return symbolLookup(env, expr.value.(string))
-	}
+	case scm_func:
+		return expr
+	case scm_pair:
+		funcsym := car(expr).value.(string)
+		tail := cdr(expr)
+		f := symbolLookup(env, funcsym)
 
-	// From here on is handling scm_pairs
-
-	funcsym := car(expr).value.(string)
-	tail := cdr(expr)
-	f := symbolLookup(env, funcsym)
-
-	if f == nil {
-		return nil
-	}
-
-	// We don't eval if quoting
-	if funcsym != "quote" {
-		var e *Cell
-
-		// Special case doe define - we don't eval the first symbol
-		if funcsym == "define" {
-			e = cdr(tail)
-		} else {
-			e = tail
+		if f == nil {
+			return nil
 		}
 
-		for ; e != nil; e = cdr(e) {
-			e.value.(*ScmPair).car = eval(env, car(e))
-		}
-	}
+		// We don't eval if quoting
+		if funcsym != "quote" && funcsym != "lambda" {
+			var e *Cell
 
-	// Go source functions
-	if f.stype == scm_gofunc {
+			// Special case for define - we don't eval the first symbol
+			if funcsym == "define" {
+				e = cdr(tail)
+			} else {
+				e = tail
+			}
+
+			// Not a special case - eval everything
+			for ; e != nil; e = cdr(e) {
+				e.value.(*ScmPair).car = eval(env, car(e))
+			}
+		}
+
 		ret := f.value.(func(*Cell) *Cell)(tail)
-		
+
 		// Handle define
 		if funcsym == "define" {
 			// Shuffle our new define into the place of the old env head
 			tmpenv := *env
 			*env = *cons(ret, &tmpenv)
-			
+
 			return nil
 		}
-
-		// Function is not define, return notmally
+		
+		// Function is not define, return normally
 		return ret
 	}
 
-	// Error because we've got an unhandled type
+	// Getting here is an error
 	return nil
 }
 
@@ -264,7 +264,7 @@ func display(expr *Cell) {
 			fmt.Printf(")")
 			return
 		}
-		
+
 		// This is a list
 		fmt.Printf("(")
 		for e := expr; e != nil; e = cdr(e) {
@@ -274,6 +274,8 @@ func display(expr *Cell) {
 			}
 		}
 		fmt.Printf(")")
+	case scm_func:
+		fmt.Printf("<#func>")
 	case scm_gofunc:
 		fmt.Printf("<#gofunc>")
 	default:
@@ -305,8 +307,15 @@ func scm_quote(tail *Cell) *Cell {
 }
 
 func scm_define(tail *Cell) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_pair,
+		value: &ScmPair{car: car(tail), cdr: car(cdr(tail))},
+	}
+}
+
+func scm_lambda(tail *Cell) *Cell {
+	return &Cell {
+		stype: scm_func,
 		value: &ScmPair { car: car(tail), cdr: car(cdr(tail)) },
 	}
 }
