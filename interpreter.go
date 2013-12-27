@@ -1,14 +1,16 @@
 package main
 
 // TODO:
+// Handle EOF properly
+// apply scm_function
+// if
+// or
+// and
 // Comments
 // quote '
 // quasiquote `
 // unquote ,
 // scm_bool (including #f and #t syntax reading)
-// if
-// or
-// and
 // scm_float
 // Escaped characters
 
@@ -29,6 +31,7 @@ const (
 	scm_pairclose
 	scm_func
 	scm_gofunc
+	scm_emptylist
 )
 
 type ScmPair struct {
@@ -42,7 +45,7 @@ type Cell struct {
 }
 
 func NewEnvironment() *Cell {
-	var env *Cell = nil
+	var env *Cell = EmptyList()
 	env = AddRawGoFunc(env, "quote", scm_quote)
 	env = AddRawGoFunc(env, "define", scm_define)
 	env = AddRawGoFunc(env, "lambda", scm_lambda)
@@ -64,6 +67,10 @@ func duplicate(cell *Cell) *Cell {
 	}
 	
 	switch cell.stype {
+	case scm_string:
+		fallthrough
+	case scm_emptylist:
+		fallthrough
 	case scm_int:
 		fallthrough
 	case scm_symbol:
@@ -99,6 +106,8 @@ func eval(env *Cell, expr *Cell) *Cell {
 		return symbolLookup(env, expr.value.(string))
 	case scm_func:
 		return expr
+	case scm_emptylist:
+		return expr
 	case scm_pair:
 		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
@@ -122,7 +131,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 			}
 
 			// Not a special case - eval everything and build a new "tail"
-			for ; e != nil; e = cdr(e) {
+			for ; e.stype != scm_emptylist; e = cdr(e) {
 				e.value.(*ScmPair).car = eval(env, car(e))
 			}
 		}
@@ -131,7 +140,9 @@ func eval(env *Cell, expr *Cell) *Cell {
 		if f.stype == scm_func {
 			// Zip our symbols and values into a new environment
 			subenv := env
-			for symb, val := car(f), tail; symb != nil && val != nil; symb, val = cdr(symb), cdr(val) {
+			for symb, val := car(f), tail
+			symb.stype != scm_emptylist && val.stype != scm_emptylist
+			symb, val = cdr(symb), cdr(val) {
 				pair := cons(car(symb), car(val))
 				subenv = cons(pair, subenv)
 			}
@@ -173,11 +184,11 @@ func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
 }
 
 func symbolLookup(env *Cell, symb string) *Cell {
-	if env == nil {
+	if env.stype == scm_emptylist {
 		return nil
 	}
 
-	for e := env; e != nil; e = e.value.(*ScmPair).cdr {
+	for e := env; e.stype != scm_emptylist; e = e.value.(*ScmPair).cdr {
 		cell := e.value.(*ScmPair)
 		symbpair := cell.car.value.(*ScmPair)
 		label := symbpair.car.value.(string)
@@ -199,6 +210,12 @@ func isSpace(b byte) bool {
 	return false
 }
 
+func EmptyList() *Cell {
+	return &Cell {
+		stype: scm_emptylist,
+	}
+}
+
 func getexpr(in *bufio.Reader) *Cell {
 	var c byte
 	symbol := make([]byte, 0)
@@ -215,19 +232,20 @@ func getexpr(in *bufio.Reader) *Cell {
 	if c == '(' {
 		var head *Cell = nil
 		nexp := getexpr(in)
-		if nexp == nil {
-			return nil
+		if nexp.stype == scm_pairclose {
+			return EmptyList()
 		}
-
+		
 		head = &Cell{
 			stype: scm_pair,
 			value: &ScmPair{car: nexp},
 		}
 		tip := head
+
 		for {
 			nexp = getexpr(in)
-			if nexp.stype == scm_pairclose {
-				tip.value.(*ScmPair).cdr = nil
+			if nexp == nil || nexp.stype == scm_pairclose {
+				tip.value.(*ScmPair).cdr = EmptyList()
 				break
 			}
 			tip.value.(*ScmPair).cdr = &Cell{
@@ -299,6 +317,8 @@ func display(expr *Cell) {
 		fmt.Printf("\"%s\"", expr.value.(string))
 	case scm_symbol:
 		fmt.Printf("%s", expr.value.(string))
+	case scm_emptylist:
+		fmt.Printf("'()")
 	case scm_pair:
 		// This is an ACTUAL pair
 		if cdr(expr) != nil && cdr(expr).stype != scm_pair {
@@ -388,7 +408,7 @@ func scm_cdr(tail *Cell) *Cell {
 func scm_add(tail *Cell) *Cell {
 	ret := 0
 
-	for e := tail; e != nil; e = cdr(e) {
+	for e := tail; e.stype != scm_emptylist; e = cdr(e) {
 		ret += *car(e).value.(*int)
 	}
 
@@ -401,7 +421,7 @@ func scm_add(tail *Cell) *Cell {
 func scm_subtract(tail *Cell) *Cell {
 	ret := *car(tail).value.(*int)
 
-	for e := cdr(tail); e != nil; e = cdr(e) {
+	for e := cdr(tail); e.stype != scm_emptylist; e = cdr(e) {
 		ret -= *car(e).value.(*int)
 	}
 
@@ -414,7 +434,7 @@ func scm_subtract(tail *Cell) *Cell {
 func scm_multiplication(tail *Cell) *Cell {
 	ret := 1
 
-	for e := tail; e != nil; e = cdr(e) {
+	for e := tail; e.stype != scm_emptylist; e = cdr(e) {
 		ret *= *car(e).value.(*int)
 	}
 
@@ -427,7 +447,7 @@ func scm_multiplication(tail *Cell) *Cell {
 func scm_division(tail *Cell) *Cell {
 	ret := *car(tail).value.(*int)
 
-	for e := cdr(tail); e != nil; e = cdr(e) {
+	for e := cdr(tail); e.stype != scm_emptylist; e = cdr(e) {
 		ret /= *car(e).value.(*int)
 	}
 
