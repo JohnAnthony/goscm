@@ -240,6 +240,14 @@ func cons(a *Cell, b *Cell) *Cell {
 	}
 }
 
+func car(lst *Cell) *Cell {
+	return lst.value.(*ScmPair).car
+}
+
+func cdr(lst *Cell) *Cell {
+	return lst.value.(*ScmPair).cdr
+}
+
 // Scm functions
 
 // scm_quit function
@@ -250,6 +258,14 @@ func scm_cons(tail *Cell) *Cell {
 	a := tail.value.(*ScmPair).car
 	b := tail.value.(*ScmPair).cdr.value.(*ScmPair).car
 	return cons(a, b)
+}
+
+func scm_car(tail *Cell) *Cell {
+	return car(car(tail))
+}
+
+func scm_cdr(tail *Cell) *Cell {
+	return cdr(car(tail))
 }
 
 func scm_add(tail *Cell) *Cell {
@@ -314,6 +330,8 @@ func main() {
 	inst := NewInstance()
 	inst.AddRawGoFunc("quote", scm_quote)
 	inst.AddRawGoFunc("cons", scm_cons)
+	inst.AddRawGoFunc("car", scm_car)
+	inst.AddRawGoFunc("cdr", scm_cdr)
 	inst.AddRawGoFunc("+", scm_add)
 	inst.AddRawGoFunc("-", scm_subtract)
 	inst.AddRawGoFunc("*", scm_multiplication)
