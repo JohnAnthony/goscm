@@ -38,8 +38,8 @@ func (inst *Instance) eval(expr *Cell) *Cell {
 		return expr
 	}
 
-	funcsym := expr.value.(*ScmPair).car.value.(string)
-	tail := expr.value.(*ScmPair).cdr
+	funcsym := car(expr).value.(string)
+	tail := cdr(expr)
 	f := symbolLookup(inst.env, funcsym)
 
 	if f == nil {
@@ -49,8 +49,8 @@ func (inst *Instance) eval(expr *Cell) *Cell {
 	// We don't eval if quoting!
 	if funcsym != "quote" {
 		// Eval all the tail args first
-		for e := tail; e != nil; e = e.value.(*ScmPair).cdr {
-			e.value.(*ScmPair).car = inst.eval(e.value.(*ScmPair).car)
+		for e := tail; e != nil; e = cdr(e) {
+			e.value.(*ScmPair).car = inst.eval(car(e))
 		}
 	}
 		
@@ -147,7 +147,7 @@ func getexpr(in *bufio.Reader) *Cell {
 				stype: scm_pair,
 				value: &ScmPair { car: nexp },
 			}
-			tip = tip.value.(*ScmPair).cdr
+			tip = cdr(tip)
 		}
 		return head
 	}
@@ -217,9 +217,9 @@ func display(expr *Cell) {
 		// This doesn't actually display pairs properly
 		// TODO: Fix that
 		fmt.Printf("(")
-		for e := expr; e != nil; e = e.value.(*ScmPair).cdr {
-			display(e.value.(*ScmPair).car)
-			if e.value.(*ScmPair).cdr != nil {
+		for e := expr; e != nil; e = cdr(e) {
+			display(car(e))
+			if cdr(e) != nil {
 				fmt.Printf(" ")
 			}
 		}
@@ -255,8 +255,8 @@ func cdr(lst *Cell) *Cell {
 // scm_lambda
 
 func scm_cons(tail *Cell) *Cell {
-	a := tail.value.(*ScmPair).car
-	b := tail.value.(*ScmPair).cdr.value.(*ScmPair).car
+	a := car(tail)
+	b := car(cdr(tail))
 	return cons(a, b)
 }
 
@@ -271,8 +271,8 @@ func scm_cdr(tail *Cell) *Cell {
 func scm_add(tail *Cell) *Cell {
 	ret := 0
 
-	for e := tail; e != nil; e = e.value.(*ScmPair).cdr {
-		ret += *e.value.(*ScmPair).car.value.(*int)
+	for e := tail; e != nil; e = cdr(e) {
+		ret += *car(e).value.(*int)
 	}
 
 	return &Cell {
@@ -282,10 +282,10 @@ func scm_add(tail *Cell) *Cell {
 }
 
 func scm_subtract(tail *Cell) *Cell {
-	ret := *tail.value.(*ScmPair).car.value.(*int)
+	ret := *car(tail).value.(*int)
 
-	for e := tail.value.(*ScmPair).cdr; e != nil; e = e.value.(*ScmPair).cdr {
-		ret -= *e.value.(*ScmPair).car.value.(*int)
+	for e := cdr(tail); e != nil; e = cdr(e) {
+		ret -= *car(e).value.(*int)
 	}
 
 	return &Cell {
@@ -297,8 +297,8 @@ func scm_subtract(tail *Cell) *Cell {
 func scm_multiplication(tail *Cell) *Cell {
 	ret := 1
 
-	for e := tail; e != nil; e = e.value.(*ScmPair).cdr {
-		ret *= *e.value.(*ScmPair).car.value.(*int)
+	for e := tail; e != nil; e = cdr(e) {
+		ret *= *car(e).value.(*int)
 	}
 
 	return &Cell {
@@ -308,10 +308,10 @@ func scm_multiplication(tail *Cell) *Cell {
 }
 
 func scm_division(tail *Cell) *Cell {
-	ret := *tail.value.(*ScmPair).car.value.(*int)
+	ret := *car(tail).value.(*int)
 
-	for e := tail.value.(*ScmPair).cdr; e != nil; e = e.value.(*ScmPair).cdr {
-		ret /= *e.value.(*ScmPair).car.value.(*int)
+	for e := cdr(tail); e != nil; e = cdr(e) {
+		ret /= *car(e).value.(*int)
 	}
 
 	return &Cell {
@@ -322,7 +322,7 @@ func scm_division(tail *Cell) *Cell {
 
 func scm_quote(tail *Cell) *Cell {
 	// TODO: Syntax checking. Quote takes exactly one argument
-	return tail.value.(*ScmPair).car
+	return car(tail)
 }
 
 func main() {
