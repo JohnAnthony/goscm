@@ -237,9 +237,34 @@ func cons(a *Cell, b *Cell) *Cell {
 // scm_car function
 // scm_cdr function
 // scm_quit function
-// scm_quote
 // scm_define
 // scm_lambda
+
+func scm_add(tail *Cell) *Cell {
+	ret := 0
+
+	for e := tail; e != nil; e = e.value.(*ScmPair).cdr {
+		ret += *e.value.(*ScmPair).car.value.(*int)
+	}
+
+	return &Cell {
+		stype: scm_int,
+		value: &ret,
+	}
+}
+
+func scm_subtract(tail *Cell) *Cell {
+	ret := *tail.value.(*ScmPair).car.value.(*int)
+
+	for e := tail.value.(*ScmPair).cdr; e != nil; e = e.value.(*ScmPair).cdr {
+		ret -= *e.value.(*ScmPair).car.value.(*int)
+	}
+
+	return &Cell {
+		stype: scm_int,
+		value: &ret,
+	}
+}
 
 func scm_quote(tail *Cell) *Cell {
 	// TODO: Syntax checking. Quote takes exactly one argument
@@ -250,6 +275,8 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	inst := NewInstance()
 	inst.AddRawGoFunc("quote", scm_quote)
+	inst.AddRawGoFunc("+", scm_add)
+	inst.AddRawGoFunc("-", scm_subtract)
 
 	for inst.running {
 		// Read
