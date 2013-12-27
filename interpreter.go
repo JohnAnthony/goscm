@@ -1,7 +1,6 @@
 package main
 
 // TODO:
-// lambda
 // Comments
 // quote '
 // quasiquote `
@@ -58,6 +57,36 @@ func NewEnvironment() *Cell {
 	return env
 }
 
+// recursively duplicate scheme objects
+func duplicate(cell *Cell) *Cell {
+	if cell == nil {
+		return nil
+	}
+	
+	switch cell.stype {
+	case scm_int:
+		fallthrough
+	case scm_symbol:
+		fallthrough
+	case scm_gofunc:
+		val := cell.value
+		return &Cell {
+			stype: cell.stype,
+			value: val,
+		}
+	case scm_func:
+		fallthrough
+	case scm_pair:
+		return &Cell {
+			stype: cell.stype,
+			value: &ScmPair { car: duplicate(car(cell)), cdr: duplicate(cdr(cell)) },
+		}
+	}
+
+	// If we get here it's an error
+	return nil
+}
+
 func eval(env *Cell, expr *Cell) *Cell {
 	switch expr.stype {
 	case scm_int:
@@ -73,7 +102,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 	case scm_pair:
 		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
-		tail := cdr(expr)
+		tail := duplicate(cdr(expr))
 		f := symbolLookup(env, funcsym)
 
 		// Symbol not found
@@ -92,7 +121,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 				e = tail
 			}
 
-			// Not a special case - eval everything
+			// Not a special case - eval everything and build a new "tail"
 			for ; e != nil; e = cdr(e) {
 				e.value.(*ScmPair).car = eval(env, car(e))
 			}
