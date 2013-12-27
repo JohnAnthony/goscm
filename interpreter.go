@@ -54,6 +54,7 @@ func (inst *Instance) eval(expr *Cell) *Cell {
 		}
 	}
 		
+	// Go source functions
 	if f.stype == scm_gofunc {
 		return f.value.(func (*Cell) *Cell)(tail)
 	}
@@ -247,7 +248,7 @@ func cons(a *Cell, b *Cell) *Cell {
 
 func scm_cons(tail *Cell) *Cell {
 	a := tail.value.(*ScmPair).car
-	b := tail.value.(*ScmPair).cdr
+	b := tail.value.(*ScmPair).cdr.value.(*ScmPair).car
 	return cons(a, b)
 }
 
@@ -312,11 +313,11 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	inst := NewInstance()
 	inst.AddRawGoFunc("quote", scm_quote)
+	inst.AddRawGoFunc("cons", scm_cons)
 	inst.AddRawGoFunc("+", scm_add)
 	inst.AddRawGoFunc("-", scm_subtract)
 	inst.AddRawGoFunc("*", scm_multiplication)
 	inst.AddRawGoFunc("/", scm_division)
-	inst.AddRawGoFunc("cons", scm_cons)
 
 	for inst.running {
 		// Read
