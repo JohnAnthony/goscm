@@ -43,7 +43,7 @@ type Cell struct {
 
 func NewEnvironment() *Cell {
 	// Add all of our special forms
-	quotepair := cons(&Cell{stype: scm_string, value: "quote"}, &Cell{stype: scm_gofunc, value: scm_quote})
+	quotepair := cons(&Cell{stype: scm_symbol, value: "quote"}, &Cell{stype: scm_gofunc, value: scm_quote})
 	newenv := cons(quotepair, nil)
 
 	return newenv
@@ -75,14 +75,13 @@ func eval(env *Cell, expr *Cell) *Cell {
 		return f.value.(func(*Cell) *Cell)(tail)
 	}
 
-	// ??? if scm_func type
-
 	// Error because we've got an unhandled type
 	return nil
 }
 
 func envupdate(env *Cell, add *Cell) {
-	*env = *cons(add, env)
+	shifted := *env
+	*env = *cons(add, &shifted)
 }
 
 func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) {
@@ -344,7 +343,7 @@ func scm_quote(tail *Cell) *Cell {
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	env := NewEnvironment()
-//	AddRawGoFunc(env, "cons", scm_cons)
+	AddRawGoFunc(env, "cons", scm_cons)
 //	AddRawGoFunc(env, "car", scm_car)
 //	AddRawGoFunc(env, "cdr", scm_cdr)
 //	AddRawGoFunc(env, "+", scm_add)
