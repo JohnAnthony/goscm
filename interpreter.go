@@ -50,9 +50,18 @@ func NewEnvironment() *Cell {
 }
 
 func eval(env *Cell, expr *Cell) *Cell {
-	if expr.stype != scm_pair {
+	switch expr.stype {
+	case scm_int:
+		fallthrough
+	case scm_string:
+		fallthrough
+	case scm_gofunc:
 		return expr
+	case scm_symbol:
+		return symbolLookup(env, expr.value.(string))
 	}
+
+	// From here on is handling scm_pairs
 
 	funcsym := car(expr).value.(string)
 	tail := cdr(expr)
@@ -344,12 +353,12 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	env := NewEnvironment()
 	AddRawGoFunc(env, "cons", scm_cons)
-//	AddRawGoFunc(env, "car", scm_car)
-//	AddRawGoFunc(env, "cdr", scm_cdr)
-//	AddRawGoFunc(env, "+", scm_add)
-//	AddRawGoFunc(env, "-", scm_subtract)
-//	AddRawGoFunc(env, "*", scm_multiplication)
-//	AddRawGoFunc(env, "/", scm_division)
+	AddRawGoFunc(env, "car", scm_car)
+	AddRawGoFunc(env, "cdr", scm_cdr)
+	AddRawGoFunc(env, "+", scm_add)
+	AddRawGoFunc(env, "-", scm_subtract)
+	AddRawGoFunc(env, "*", scm_multiplication)
+	AddRawGoFunc(env, "/", scm_division)
 
 	// Debug
 	display(env)
