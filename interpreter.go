@@ -266,6 +266,32 @@ func scm_subtract(tail *Cell) *Cell {
 	}
 }
 
+func scm_multiplication(tail *Cell) *Cell {
+	ret := 1
+
+	for e := tail; e != nil; e = e.value.(*ScmPair).cdr {
+		ret *= *e.value.(*ScmPair).car.value.(*int)
+	}
+
+	return &Cell {
+		stype: scm_int,
+		value: &ret,
+	}
+}
+
+func scm_division(tail *Cell) *Cell {
+	ret := *tail.value.(*ScmPair).car.value.(*int)
+
+	for e := tail.value.(*ScmPair).cdr; e != nil; e = e.value.(*ScmPair).cdr {
+		ret /= *e.value.(*ScmPair).car.value.(*int)
+	}
+
+	return &Cell {
+		stype: scm_int,
+		value: &ret,
+	}
+}
+
 func scm_quote(tail *Cell) *Cell {
 	// TODO: Syntax checking. Quote takes exactly one argument
 	return tail.value.(*ScmPair).car
@@ -277,6 +303,8 @@ func main() {
 	inst.AddRawGoFunc("quote", scm_quote)
 	inst.AddRawGoFunc("+", scm_add)
 	inst.AddRawGoFunc("-", scm_subtract)
+	inst.AddRawGoFunc("*", scm_multiplication)
+	inst.AddRawGoFunc("/", scm_division)
 
 	for inst.running {
 		// Read
