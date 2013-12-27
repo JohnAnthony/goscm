@@ -3,6 +3,8 @@ package main
 // TODO:
 // Handle EOF properly
 // apply scm_function
+// eq? equal? = scm_functions
+// atom? list? scm_functions
 // if
 // or
 // and
@@ -136,7 +138,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 			}
 		}
 
-		// This is everythign we need for scheme functions
+		// This is everything we need for scheme functions
 		if f.stype == scm_func {
 			// Zip our symbols and values into a new environment
 			subenv := env
@@ -316,12 +318,12 @@ func display(expr *Cell) {
 	case scm_string:
 		fmt.Printf("\"%s\"", expr.value.(string))
 	case scm_symbol:
-		fmt.Printf("%s", expr.value.(string))
+		fmt.Printf("#<symbol %s>", expr.value.(string))
 	case scm_emptylist:
 		fmt.Printf("'()")
 	case scm_pair:
 		// This is an ACTUAL pair
-		if cdr(expr) != nil && cdr(expr).stype != scm_pair {
+		if cdr(expr).stype != scm_emptylist && cdr(expr).stype != scm_pair {
 			fmt.Printf("(")
 			display(car(expr))
 			fmt.Printf(" . ")
@@ -332,19 +334,19 @@ func display(expr *Cell) {
 
 		// This is a list
 		fmt.Printf("(")
-		for e := expr; e != nil; e = cdr(e) {
+		for e := expr; e.stype != scm_emptylist; e = cdr(e) {
 			display(car(e))
-			if cdr(e) != nil {
+			if cdr(e).stype != scm_emptylist {
 				fmt.Printf(" ")
 			}
 		}
 		fmt.Printf(")")
 	case scm_func:
-		fmt.Printf("<#func>")
+		fmt.Printf("#<func>")
 	case scm_gofunc:
-		fmt.Printf("<#gofunc>")
+		fmt.Printf("#<gofunc>")
 	default:
-		fmt.Printf("<#error>")
+		fmt.Printf("#<error>")
 	}
 }
 
