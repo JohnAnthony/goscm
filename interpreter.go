@@ -38,14 +38,22 @@ func (inst *Instance) eval(expr *Cell) *Cell {
 		return expr
 	}
 
-	funcsym := expr.value.(*ScmPair).car
+	funcsym := expr.value.(*ScmPair).car.value.(string)
 	tail := expr.value.(*ScmPair).cdr
-	f := symbolLookup(inst.env, funcsym.value.(string))
+	f := symbolLookup(inst.env, funcsym)
 
 	if f == nil {
 		return nil
 	}
 
+	// We don't eval if quoting!
+	if funcsym != "quote" {
+		// Eval all the tail args first
+		for e := tail; e != nil; e = e.value.(*ScmPair).cdr {
+			e.value.(*ScmPair).car = inst.eval(e.value.(*ScmPair).car)
+		}
+	}
+		
 	if f.stype == scm_gofunc {
 		return f.value.(func (*Cell) *Cell)(tail)
 	}
@@ -233,12 +241,15 @@ func cons(a *Cell, b *Cell) *Cell {
 
 // Scm functions
 
-// scm_cons function
-// scm_car function
-// scm_cdr function
 // scm_quit function
 // scm_define
 // scm_lambda
+
+func scm_cons(tail *Cell) *Cell {
+	a := tail.value.(*ScmPair).car
+	b := tail.value.(*ScmPair).cdr
+	return cons(a, b)
+}
 
 func scm_add(tail *Cell) *Cell {
 	ret := 0
@@ -305,6 +316,7 @@ func main() {
 	inst.AddRawGoFunc("-", scm_subtract)
 	inst.AddRawGoFunc("*", scm_multiplication)
 	inst.AddRawGoFunc("/", scm_division)
+	inst.AddRawGoFunc("cons", scm_cons)
 
 	for inst.running {
 		// Read
