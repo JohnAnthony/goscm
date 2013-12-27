@@ -88,12 +88,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 	return nil
 }
 
-func envupdate(env *Cell, add *Cell) {
-	shifted := *env
-	*env = *cons(add, &shifted)
-}
-
-func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) {
+func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
 	newcar := &Cell{
 		stype: scm_symbol,
 		value: symb,
@@ -103,7 +98,7 @@ func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) {
 		value: f,
 	}
 	newcell := cons(newcar, newcdr)
-	envupdate(env, newcell)
+	return cons(newcell, env)
 }
 
 func symbolLookup(env *Cell, symb string) *Cell {
@@ -352,15 +347,16 @@ func scm_quote(tail *Cell) *Cell {
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	env := NewEnvironment()
-	AddRawGoFunc(env, "cons", scm_cons)
-	AddRawGoFunc(env, "car", scm_car)
-	AddRawGoFunc(env, "cdr", scm_cdr)
-	AddRawGoFunc(env, "+", scm_add)
-	AddRawGoFunc(env, "-", scm_subtract)
-	AddRawGoFunc(env, "*", scm_multiplication)
-	AddRawGoFunc(env, "/", scm_division)
+	env = AddRawGoFunc(env, "cons", scm_cons)
+	env = AddRawGoFunc(env, "car", scm_car)
+	env = AddRawGoFunc(env, "cdr", scm_cdr)
+	env = AddRawGoFunc(env, "+", scm_add)
+	env = AddRawGoFunc(env, "-", scm_subtract)
+	env = AddRawGoFunc(env, "*", scm_multiplication)
+	env = AddRawGoFunc(env, "/", scm_division)
 
 	// Debug
+	fmt.Printf("Environment: ")
 	display(env)
 	fmt.Println("")
 
