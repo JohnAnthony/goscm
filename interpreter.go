@@ -42,11 +42,17 @@ type Cell struct {
 }
 
 func NewEnvironment() *Cell {
-	// Add all of our special forms
-	quotepair := cons(&Cell{stype: scm_symbol, value: "quote"}, &Cell{stype: scm_gofunc, value: scm_quote})
-	newenv := cons(quotepair, nil)
-
-	return newenv
+	var env *Cell = nil
+	env = AddRawGoFunc(env, "quote", scm_quote)
+	env = AddRawGoFunc(env, "define", scm_define)
+	env = AddRawGoFunc(env, "cons", scm_cons)
+	env = AddRawGoFunc(env, "car", scm_car)
+	env = AddRawGoFunc(env, "cdr", scm_cdr)
+	env = AddRawGoFunc(env, "+", scm_add)
+	env = AddRawGoFunc(env, "-", scm_subtract)
+	env = AddRawGoFunc(env, "*", scm_multiplication)
+	env = AddRawGoFunc(env, "/", scm_division)
+	return env
 }
 
 func eval(env *Cell, expr *Cell) *Cell {
@@ -71,17 +77,37 @@ func eval(env *Cell, expr *Cell) *Cell {
 		return nil
 	}
 
-	// We don't eval if quoting!
+	// We don't eval if quoting
 	if funcsym != "quote" {
-		// Eval all the tail args first
-		for e := tail; e != nil; e = cdr(e) {
+		var e *Cell
+
+		// Special case doe define - we don't eval the first symbol
+		if funcsym == "define" {
+			e = cdr(tail)
+		} else {
+			e = tail
+		}
+
+		for ; e != nil; e = cdr(e) {
 			e.value.(*ScmPair).car = eval(env, car(e))
 		}
 	}
 
 	// Go source functions
 	if f.stype == scm_gofunc {
-		return f.value.(func(*Cell) *Cell)(tail)
+		ret := f.value.(func(*Cell) *Cell)(tail)
+		
+		// Handle define
+		if funcsym == "define" {
+			// Shuffle our new define into the place of the old env head
+			tmpenv := *env
+			*env = *cons(ret, &tmpenv)
+			
+			return nil
+		}
+
+		// Function is not define, return notmally
+		return ret
 	}
 
 	// Error because we've got an unhandled type
@@ -274,6 +300,17 @@ func cdr(lst *Cell) *Cell {
 
 // Scm functions
 
+func scm_quote(tail *Cell) *Cell {
+	return car(tail)
+}
+
+func scm_define(tail *Cell) *Cell {
+	return &Cell {
+		stype: scm_pair,
+		value: &ScmPair { car: car(tail), cdr: car(cdr(tail)) },
+	}
+}
+
 func scm_cons(tail *Cell) *Cell {
 	a := car(tail)
 	b := car(cdr(tail))
@@ -340,27 +377,16 @@ func scm_division(tail *Cell) *Cell {
 	}
 }
 
-func scm_quote(tail *Cell) *Cell {
-	return car(tail)
-}
-
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	env := NewEnvironment()
-	env = AddRawGoFunc(env, "cons", scm_cons)
-	env = AddRawGoFunc(env, "car", scm_car)
-	env = AddRawGoFunc(env, "cdr", scm_cdr)
-	env = AddRawGoFunc(env, "+", scm_add)
-	env = AddRawGoFunc(env, "-", scm_subtract)
-	env = AddRawGoFunc(env, "*", scm_multiplication)
-	env = AddRawGoFunc(env, "/", scm_division)
-
-	// Debug
-	fmt.Printf("Environment: ")
-	display(env)
-	fmt.Println("")
 
 	for {
+		// Debug
+		fmt.Printf("Environment: ")
+		display(env)
+		fmt.Println("")
+
 		// Read
 		expr := getexpr(reader)
 		// Eval
