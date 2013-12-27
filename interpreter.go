@@ -70,6 +70,12 @@ func eval(env *Cell, expr *Cell) *Cell {
 	case scm_func:
 		return expr
 	case scm_pair:
+		// Handle scheme functions
+		if car(expr).stype == scm_func {
+			return nil
+		}
+
+		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
 		tail := cdr(expr)
 		f := symbolLookup(env, funcsym)
