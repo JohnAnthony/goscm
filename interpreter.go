@@ -15,6 +15,7 @@ const (
 	scm_symbol
 	scm_pair
 	scm_pairclose
+	scm_gofunc
 )
 
 type ScmPair struct {
@@ -33,7 +34,25 @@ type Instance struct {
 }
 
 func (inst *Instance) eval(expr *Cell) *Cell {
-	// TODO!
+	if expr.stype != scm_pair {
+		return expr
+	}
+
+	funcsym := expr.value.(*ScmPair).car
+	tail := expr.value.(*ScmPair).cdr
+	f := symbolLookup(inst.env, funcsym.value.(string))
+
+	if f == nil {
+		return nil
+	}
+
+	if f.stype == scm_gofunc {
+		return f.value.(func (*Cell) *Cell)(tail)
+	}
+
+	// ??? if scm_func type
+
+	// Error because we've got an unhandled type
 	return nil
 }
 
@@ -42,6 +61,38 @@ func NewInstance() *Instance {
 		env: nil,
 		running: true,
 	}
+}
+
+func (inst *Instance) AddRawGoFunc(symb string, f func(*Cell) *Cell) {
+	newcar := &Cell {
+		stype: scm_symbol,
+		value: symb,
+	}
+	newcdr := &Cell {
+		stype: scm_gofunc,
+		value: f,
+	}
+	newcell := cons(newcar, newcdr)
+	inst.env = cons(newcell, inst.env)
+}
+
+func symbolLookup(env *Cell, symb string) *Cell {
+	if env == nil {
+		return nil
+	}
+
+	for e := env; e != nil; e = e.value.(*ScmPair).cdr {
+		cell := e.value.(*ScmPair)
+		symbpair := cell.car.value.(*ScmPair)
+		label := symbpair.car.value.(string)
+		f := symbpair.cdr
+		if label == symb {
+			return f
+		}
+	}
+
+	// Couldn't find symbol
+	return nil
 }
 
 func isSpace(b byte) bool {
@@ -142,7 +193,7 @@ func getexpr(in *bufio.Reader) *Cell {
 
 func display(expr *Cell) {
 	if expr == nil {
-		fmt.Println("nil")
+		fmt.Printf("nil")
 		return
 	}
 	
@@ -154,6 +205,8 @@ func display(expr *Cell) {
 	case scm_symbol:
 		fmt.Printf("%s", expr.value.(string))
 	case scm_pair:
+		// This doesn't actually display pairs properly
+		// TODO: Fix that
 		fmt.Printf("(")
 		for e := expr; e != nil; e = e.value.(*ScmPair).cdr {
 			display(e.value.(*ScmPair).car)
@@ -162,15 +215,43 @@ func display(expr *Cell) {
 			}
 		}
 		fmt.Printf(")")
+	case scm_gofunc:
+		fmt.Printf("<#gofunc>")
 	default:
 		fmt.Printf("<#error>")
 	}
 }
 
+// Go versions of scm functions
+
+func cons(a *Cell, b *Cell) *Cell {
+	return &Cell {
+		stype: scm_pair,
+		value: &ScmPair { car: a, cdr: b },
+	}
+}
+
+// Scm functions
+
+// scm_cons function
+// scm_car function
+// scm_cdr function
+// scm_quit function
+// scm_quote
+// scm_define
+// scm_lambda
+
+func scm_quote(tail *Cell) *Cell {
+	// TODO: Syntax checking. Quote takes exactly one argument
+	return tail.value.(*ScmPair).car
+}
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	inst := NewInstance()
-	for {
+	inst.AddRawGoFunc("quote", scm_quote)
+
+	for inst.running {
 		// Read
 		expr := getexpr(reader)
 		// Eval
