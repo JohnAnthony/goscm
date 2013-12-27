@@ -47,6 +47,7 @@ func NewEnvironment() *Cell {
 	env = AddRawGoFunc(env, "quote", scm_quote)
 	env = AddRawGoFunc(env, "define", scm_define)
 	env = AddRawGoFunc(env, "lambda", scm_lambda)
+	env = AddRawGoFunc(env, "display", scm_display)
 	env = AddRawGoFunc(env, "cons", scm_cons)
 	env = AddRawGoFunc(env, "car", scm_car)
 	env = AddRawGoFunc(env, "cdr", scm_cdr)
@@ -70,16 +71,12 @@ func eval(env *Cell, expr *Cell) *Cell {
 	case scm_func:
 		return expr
 	case scm_pair:
-		// Handle scheme functions
-		if car(expr).stype == scm_func {
-			return nil
-		}
-
 		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
 		tail := cdr(expr)
 		f := symbolLookup(env, funcsym)
 
+		// Symbol not found
 		if f == nil {
 			return nil
 		}
@@ -101,6 +98,19 @@ func eval(env *Cell, expr *Cell) *Cell {
 			}
 		}
 
+		// This is everythign we need for scheme functions
+		if f.stype == scm_func {
+			// Zip our symbols and values into a new environment
+			subenv := env
+			for symb, val := car(f), tail; symb != nil && val != nil; symb, val = cdr(symb), cdr(val) {
+				pair := cons(car(symb), car(val))
+				subenv = cons(pair, subenv)
+			}
+			return eval(subenv, cdr(f))
+		}
+
+		// If we reach this point we should be handling scm_gofunc types
+
 		ret := f.value.(func(*Cell) *Cell)(tail)
 
 		// Handle define
@@ -111,7 +121,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 
 			return nil
 		}
-		
+
 		// Function is not define, return normally
 		return ret
 	}
@@ -320,10 +330,16 @@ func scm_define(tail *Cell) *Cell {
 }
 
 func scm_lambda(tail *Cell) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_func,
-		value: &ScmPair { car: car(tail), cdr: car(cdr(tail)) },
+		value: &ScmPair{car: car(tail), cdr: car(cdr(tail))},
 	}
+}
+
+func scm_display(tail *Cell) *Cell {
+	display(tail)
+	fmt.Println("")
+	return nil
 }
 
 func scm_cons(tail *Cell) *Cell {
@@ -397,11 +413,6 @@ func main() {
 	env := NewEnvironment()
 
 	for {
-		// Debug
-		fmt.Printf("Environment: ")
-		display(env)
-		fmt.Println("")
-
 		// Read
 		expr := getexpr(reader)
 		// Eval
