@@ -1,9 +1,22 @@
 package main
 
+// TODO:
+// define
+// lambda
+// Comments
+// quote '
+// quasiquote `
+// unquote ,
+// scm_bool (including #f and #t syntax reading)
+// if
+// or
+// and
+// scm_float
+
 import (
-	"os"
 	"bufio"
 	"fmt"
+	"os"
 	"strconv"
 )
 
@@ -28,19 +41,22 @@ type Cell struct {
 	value interface{}
 }
 
-type Instance struct {
-	env *Cell
-	running bool
+func NewEnvironment() *Cell {
+	// Add all of our special forms
+	quotepair := cons(&Cell{stype: scm_string, value: "quote"}, &Cell{stype: scm_gofunc, value: scm_quote})
+	newenv := cons(quotepair, nil)
+
+	return newenv
 }
 
-func (inst *Instance) eval(expr *Cell) *Cell {
+func eval(env *Cell, expr *Cell) *Cell {
 	if expr.stype != scm_pair {
 		return expr
 	}
 
 	funcsym := car(expr).value.(string)
 	tail := cdr(expr)
-	f := symbolLookup(inst.env, funcsym)
+	f := symbolLookup(env, funcsym)
 
 	if f == nil {
 		return nil
@@ -50,13 +66,13 @@ func (inst *Instance) eval(expr *Cell) *Cell {
 	if funcsym != "quote" {
 		// Eval all the tail args first
 		for e := tail; e != nil; e = cdr(e) {
-			e.value.(*ScmPair).car = inst.eval(car(e))
+			e.value.(*ScmPair).car = eval(env, car(e))
 		}
 	}
-		
+
 	// Go source functions
 	if f.stype == scm_gofunc {
-		return f.value.(func (*Cell) *Cell)(tail)
+		return f.value.(func(*Cell) *Cell)(tail)
 	}
 
 	// ??? if scm_func type
@@ -65,24 +81,21 @@ func (inst *Instance) eval(expr *Cell) *Cell {
 	return nil
 }
 
-func NewInstance() *Instance {
-	return &Instance {
-		env: nil,
-		running: true,
-	}
+func envupdate(env *Cell, add *Cell) {
+	*env = *cons(add, env)
 }
 
-func (inst *Instance) AddRawGoFunc(symb string, f func(*Cell) *Cell) {
-	newcar := &Cell {
+func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) {
+	newcar := &Cell{
 		stype: scm_symbol,
 		value: symb,
 	}
-	newcdr := &Cell {
+	newcdr := &Cell{
 		stype: scm_gofunc,
 		value: f,
 	}
 	newcell := cons(newcar, newcdr)
-	inst.env = cons(newcell, inst.env)
+	envupdate(env, newcell)
 }
 
 func symbolLookup(env *Cell, symb string) *Cell {
@@ -115,7 +128,7 @@ func isSpace(b byte) bool {
 func getexpr(in *bufio.Reader) *Cell {
 	var c byte
 	symbol := make([]byte, 0)
-	
+
 	// Skip over whitespace
 	for {
 		c, _ = in.ReadByte()
@@ -132,9 +145,9 @@ func getexpr(in *bufio.Reader) *Cell {
 			return nil
 		}
 
-		head = &Cell {
+		head = &Cell{
 			stype: scm_pair,
-			value: &ScmPair { car: nexp },
+			value: &ScmPair{car: nexp},
 		}
 		tip := head
 		for {
@@ -143,9 +156,9 @@ func getexpr(in *bufio.Reader) *Cell {
 				tip.value.(*ScmPair).cdr = nil
 				break
 			}
-			tip.value.(*ScmPair).cdr = &Cell {
+			tip.value.(*ScmPair).cdr = &Cell{
 				stype: scm_pair,
-				value: &ScmPair { car: nexp },
+				value: &ScmPair{car: nexp},
 			}
 			tip = cdr(tip)
 		}
@@ -154,9 +167,8 @@ func getexpr(in *bufio.Reader) *Cell {
 
 	// Scm Pair Close
 	if c == ')' {
-		return &Cell {
+		return &Cell{
 			stype: scm_pairclose,
-			value: ")",
 		}
 	}
 
@@ -165,7 +177,7 @@ func getexpr(in *bufio.Reader) *Cell {
 		for c, _ = in.ReadByte(); c != '"'; c, _ = in.ReadByte() {
 			symbol = append(symbol, c)
 		}
-		return &Cell {
+		return &Cell{
 			stype: scm_string,
 			value: string(symbol),
 		}
@@ -186,15 +198,15 @@ func getexpr(in *bufio.Reader) *Cell {
 		if err != nil {
 			fmt.Println(err)
 		}
-		
-		return &Cell {
+
+		return &Cell{
 			stype: scm_int,
 			value: &n,
 		}
 	}
-	
+
 	// Symbol
-	return &Cell {
+	return &Cell{
 		stype: scm_symbol,
 		value: string(symbol),
 	}
@@ -205,7 +217,7 @@ func display(expr *Cell) {
 		fmt.Printf("nil")
 		return
 	}
-	
+
 	switch expr.stype {
 	case scm_int:
 		fmt.Printf("%d", *expr.value.(*int))
@@ -214,8 +226,17 @@ func display(expr *Cell) {
 	case scm_symbol:
 		fmt.Printf("%s", expr.value.(string))
 	case scm_pair:
-		// This doesn't actually display pairs properly
-		// TODO: Fix that
+		// This is an ACTUAL pair
+		if cdr(expr) != nil && cdr(expr).stype != scm_pair {
+			fmt.Printf("(")
+			display(car(expr))
+			fmt.Printf(" . ")
+			display(cdr(expr))
+			fmt.Printf(")")
+			return
+		}
+		
+		// This is a list
 		fmt.Printf("(")
 		for e := expr; e != nil; e = cdr(e) {
 			display(car(e))
@@ -234,9 +255,9 @@ func display(expr *Cell) {
 // Go versions of scm functions
 
 func cons(a *Cell, b *Cell) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_pair,
-		value: &ScmPair { car: a, cdr: b },
+		value: &ScmPair{car: a, cdr: b},
 	}
 }
 
@@ -249,10 +270,6 @@ func cdr(lst *Cell) *Cell {
 }
 
 // Scm functions
-
-// scm_quit function
-// scm_define
-// scm_lambda
 
 func scm_cons(tail *Cell) *Cell {
 	a := car(tail)
@@ -275,7 +292,7 @@ func scm_add(tail *Cell) *Cell {
 		ret += *car(e).value.(*int)
 	}
 
-	return &Cell {
+	return &Cell{
 		stype: scm_int,
 		value: &ret,
 	}
@@ -288,7 +305,7 @@ func scm_subtract(tail *Cell) *Cell {
 		ret -= *car(e).value.(*int)
 	}
 
-	return &Cell {
+	return &Cell{
 		stype: scm_int,
 		value: &ret,
 	}
@@ -301,7 +318,7 @@ func scm_multiplication(tail *Cell) *Cell {
 		ret *= *car(e).value.(*int)
 	}
 
-	return &Cell {
+	return &Cell{
 		stype: scm_int,
 		value: &ret,
 	}
@@ -314,34 +331,36 @@ func scm_division(tail *Cell) *Cell {
 		ret /= *car(e).value.(*int)
 	}
 
-	return &Cell {
+	return &Cell{
 		stype: scm_int,
 		value: &ret,
 	}
 }
 
 func scm_quote(tail *Cell) *Cell {
-	// TODO: Syntax checking. Quote takes exactly one argument
 	return car(tail)
 }
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	inst := NewInstance()
-	inst.AddRawGoFunc("quote", scm_quote)
-	inst.AddRawGoFunc("cons", scm_cons)
-	inst.AddRawGoFunc("car", scm_car)
-	inst.AddRawGoFunc("cdr", scm_cdr)
-	inst.AddRawGoFunc("+", scm_add)
-	inst.AddRawGoFunc("-", scm_subtract)
-	inst.AddRawGoFunc("*", scm_multiplication)
-	inst.AddRawGoFunc("/", scm_division)
+	env := NewEnvironment()
+//	AddRawGoFunc(env, "cons", scm_cons)
+//	AddRawGoFunc(env, "car", scm_car)
+//	AddRawGoFunc(env, "cdr", scm_cdr)
+//	AddRawGoFunc(env, "+", scm_add)
+//	AddRawGoFunc(env, "-", scm_subtract)
+//	AddRawGoFunc(env, "*", scm_multiplication)
+//	AddRawGoFunc(env, "/", scm_division)
 
-	for inst.running {
+	// Debug
+	display(env)
+	fmt.Println("")
+
+	for {
 		// Read
 		expr := getexpr(reader)
 		// Eval
-		ret := inst.eval(expr)
+		ret := eval(env, expr)
 		// Print
 		display(ret)
 		fmt.Println("")
