@@ -15,7 +15,6 @@ package main
 // or and
 // apply
 // begin
-// Identify special forms by function pointers, not their symbols !important!
 
 import (
 	"bufio"
@@ -54,16 +53,24 @@ func SCMBool(b bool) *Cell {
 	}
 }
 
+// Instances of fucntions (to avoid closures and for later reference)
+var QUOTE_ID = scm_quote
+var DEFINE_ID = scm_define
+var LAMBDA_ID = scm_lambda
+var IF_ID = scm_if
+
 func NewEnvironment() *Cell {
 	var env *Cell = EmptyList()
-	env = AddRawGoFunc(env, "quote", scm_quote)
-	env = AddRawGoFunc(env, "define", scm_define)
-	env = AddRawGoFunc(env, "lambda", scm_lambda)
+	// Special forms
+	env = AddGoFunc(env, "quote", &QUOTE_ID)
+	env = AddGoFunc(env, "define", &DEFINE_ID)
+	env = AddGoFunc(env, "lambda", &LAMBDA_ID)
+	env = AddGoFunc(env, "if", &IF_ID)
+	// Go functions
 	env = AddRawGoFunc(env, "cons", scm_cons)
 	env = AddRawGoFunc(env, "car", scm_car)
 	env = AddRawGoFunc(env, "cdr", scm_cdr)
 	env = AddRawGoFunc(env, "display", scm_display)
-	env = AddRawGoFunc(env, "if", scm_if)
 	env = AddRawGoFunc(env, "+", scm_add)
 	env = AddRawGoFunc(env, "-", scm_subtract)
 	env = AddRawGoFunc(env, "*", scm_multiplication)
@@ -135,7 +142,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 		}
 
 		// If special case
-		if funcsym == "if" {
+			if f.value.(*func(*Cell)*Cell) == &IF_ID {
 			pred := eval(env, car(tail)).value.(*bool)
 			fst := car(cdr(tail))
 			snd := car(cdr(cdr(tail)))
@@ -148,11 +155,11 @@ func eval(env *Cell, expr *Cell) *Cell {
 		}
 
 		// We don't eval if quoting
-		if funcsym != "quote" && funcsym != "lambda" {
+		if f.value.(*func(*Cell)*Cell) != &QUOTE_ID && f.value.(*func(*Cell)*Cell) != &LAMBDA_ID {
 			var e *Cell
 
 			// Special case for define - we don't eval the first symbol
-			if funcsym == "define" {
+		if f.value.(*func(*Cell)*Cell) == &DEFINE_ID {
 				e = cdr(tail)
 			} else {
 				e = tail
@@ -186,7 +193,8 @@ func eval(env *Cell, expr *Cell) *Cell {
 
 		// If we reach this point we should be handling scm_gofunc types
 
-		ret := f.value.(func(*Cell) *Cell)(tail)
+		f2 := *f.value.(*func(*Cell) *Cell)
+		ret := f2(tail)
 
 		// Handle define
 		if funcsym == "define" {
@@ -205,7 +213,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 	return nil
 }
 
-func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
+func AddGoFunc(env *Cell, symb string, f *func(*Cell) *Cell) *Cell {
 	newcar := &Cell{
 		stype: scm_symbol,
 		value: symb,
@@ -216,6 +224,11 @@ func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
 	}
 	newcell := cons(newcar, newcdr)
 	return cons(newcell, env)
+}
+
+func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
+	finst := f
+	return AddGoFunc(env, symb, &finst)
 }
 
 func symbolLookup(env *Cell, symb string) *Cell {
