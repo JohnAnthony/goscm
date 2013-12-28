@@ -6,14 +6,13 @@ package main
 // quote '
 // quasiquote `
 // unquote ,
-// scm_bool (including #f and #t syntax reading)
 // scm_float
 // Escaped characters
 // Scm Functions:
 // eq? equal? = 
 // atom? list?
 // zero? false? true? not
-// if or and
+// or and
 // apply
 // begin
 
@@ -34,6 +33,7 @@ const (
 	scm_func
 	scm_gofunc
 	scm_emptylist
+	scm_bool
 )
 
 type ScmPair struct {
@@ -46,6 +46,13 @@ type Cell struct {
 	value interface{}
 }
 
+func SCMBool(b bool) *Cell {
+	return &Cell {
+		stype: scm_bool,
+		value: &b,
+	}
+}
+
 func NewEnvironment() *Cell {
 	var env *Cell = EmptyList()
 	env = AddRawGoFunc(env, "quote", scm_quote)
@@ -55,6 +62,7 @@ func NewEnvironment() *Cell {
 	env = AddRawGoFunc(env, "car", scm_car)
 	env = AddRawGoFunc(env, "cdr", scm_cdr)
 	env = AddRawGoFunc(env, "display", scm_display)
+	env = AddRawGoFunc(env, "if", nil)
 	env = AddRawGoFunc(env, "+", scm_add)
 	env = AddRawGoFunc(env, "-", scm_subtract)
 	env = AddRawGoFunc(env, "*", scm_multiplication)
@@ -76,6 +84,8 @@ func duplicate(cell *Cell) *Cell {
 	case scm_int:
 		fallthrough
 	case scm_symbol:
+		fallthrough
+	case scm_bool:
 		fallthrough
 	case scm_gofunc:
 		val := cell.value
@@ -110,6 +120,8 @@ func eval(env *Cell, expr *Cell) *Cell {
 		return expr
 	case scm_emptylist:
 		return expr
+	case scm_bool:
+		return expr
 	case scm_pair:
 		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
@@ -119,6 +131,19 @@ func eval(env *Cell, expr *Cell) *Cell {
 		// Symbol not found
 		if f == nil {
 			return nil
+		}
+
+		// If special case
+		if funcsym == "if" {
+			pred := eval(env, car(tail)).value.(*bool)
+			fst := car(cdr(tail))
+			snd := car(cdr(cdr(tail)))
+
+			if *pred == true {
+				return eval(env, fst)
+			} else {
+				return eval(env, snd)
+			}
 		}
 
 		// We don't eval if quoting
@@ -304,6 +329,14 @@ func getexpr(in *bufio.Reader) *Cell {
 		in.UnreadByte()
 	}
 
+	//Booleans
+	if string(symbol) == "#t" {
+		return SCMBool(true)
+	}
+	if string(symbol) == "#f" {
+		return SCMBool(false)
+	}
+
 	// Integers
 	if symbol[0] >= '0' && symbol[0] <= '9' {
 		n, err := strconv.Atoi(string(symbol))
@@ -339,6 +372,13 @@ func display(expr *Cell) {
 		fmt.Printf("#<symbol %s>", expr.value.(string))
 	case scm_emptylist:
 		fmt.Printf("'()")
+	case scm_bool:
+		tf := *expr.value.(*bool)
+		if tf == true {
+			fmt.Printf("#t")
+		} else {
+			fmt.Printf("#f")
+		}
 	case scm_pair:
 		// This is an ACTUAL pair
 		if cdr(expr).stype != scm_emptylist && cdr(expr).stype != scm_pair {
