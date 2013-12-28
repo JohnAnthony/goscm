@@ -2,12 +2,6 @@ package main
 
 // TODO:
 // Handle EOF properly
-// apply scm_function
-// eq? equal? = scm_functions
-// atom? list? scm_functions
-// if
-// or
-// and
 // Comments
 // quote '
 // quasiquote `
@@ -15,6 +9,13 @@ package main
 // scm_bool (including #f and #t syntax reading)
 // scm_float
 // Escaped characters
+// Scm Functions:
+// eq? equal? = 
+// atom? list?
+// zero? false? true? not
+// if or and
+// apply
+// begin
 
 import (
 	"bufio"
@@ -51,10 +52,10 @@ func NewEnvironment() *Cell {
 	env = AddRawGoFunc(env, "quote", scm_quote)
 	env = AddRawGoFunc(env, "define", scm_define)
 	env = AddRawGoFunc(env, "lambda", scm_lambda)
-	env = AddRawGoFunc(env, "display", scm_display)
 	env = AddRawGoFunc(env, "cons", scm_cons)
 	env = AddRawGoFunc(env, "car", scm_car)
 	env = AddRawGoFunc(env, "cdr", scm_cdr)
+	env = AddRawGoFunc(env, "display", scm_display)
 	env = AddRawGoFunc(env, "+", scm_add)
 	env = AddRawGoFunc(env, "-", scm_subtract)
 	env = AddRawGoFunc(env, "*", scm_multiplication)
@@ -142,13 +143,20 @@ func eval(env *Cell, expr *Cell) *Cell {
 		if f.stype == scm_func {
 			// Zip our symbols and values into a new environment
 			subenv := env
+
 			for symb, val := car(f), tail
 			symb.stype != scm_emptylist && val.stype != scm_emptylist
 			symb, val = cdr(symb), cdr(val) {
 				pair := cons(car(symb), car(val))
 				subenv = cons(pair, subenv)
 			}
-			return eval(subenv, cdr(f))
+
+			var ret *Cell
+			for sub := cdr(f); sub.stype != scm_emptylist; sub = cdr(sub) {
+				ret = eval(subenv, car(sub))
+			}
+
+			return ret
 		}
 
 		// If we reach this point we should be handling scm_gofunc types
@@ -383,14 +391,8 @@ func scm_define(tail *Cell) *Cell {
 func scm_lambda(tail *Cell) *Cell {
 	return &Cell{
 		stype: scm_func,
-		value: &ScmPair{car: car(tail), cdr: car(cdr(tail))},
+		value: &ScmPair{car: car(tail), cdr: cdr(tail)},
 	}
-}
-
-func scm_display(tail *Cell) *Cell {
-	display(tail)
-	fmt.Println("")
-	return nil
 }
 
 func scm_cons(tail *Cell) *Cell {
@@ -405,6 +407,12 @@ func scm_car(tail *Cell) *Cell {
 
 func scm_cdr(tail *Cell) *Cell {
 	return cdr(car(tail))
+}
+
+func scm_display(tail *Cell) *Cell {
+	display(car(tail))
+	fmt.Println("")
+	return nil
 }
 
 func scm_add(tail *Cell) *Cell {
@@ -462,7 +470,7 @@ func scm_division(tail *Cell) *Cell {
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	env := NewEnvironment()
-
+	
 	for {
 		// Read
 		expr := getexpr(reader)
