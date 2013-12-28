@@ -270,13 +270,11 @@ func getexpr(in *bufio.Reader) *Cell {
 		return nil
 	}
 
-	// After chomping a '\n' means we're sticking on EOF
-	if c == '\n' {
+	// Sytax keyed to the first character
+	switch c {
+	case '\n':        // After chomping a '\n' means we're sticking on EOF
 		return nil
-	}
-
-	// Scm Pair
-	if c == '(' {
+	case '(':         // A list
 		var head *Cell = nil
 		nexp := getexpr(in)
 		if nexp.stype == scm_emptylist {
@@ -302,15 +300,9 @@ func getexpr(in *bufio.Reader) *Cell {
 			tip = cdr(tip)
 		}
 		return head
-	}
-
-	// Scm Pair Close
-	if c == ')' {
+	case ')':      // End of a list
 		return EmptyList()
-	}
-
-	// Handle strings
-	if c == '"' {
+	case '"':      // A string
 		for c, _ = in.ReadByte(); c != '"'; c, _ = in.ReadByte() {
 			symbol = append(symbol, c)
 		}
@@ -320,6 +312,7 @@ func getexpr(in *bufio.Reader) *Cell {
 		}
 	}
 
+	// Alright, read the whole symbol
 	for !isSpace(c) && c != ')' {
 		symbol = append(symbol, c)
 		c, _ = in.ReadByte()
