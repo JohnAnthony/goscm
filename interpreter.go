@@ -15,6 +15,7 @@ package main
 // or and
 // apply
 // begin
+// Identify special forms by function pointers, not their symbols !important!
 
 import (
 	"bufio"
@@ -62,7 +63,7 @@ func NewEnvironment() *Cell {
 	env = AddRawGoFunc(env, "car", scm_car)
 	env = AddRawGoFunc(env, "cdr", scm_cdr)
 	env = AddRawGoFunc(env, "display", scm_display)
-	env = AddRawGoFunc(env, "if", nil)
+	env = AddRawGoFunc(env, "if", scm_if)
 	env = AddRawGoFunc(env, "+", scm_add)
 	env = AddRawGoFunc(env, "-", scm_subtract)
 	env = AddRawGoFunc(env, "*", scm_multiplication)
@@ -455,6 +456,11 @@ func scm_cdr(tail *Cell) *Cell {
 func scm_display(tail *Cell) *Cell {
 	display(car(tail))
 	fmt.Println("")
+	return nil
+}
+
+// Not used
+func scm_if(tail *Cell) *Cell {
 	return nil
 }
 
