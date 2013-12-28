@@ -1,7 +1,7 @@
 package main
 
 // TODO:
-// Handle EOF properly
+// Fix whitespace being leftover after a list expression
 // Comments
 // quote '
 // quasiquote `
@@ -31,7 +31,6 @@ const (
 	scm_int
 	scm_symbol
 	scm_pair
-	scm_pairclose
 	scm_func
 	scm_gofunc
 	scm_emptylist
@@ -212,6 +211,12 @@ func symbolLookup(env *Cell, symb string) *Cell {
 	return nil
 }
 
+func EmptyList() *Cell {
+	return &Cell {
+		stype: scm_emptylist,
+	}
+}
+
 func isSpace(b byte) bool {
 	switch b {
 	case ' ', '\t', '\n', '\v', '\f', '\r':
@@ -220,29 +225,36 @@ func isSpace(b byte) bool {
 	return false
 }
 
-func EmptyList() *Cell {
-	return &Cell {
-		stype: scm_emptylist,
-	}
-}
-
-func getexpr(in *bufio.Reader) *Cell {
+func chompspace(in *bufio.Reader) {
 	var c byte
-	symbol := make([]byte, 0)
-
-	// Skip over whitespace
 	for {
 		c, _ = in.ReadByte()
 		if !isSpace(c) {
 			break
 		}
 	}
+	in.UnreadByte()
+}
+
+func getexpr(in *bufio.Reader) *Cell {
+	chompspace(in)
+	symbol := make([]byte, 0)
+	c, err := in.ReadByte()
+	if err != nil {
+		in.UnreadByte()
+		return nil
+	}
+
+	// After chomping a '\n' means we're sticking on EOF
+	if c == '\n' {
+		return nil
+	}
 
 	// Scm Pair
 	if c == '(' {
 		var head *Cell = nil
 		nexp := getexpr(in)
-		if nexp.stype == scm_pairclose {
+		if nexp.stype == scm_emptylist {
 			return EmptyList()
 		}
 		
@@ -254,7 +266,7 @@ func getexpr(in *bufio.Reader) *Cell {
 
 		for {
 			nexp = getexpr(in)
-			if nexp == nil || nexp.stype == scm_pairclose {
+			if nexp.stype == scm_emptylist {
 				tip.value.(*ScmPair).cdr = EmptyList()
 				break
 			}
@@ -269,9 +281,7 @@ func getexpr(in *bufio.Reader) *Cell {
 
 	// Scm Pair Close
 	if c == ')' {
-		return &Cell{
-			stype: scm_pairclose,
-		}
+		return EmptyList()
 	}
 
 	// Handle strings
@@ -474,9 +484,13 @@ func main() {
 	for {
 		// Read
 		expr := getexpr(reader)
+		if expr == nil {
+			break
+		}
 		// Eval
 		ret := eval(env, expr)
 		// Print
+		fmt.Printf("|> ")
 		display(ret)
 		fmt.Println("")
 	}
