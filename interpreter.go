@@ -1,7 +1,6 @@
 package main
 
 // TODO:
-// Fix whitespace being leftover after a list expression
 // Comments
 // quote '
 // quasiquote `
@@ -15,7 +14,6 @@ package main
 // or and
 // apply
 // begin
-// Identify special forms by function pointers, not their symbols !important!
 
 import (
 	"bufio"
