@@ -15,6 +15,7 @@ package main
 // or and
 // apply
 // begin
+// Identify special forms by function pointers, not their symbols !important!
 
 import (
 	"bufio"
@@ -34,6 +35,7 @@ const (
 	scm_gofunc
 	scm_emptylist
 	scm_bool
+	scm_specialform
 )
 
 type ScmPair struct {
@@ -53,19 +55,13 @@ func SCMBool(b bool) *Cell {
 	}
 }
 
-// Instances of fucntions (to avoid closures and for later reference)
-var QUOTE_ID = scm_quote
-var DEFINE_ID = scm_define
-var LAMBDA_ID = scm_lambda
-var IF_ID = scm_if
-
 func NewEnvironment() *Cell {
 	var env *Cell = EmptyList()
 	// Special forms
-	env = AddGoFunc(env, "quote", &QUOTE_ID)
-	env = AddGoFunc(env, "define", &DEFINE_ID)
-	env = AddGoFunc(env, "lambda", &LAMBDA_ID)
-	env = AddGoFunc(env, "if", &IF_ID)
+	env = addSpecialForm(env, "quote", scm_quote)
+	env = addSpecialForm(env, "define", scm_define)
+	env = addSpecialForm(env, "lambda", scm_lambda)
+	env = addSpecialForm(env, "if", nil)
 	// Go functions
 	env = AddRawGoFunc(env, "cons", scm_cons)
 	env = AddRawGoFunc(env, "car", scm_car)
@@ -94,6 +90,8 @@ func duplicate(cell *Cell) *Cell {
 	case scm_symbol:
 		fallthrough
 	case scm_bool:
+		fallthrough
+	case scm_specialform:
 		fallthrough
 	case scm_gofunc:
 		val := cell.value
@@ -130,6 +128,8 @@ func eval(env *Cell, expr *Cell) *Cell {
 		return expr
 	case scm_bool:
 		return expr
+	case scm_specialform:
+		return expr
 	case scm_pair:
 		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
@@ -142,7 +142,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 		}
 
 		// If special case
-			if f.value.(*func(*Cell)*Cell) == &IF_ID {
+		if funcsym == "if" {
 			pred := eval(env, car(tail)).value.(*bool)
 			fst := car(cdr(tail))
 			snd := car(cdr(cdr(tail)))
@@ -155,11 +155,11 @@ func eval(env *Cell, expr *Cell) *Cell {
 		}
 
 		// We don't eval if quoting
-		if f.value.(*func(*Cell)*Cell) != &QUOTE_ID && f.value.(*func(*Cell)*Cell) != &LAMBDA_ID {
+		if f.stype != scm_specialform || funcsym == "define" {
 			var e *Cell
 
 			// Special case for define - we don't eval the first symbol
-		if f.value.(*func(*Cell)*Cell) == &DEFINE_ID {
+			if funcsym == "define" {
 				e = cdr(tail)
 			} else {
 				e = tail
@@ -191,10 +191,9 @@ func eval(env *Cell, expr *Cell) *Cell {
 			return ret
 		}
 
-		// If we reach this point we should be handling scm_gofunc types
+		// If we reach this point we should be handling scm_gofunc and scm_specialform types
 
-		f2 := *f.value.(*func(*Cell) *Cell)
-		ret := f2(tail)
+		ret := f.value.(func(*Cell) *Cell)(tail)
 
 		// Handle define
 		if funcsym == "define" {
@@ -213,7 +212,20 @@ func eval(env *Cell, expr *Cell) *Cell {
 	return nil
 }
 
-func AddGoFunc(env *Cell, symb string, f *func(*Cell) *Cell) *Cell {
+func addSpecialForm(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
+	newcar := &Cell{
+		stype: scm_symbol,
+		value: symb,
+	}
+	newcdr := &Cell{
+		stype: scm_specialform,
+		value: f,
+	}
+	newcell := cons(newcar, newcdr)
+	return cons(newcell, env)
+}
+
+func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
 	newcar := &Cell{
 		stype: scm_symbol,
 		value: symb,
@@ -224,11 +236,6 @@ func AddGoFunc(env *Cell, symb string, f *func(*Cell) *Cell) *Cell {
 	}
 	newcell := cons(newcar, newcdr)
 	return cons(newcell, env)
-}
-
-func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
-	finst := f
-	return AddGoFunc(env, symb, &finst)
 }
 
 func symbolLookup(env *Cell, symb string) *Cell {
@@ -410,6 +417,8 @@ func display(expr *Cell) {
 		fmt.Printf("#<func>")
 	case scm_gofunc:
 		fmt.Printf("#<gofunc>")
+	case scm_specialform:
+		fmt.Printf("#<specialform>")
 	default:
 		fmt.Printf("#<error>")
 	}
