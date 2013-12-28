@@ -142,7 +142,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 		}
 
 		// If special case
-		if funcsym == "if" {
+			if f.stype == scm_specialform && funcsym == "if" {
 			pred := eval(env, car(tail)).value.(*bool)
 			fst := car(cdr(tail))
 			snd := car(cdr(cdr(tail)))
@@ -159,7 +159,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 			var e *Cell
 
 			// Special case for define - we don't eval the first symbol
-			if funcsym == "define" {
+			if f.stype == scm_specialform && funcsym == "define" {
 				e = cdr(tail)
 			} else {
 				e = tail
