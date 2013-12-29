@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type ScmType int
@@ -195,7 +196,7 @@ func eval(env *Cell, expr *Cell) (newenv *Cell, result *Cell) {
 		tail := duplicate(cdr(expr))
 
 		// If special case
-		if f.stype == scm_specialform && funcsym == "if" {
+		if f.stype == scm_specialform && funcsym == "IF" {
 			env, ev := eval(env, car(tail))
 			pred := ev.value.(*bool)
 			fst := car(cdr(tail))
@@ -211,7 +212,7 @@ func eval(env *Cell, expr *Cell) (newenv *Cell, result *Cell) {
 		}
 
 		// load-from-path special form
-		if f.stype == scm_specialform && funcsym == "load-from-path" {
+		if f.stype == scm_specialform && funcsym == "LOAD-FROM-PATH" {
 			path := car(tail).value.(string)
 			file, err := os.Open(path)
 			if err != nil {
@@ -223,11 +224,11 @@ func eval(env *Cell, expr *Cell) (newenv *Cell, result *Cell) {
 		}
 
 		// We don't eval if quoting
-		if f.stype != scm_specialform || funcsym == "define" {
+		if f.stype != scm_specialform || funcsym == "DEFINE" {
 			var e *Cell
 
 			// Special case for define - we don't eval the first symbol
-			if f.stype == scm_specialform && funcsym == "define" {
+			if f.stype == scm_specialform && funcsym == "DEFINE" {
 				e = cdr(tail)
 			} else {
 				e = tail
@@ -264,7 +265,7 @@ func eval(env *Cell, expr *Cell) (newenv *Cell, result *Cell) {
 		ret := f.value.(func(*Cell) *Cell)(tail)
 
 		// Handle define
-		if funcsym == "define" {
+		if funcsym == "DEFINE" {
 			// Shuffle our new define into the place of the old env head
 			tmpenv := *env
 			*env = *cons(ret, &tmpenv)
