@@ -121,6 +121,7 @@ func NewEnvironment() *Cell {
 	env = addSpecialForm(env, "define", scm_define)
 	env = addSpecialForm(env, "lambda", scm_lambda)
 	env = addSpecialForm(env, "if", nil)
+	env = addSpecialForm(env, "load-from-path", nil)
 	// Go functions
 	env = AddRawGoFunc(env, "cons", scm_cons)
 	env = AddRawGoFunc(env, "car", scm_car)
@@ -169,24 +170,24 @@ func duplicate(cell *Cell) *Cell {
 	return nil
 }
 
-func eval(env *Cell, expr *Cell) *Cell {
+func eval(env *Cell, expr *Cell) (newenv *Cell, result *Cell) {
 	switch expr.stype {
 	case scm_int:
 		fallthrough
 	case scm_string:
 		fallthrough
 	case scm_gofunc:
-		return expr
+		return env, expr
 	case scm_symbol:
-		return symbolLookup(env, expr.value.(string))
+		return env, symbolLookup(env, expr.value.(string))
 	case scm_func:
-		return expr
+		return env, expr
 	case scm_emptylist:
-		return expr
+		return env, expr
 	case scm_bool:
-		return expr
+		return env, expr
 	case scm_specialform:
-		return expr
+		return env, expr
 	case scm_pair:
 		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
@@ -195,20 +196,35 @@ func eval(env *Cell, expr *Cell) *Cell {
 
 		// Symbol not found
 		if f == nil {
-			return nil
+			return env, nil
 		}
 
 		// If special case
-			if f.stype == scm_specialform && funcsym == "if" {
-			pred := eval(env, car(tail)).value.(*bool)
+		if f.stype == scm_specialform && funcsym == "if" {
+			env, ev := eval(env, car(tail))
+			pred := ev.value.(*bool)
 			fst := car(cdr(tail))
 			snd := car(cdr(cdr(tail)))
-
+			var result *Cell
+			
 			if *pred == true {
-				return eval(env, fst)
+				_, result = eval(env, fst)
 			} else {
-				return eval(env, snd)
+				_, result = eval(env, snd)
 			}
+			return env, result
+		}
+
+		// load-from-path special form
+		if f.stype == scm_specialform && funcsym == "load-from-path" {
+			path := car(tail).value.(string)
+			file, err := os.Open(path)
+			if err != nil {
+				fmt.Println(err)
+				return env, SCMBool(false)
+			}
+			defer file.Close()
+			return ReadFile(env, file)
 		}
 
 		// We don't eval if quoting
@@ -224,7 +240,7 @@ func eval(env *Cell, expr *Cell) *Cell {
 
 			// Not a special case - eval everything and build a new "tail"
 			for ; e.stype != scm_emptylist; e = cdr(e) {
-				e.value.(*ScmPair).car = eval(env, car(e))
+				_, e.value.(*ScmPair).car = eval(env, car(e))
 			}
 		}
 
@@ -242,10 +258,10 @@ func eval(env *Cell, expr *Cell) *Cell {
 
 			var ret *Cell
 			for sub := cdr(f); sub.stype != scm_emptylist; sub = cdr(sub) {
-				ret = eval(subenv, car(sub))
+				_, ret = eval(subenv, car(sub))
 			}
 
-			return ret
+			return env, ret
 		}
 
 		// If we reach this point we should be handling scm_gofunc and scm_specialform types
@@ -258,15 +274,15 @@ func eval(env *Cell, expr *Cell) *Cell {
 			tmpenv := *env
 			*env = *cons(ret, &tmpenv)
 
-			return nil
+			return env, nil
 		}
 
 		// Function is not define, return normally
-		return ret
+		return env, ret
 	}
 
 	// Getting here is an error
-	return nil
+	return env, nil
 }
 
 func addSpecialForm(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
@@ -323,6 +339,9 @@ func getexpr(in *bufio.Reader) *Cell {
 	c, err := in.ReadByte()
 	if err != nil {
 		in.UnreadByte()
+		return nil
+	}
+	if c == 0 {
 		return nil
 	}
 
@@ -553,13 +572,11 @@ func scm_numeq(tail *Cell) *Cell {
 	return SCMBool(true)
 }
 
-func main() {
-	reader := bufio.NewReader(os.Stdin)
-	env := NewEnvironment()
+// External interface
 
-	display(env)
-	fmt.Println("")
-	
+func ReadFile(env *Cell, file *os.File) (newenv *Cell, result *Cell) {
+	reader := bufio.NewReader(file)
+	subenv := env
 	for {
 		// Read
 		expr := getexpr(reader)
@@ -567,10 +584,17 @@ func main() {
 			break
 		}
 		// Eval
-		ret := eval(env, expr)
+		subenv2, ret := eval(subenv, expr)
+		subenv = subenv2
 		// Print
 		fmt.Printf("|> ")
 		display(ret)
 		fmt.Println("")
 	}
+	return subenv, SCMBool(true)
+}
+
+func main() {
+	env := NewEnvironment()
+	ReadFile(env, os.Stdin)
 }
