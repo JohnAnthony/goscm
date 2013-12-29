@@ -1,7 +1,6 @@
 package main
 
 // TODO:
-// Comments
 // quote '
 // quasiquote `
 // unquote ,
@@ -345,8 +344,15 @@ func getexpr(in *bufio.Reader) *Cell {
 	switch c {
 	case '\n':        // After chomping a '\n' means we're sticking on EOF
 		return nil
-	case ')':      // End of a list
+	case ')':         // End of a list
 		return SCMEmptyList()
+	case ';':         // A comment
+		for ; c != '\n'; c, err = in.ReadByte() {
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		return getexpr(in)
 	case '(':         // A list
 		var head *Cell = nil
 		nexp := getexpr(in)
