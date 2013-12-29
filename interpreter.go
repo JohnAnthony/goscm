@@ -10,6 +10,8 @@ package main
 // Tail Call Optimisation
 // Numerical tower (number / complex / real / rational / integer
 // cons infix notation .
+// SPECIAL FORMS:
+// let and let*
 // SCM FUNCTIONS:
 // eq? eqv? equal?
 // atom? list?
@@ -109,7 +111,7 @@ func SCMString(str string) *Cell {
 func SCMSymbol(str string) *Cell {
 	return &Cell {
 		stype: scm_symbol,
-		value: str,
+		value: strings.ToUpper(str),
 	}
 }
 
@@ -136,10 +138,6 @@ func NewEnvironment() *Cell {
 
 // recursively duplicate scheme objects
 func duplicate(cell *Cell) *Cell {
-	if cell == nil {
-		return nil
-	}
-	
 	switch cell.stype {
 	case scm_string:
 		fallthrough
@@ -190,13 +188,11 @@ func eval(env *Cell, expr *Cell) (newenv *Cell, result *Cell) {
 	case scm_pair:
 		// otherwise, we're using golang functions
 		funcsym := car(expr).value.(string)
-		tail := duplicate(cdr(expr))
 		f := symbolLookup(env, funcsym)
-
-		// Symbol not found
-		if f == nil {
+		if f == nil {   // Symbol not found
 			return env, nil
 		}
+		tail := duplicate(cdr(expr))
 
 		// If special case
 		if f.stype == scm_specialform && funcsym == "if" {
@@ -340,7 +336,7 @@ func getexpr(in *bufio.Reader) *Cell {
 		in.UnreadByte()
 		return nil
 	}
-	if c == 0 {
+	if c == 0 { // EOF
 		return nil
 	}
 
@@ -348,6 +344,8 @@ func getexpr(in *bufio.Reader) *Cell {
 	switch c {
 	case '\n':        // After chomping a '\n' means we're sticking on EOF
 		return nil
+	case ')':      // End of a list
+		return SCMEmptyList()
 	case '(':         // A list
 		var head *Cell = nil
 		nexp := getexpr(in)
@@ -374,8 +372,6 @@ func getexpr(in *bufio.Reader) *Cell {
 			tip = cdr(tip)
 		}
 		return head
-	case ')':      // End of a list
-		return SCMEmptyList()
 	case '"':      // A string
 		for c, _ = in.ReadByte(); c != '"'; c, _ = in.ReadByte() {
 			symbol = append(symbol, c)
