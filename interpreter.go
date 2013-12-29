@@ -321,8 +321,12 @@ func chompspace(in *bufio.Reader) {
 	var c byte
 	for {
 		c, _ = in.ReadByte()
-		if !isSpace(c) {
+		if !isSpace(c) && c != ';' {
 			break
+		}
+		if c == ';' {
+			for ; c != '\n'; c, _ = in.ReadByte() {
+			}
 		}
 	}
 	in.UnreadByte()
@@ -336,23 +340,15 @@ func getexpr(in *bufio.Reader) *Cell {
 		in.UnreadByte()
 		return nil
 	}
-	if c == 0 { // EOF
-		return nil
-	}
 
 	// Sytax keyed to the first character
 	switch c {
+	case 0:           // EOF
+		return nil
 	case '\n':        // After chomping a '\n' means we're sticking on EOF
 		return nil
 	case ')':         // End of a list
 		return SCMEmptyList()
-	case ';':         // A comment
-		for ; c != '\n'; c, err = in.ReadByte() {
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-		return getexpr(in)
 	case '(':         // A list
 		var head *Cell = nil
 		nexp := getexpr(in)
