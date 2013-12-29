@@ -7,13 +7,15 @@ package main
 // unquote ,
 // scm_float
 // Escaped characters
-// Scm Functions:
-// eq? equal? = 
+// Tail Call Optimisation
+// SCM FUNCTIONS:
+// eq? equal?
 // atom? list?
 // zero? false? true? not
 // or and
 // apply
 // begin
+// load-from-path
 
 import (
 	"bufio"
@@ -69,6 +71,7 @@ func NewEnvironment() *Cell {
 	env = AddRawGoFunc(env, "-", scm_subtract)
 	env = AddRawGoFunc(env, "*", scm_multiplication)
 	env = AddRawGoFunc(env, "/", scm_division)
+	env = AddRawGoFunc(env, "=", scm_numeq)
 	return env
 }
 
@@ -440,7 +443,7 @@ func cdr(lst *Cell) *Cell {
 }
 
 // Scm functions
-
+// Special forms
 func scm_quote(tail *Cell) *Cell {
 	return car(tail)
 }
@@ -459,6 +462,7 @@ func scm_lambda(tail *Cell) *Cell {
 	}
 }
 
+// Non-special form functions
 func scm_cons(tail *Cell) *Cell {
 	a := car(tail)
 	b := car(cdr(tail))
@@ -476,11 +480,6 @@ func scm_cdr(tail *Cell) *Cell {
 func scm_display(tail *Cell) *Cell {
 	display(car(tail))
 	fmt.Println("")
-	return nil
-}
-
-// Not used
-func scm_if(tail *Cell) *Cell {
 	return nil
 }
 
@@ -534,6 +533,18 @@ func scm_division(tail *Cell) *Cell {
 		stype: scm_int,
 		value: &ret,
 	}
+}
+
+func scm_numeq(tail *Cell) *Cell {
+	fst := *car(tail).value.(*int)
+	
+	for e := cdr(tail); e.stype != scm_emptylist; e = cdr(e) {
+		if *car(e).value.(*int) != fst {
+			return SCMBool(false)
+		}
+	}
+
+	return SCMBool(true)
 }
 
 func main() {
