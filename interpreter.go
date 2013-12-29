@@ -417,7 +417,7 @@ func getexpr(in *bufio.Reader) *Cell {
 
 func display(expr *Cell) {
 	if expr == nil {
-		fmt.Printf("nil")
+//		fmt.Printf("nil")
 		return
 	}
 
@@ -587,7 +587,6 @@ func ReadFile(env *Cell, file *os.File) (newenv *Cell, result *Cell) {
 		subenv2, ret := eval(subenv, expr)
 		subenv = subenv2
 		// Print
-		fmt.Printf("|> ")
 		display(ret)
 		fmt.Println("")
 	}
