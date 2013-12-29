@@ -17,7 +17,6 @@ package main
 // or and
 // apply
 // begin
-// load-from-path
 // string=?
 
 import (
@@ -274,7 +273,7 @@ func eval(env *Cell, expr *Cell) (newenv *Cell, result *Cell) {
 			tmpenv := *env
 			*env = *cons(ret, &tmpenv)
 
-			return env, nil
+			return env, SCMBool(true)
 		}
 
 		// Function is not define, return normally
