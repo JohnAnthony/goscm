@@ -8,14 +8,17 @@ package main
 // scm_float
 // Escaped characters
 // Tail Call Optimisation
+// Numerical tower (number / complex / real / rational / integer
+// cons infix notation .
 // SCM FUNCTIONS:
-// eq? equal?
+// eq? eqv? equal?
 // atom? list?
 // zero? false? true? not
 // or and
 // apply
 // begin
 // load-from-path
+// string=?
 
 import (
 	"bufio"
@@ -25,18 +28,6 @@ import (
 )
 
 type ScmType int
-
-const (
-	scm_string ScmType = iota
-	scm_int
-	scm_symbol
-	scm_pair
-	scm_func
-	scm_gofunc
-	scm_emptylist
-	scm_bool
-	scm_specialform
-)
 
 type ScmPair struct {
 	car *Cell
@@ -48,6 +39,18 @@ type Cell struct {
 	value interface{}
 }
 
+const (
+	scm_bool ScmType = iota
+	scm_emptylist
+	scm_func
+	scm_gofunc
+	scm_int
+	scm_pair
+	scm_specialform
+	scm_string
+	scm_symbol
+)
+
 func SCMBool(b bool) *Cell {
 	return &Cell {
 		stype: scm_bool,
@@ -55,8 +58,64 @@ func SCMBool(b bool) *Cell {
 	}
 }
 
+func SCMEmptyList() *Cell {
+	return &Cell {
+		stype: scm_emptylist,
+	}
+}
+
+func SCMFunc(name string, f *Cell) *Cell {
+	return &Cell {
+		stype: scm_func,
+		value: SCMPair(SCMSymbol(name), f),
+	}
+}
+
+func SCMGoFunc(name string, f func (*Cell) *Cell) *Cell {
+	fcell := Cell {
+		stype: scm_gofunc,
+		value: f,
+	}
+	return SCMPair(SCMSymbol(name), &fcell)
+}
+
+func SCMInt(n int) *Cell {
+	return &Cell {
+		stype: scm_int,
+		value: &n,
+	}
+}
+
+func SCMPair(a *Cell, b *Cell) *Cell {
+	return &Cell{
+		stype: scm_pair,
+		value: &ScmPair{car: a, cdr: b},
+	}
+}
+
+func SCMSpecialForm(name string, f func (*Cell) *Cell) *Cell {
+	fcell := Cell {
+		stype: scm_specialform,
+		value: f,
+	}
+	return SCMPair(SCMSymbol(name), &fcell)
+}
+
+func SCMString(str string) *Cell {
+	return &Cell {
+		stype: scm_string,
+		value: str,
+	}
+}
+func SCMSymbol(str string) *Cell {
+	return &Cell {
+		stype: scm_symbol,
+		value: str,
+	}
+}
+
 func NewEnvironment() *Cell {
-	var env *Cell = EmptyList()
+	var env *Cell = SCMEmptyList()
 	// Special forms
 	env = addSpecialForm(env, "quote", scm_quote)
 	env = addSpecialForm(env, "define", scm_define)
@@ -103,10 +162,7 @@ func duplicate(cell *Cell) *Cell {
 	case scm_func:
 		fallthrough
 	case scm_pair:
-		return &Cell {
-			stype: cell.stype,
-			value: &ScmPair { car: duplicate(car(cell)), cdr: duplicate(cdr(cell)) },
-		}
+		return SCMPair(duplicate(car(cell)), duplicate(cdr(cell)))
 	}
 
 	// If we get here it's an error
@@ -214,28 +270,12 @@ func eval(env *Cell, expr *Cell) *Cell {
 }
 
 func addSpecialForm(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
-	newcar := &Cell{
-		stype: scm_symbol,
-		value: symb,
-	}
-	newcdr := &Cell{
-		stype: scm_specialform,
-		value: f,
-	}
-	newcell := cons(newcar, newcdr)
+	newcell := SCMSpecialForm(symb, f)
 	return cons(newcell, env)
 }
 
 func AddRawGoFunc(env *Cell, symb string, f func(*Cell) *Cell) *Cell {
-	newcar := &Cell{
-		stype: scm_symbol,
-		value: symb,
-	}
-	newcdr := &Cell{
-		stype: scm_gofunc,
-		value: f,
-	}
-	newcell := cons(newcar, newcdr)
+	newcell := SCMGoFunc(symb, f)
 	return cons(newcell, env)
 }
 
@@ -256,12 +296,6 @@ func symbolLookup(env *Cell, symb string) *Cell {
 
 	// Couldn't find symbol
 	return nil
-}
-
-func EmptyList() *Cell {
-	return &Cell {
-		stype: scm_emptylist,
-	}
 }
 
 func isSpace(b byte) bool {
@@ -300,7 +334,7 @@ func getexpr(in *bufio.Reader) *Cell {
 		var head *Cell = nil
 		nexp := getexpr(in)
 		if nexp.stype == scm_emptylist {
-			return EmptyList()
+			return SCMEmptyList()
 		}
 		
 		head = &Cell{
@@ -312,7 +346,7 @@ func getexpr(in *bufio.Reader) *Cell {
 		for {
 			nexp = getexpr(in)
 			if nexp.stype == scm_emptylist {
-				tip.value.(*ScmPair).cdr = EmptyList()
+				tip.value.(*ScmPair).cdr = SCMEmptyList()
 				break
 			}
 			tip.value.(*ScmPair).cdr = &Cell{
@@ -323,15 +357,12 @@ func getexpr(in *bufio.Reader) *Cell {
 		}
 		return head
 	case ')':      // End of a list
-		return EmptyList()
+		return SCMEmptyList()
 	case '"':      // A string
 		for c, _ = in.ReadByte(); c != '"'; c, _ = in.ReadByte() {
 			symbol = append(symbol, c)
 		}
-		return &Cell{
-			stype: scm_string,
-			value: string(symbol),
-		}
+		return SCMString(string(symbol))
 	}
 
 	// Alright, read the whole symbol
@@ -358,18 +389,11 @@ func getexpr(in *bufio.Reader) *Cell {
 		if err != nil {
 			fmt.Println(err)
 		}
-
-		return &Cell{
-			stype: scm_int,
-			value: &n,
-		}
+		return SCMInt(n)
 	}
 
 	// Symbol
-	return &Cell{
-		stype: scm_symbol,
-		value: string(symbol),
-	}
+	return SCMSymbol(string(symbol))
 }
 
 func display(expr *Cell) {
@@ -428,10 +452,7 @@ func display(expr *Cell) {
 // Go versions of scm functions
 
 func cons(a *Cell, b *Cell) *Cell {
-	return &Cell{
-		stype: scm_pair,
-		value: &ScmPair{car: a, cdr: b},
-	}
+	return SCMPair(a, b)
 }
 
 func car(lst *Cell) *Cell {
@@ -449,15 +470,12 @@ func scm_quote(tail *Cell) *Cell {
 }
 
 func scm_define(tail *Cell) *Cell {
-	return &Cell{
-		stype: scm_pair,
-		value: &ScmPair{car: car(tail), cdr: car(cdr(tail))},
-	}
+	return SCMPair(car(tail), car(cdr(tail)))
 }
 
 func scm_lambda(tail *Cell) *Cell {
-	return &Cell{
-		stype: scm_func,
+    return &Cell{
+	    stype: scm_func,
 		value: &ScmPair{car: car(tail), cdr: cdr(tail)},
 	}
 }
@@ -490,10 +508,7 @@ func scm_add(tail *Cell) *Cell {
 		ret += *car(e).value.(*int)
 	}
 
-	return &Cell{
-		stype: scm_int,
-		value: &ret,
-	}
+	return SCMInt(ret)
 }
 
 func scm_subtract(tail *Cell) *Cell {
@@ -503,10 +518,7 @@ func scm_subtract(tail *Cell) *Cell {
 		ret -= *car(e).value.(*int)
 	}
 
-	return &Cell{
-		stype: scm_int,
-		value: &ret,
-	}
+	return SCMInt(ret)
 }
 
 func scm_multiplication(tail *Cell) *Cell {
@@ -516,10 +528,7 @@ func scm_multiplication(tail *Cell) *Cell {
 		ret *= *car(e).value.(*int)
 	}
 
-	return &Cell{
-		stype: scm_int,
-		value: &ret,
-	}
+	return SCMInt(ret)
 }
 
 func scm_division(tail *Cell) *Cell {
@@ -529,10 +538,7 @@ func scm_division(tail *Cell) *Cell {
 		ret /= *car(e).value.(*int)
 	}
 
-	return &Cell{
-		stype: scm_int,
-		value: &ret,
-	}
+	return SCMInt(ret)
 }
 
 func scm_numeq(tail *Cell) *Cell {
@@ -550,6 +556,9 @@ func scm_numeq(tail *Cell) *Cell {
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	env := NewEnvironment()
+
+	display(env)
+	fmt.Println("")
 	
 	for {
 		// Read
