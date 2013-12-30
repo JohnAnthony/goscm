@@ -204,7 +204,7 @@ func display(c *Cell) string {
 	case scm_rational:
 		return "#<RATIONAL>"
 	case scm_integer:
-		return "#<INTEGER>"
+		return fmt.Sprintf("#<INTEGER %d>", *c.value.(*int))
 	case scm_boolean:
 		return "#<BOOLEAN>"
 	case scm_string:
