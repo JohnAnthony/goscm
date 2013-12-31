@@ -193,6 +193,11 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 		return nil
 	}
 
+	// If we are in the bottom-level interpreter
+	if inst.paren_depth == 0 {
+		return SCMPair(car, nil)
+	}
+
 	return SCMPair(car, inst.parse(r))
 }
 
