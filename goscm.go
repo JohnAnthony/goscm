@@ -269,34 +269,29 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		// Nothing
 	}
 
-	if expr.stype != scm_pair && expr.stype != scm_gofunc && expr.stype != scm_procedure {
-		return env, expr
-	}
-
-	//	if expr.stype != scm_pair {
-	//	}
-
-	//	if head.stype != scm_symbol && head.stype != scm_gofunc && head.stype != scm_procedure {
-	//		return env, expr
-	//	}
-
+	// We ONLY deal with evaluating lists from this point onwards
+	
 	head := car(expr)
+	symbol := head.value.(string)
+	tail := cdr(expr)
+
+	// Special form symbols
+	// TODO: Move as many of the below as possible into discrete functions
 	if head.stype == scm_symbol {
-		// TODO: Move as many of the below as possible into discrete functions
-		switch head.value.(string) {
+		switch symbol {
 		case "quote":
 			// TODO: cdr(cdr(expr)) not being nil is an error
-			return env, car(cdr(expr))
+			return env, car(tail)
 		case "define":
 			// TODO: cdr(cdr(cdr(expr))) not being nil is an error
-			symb := car(cdr(expr))
-			_, value := inst.eval(env, car(cdr(cdr(expr))))
+			symb := car(tail)
+			_, value := inst.eval(env, car(cdr(tail)))
 			pair := cons(symb, value)
 			return cons(pair, env), symb
 		case "*":
 			// TODO: Safe handling of numerical forms and non-integers
 			value := 1
-			for e := cdr(expr); e != nil; e = cdr(e) {
+			for e := tail; e != nil; e = cdr(e) {
 				_, e := inst.eval(env, (car(e)))
 				value *= *e.value.(*int)
 			}
@@ -304,7 +299,7 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "+":
 			// TODO: Safe handling of numerical forms and non-integers
 			value := 0
-			for e := cdr(expr); e != nil; e = cdr(e) {
+			for e := tail; e != nil; e = cdr(e) {
 				_, e := inst.eval(env, (car(e)))
 				value += *e.value.(*int)
 			}
@@ -312,8 +307,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "-":
 			// TODO: Safe handling of numerical forms and non-integers
 			// TODO: This function requires at least one argument
-			value := *car(cdr(expr)).value.(*int)
-			for e := cdr(cdr(expr)); e != nil; e = cdr(e) {
+			value := *car(tail).value.(*int)
+			for e := cdr(tail); e != nil; e = cdr(e) {
 				_, e := inst.eval(env, (car(e)))
 				value -= *e.value.(*int)
 			}
@@ -321,8 +316,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "/":
 			// TODO: Safe handling of numerical forms and non-integers
 			// TODO: This function requires at least one argument
-			value := *car(cdr(expr)).value.(*int)
-			for e := cdr(cdr(expr)); e != nil; e = cdr(e) {
+			value := *car(tail).value.(*int)
+			for e := cdr(tail); e != nil; e = cdr(e) {
 				_, e := inst.eval(env, (car(e)))
 				value /= *e.value.(*int)
 			}
