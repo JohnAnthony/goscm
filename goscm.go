@@ -4,10 +4,8 @@ package goscm
 
 // BUGS:
 
-// Paren matching. Currently unbalanced parens seem to be wonky (A paren
-// effectively just ends input like an EOF, so an early paren causes EOF) and
-// EOF effecitvly just closes all parens. I actually don't know what to do about
-// this
+// Paren matching after the last one is still off - you can add as many parens
+// as you want after the last one
 
 import (
 	"bufio"
@@ -259,38 +257,55 @@ func display(c *Cell) string {
 
 type Instance struct {
 	paren_depth int
-	env *Cell
+	env         *Cell
 }
 
 func NewInstance() *Instance {
-	return &Instance {
+	return &Instance{
 		paren_depth: 0,
-		env: nil,
+		env:         nil,
 	}
 }
 
-func (inst* Instance) REPL(fin *os.File, fout *os.File) {
+func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 	var expr *Cell
 	read := bufio.NewReader(fin)
 	write := bufio.NewWriter(fout)
 
-	// READ
 	for {
-		expr = inst.parse(read)
-		if expr == nil {
-			break
-		}
+		//////////////////////////
+		////////// READ //////////
+		//////////////////////////
 
+		expr = inst.parse(read)
+
+		// Paren matching
 		if inst.paren_depth != 0 {
-			fmt.Fprintln(write, "ERR: Unbalanced parentheses")
+			fmt.Fprintf(write, "ERR: Unbalanced parentheses ")
+			if inst.paren_depth > 0 {
+				fmt.Fprintln(write, "(too many)")
+			} else {
+				fmt.Fprintln(write, "(too few)")
+			}
 			write.Flush()
 			return
 		}
 
-		// EVAL
+		// Break out when parse returns nothing (EOF)
+		if expr == nil {
+			break
+		}
+
+		//////////////////////////
+		////////// EVAL //////////
+		//////////////////////////
+
 		//		expr = eval(expr)
-		
-		// PRINT
+
+		///////////////////////////
+		////////// PRINT //////////
+		///////////////////////////
+
 		for c := expr; c != nil; c = cdr(c) {
 			fmt.Fprintf(write, "|> %s\n", display(car(c)))
 		}
