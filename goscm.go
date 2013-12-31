@@ -295,7 +295,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "+":
 			value := 0
 			for e := cdr(expr); e != nil; e = cdr(e) {
-				value += *car(e).value.(*int)
+				_, e2 := inst.eval(env, (car(e)))
+				value += *e2.value.(*int)
 			}
 			return env, SCMInteger(value)
 		}
