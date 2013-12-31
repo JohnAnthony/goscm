@@ -289,8 +289,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "define":
 			// TODO: cdr(cdr(cdr(expr))) not being nil is an error
 			symb := car(cdr(expr))
-			_, value := inst.eval(env, cdr(cdr(expr)))
-			pair := cons(symb, car(value))
+			_, value := inst.eval(env, car(cdr(cdr(expr))))
+			pair := cons(symb, value)
 			return cons(pair, env), symb
 		case "+":
 			value := 0
