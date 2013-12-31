@@ -54,7 +54,7 @@ type Pair struct {
 func SCMSymbol(str string) *Cell {
 	return &Cell{
 		stype: scm_symbol,
-		value: str,
+		value: strings.ToLower(str),
 	}
 }
 
@@ -236,14 +236,14 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 	}
 
 	if car(expr).stype == scm_symbol {
-		fmt.Printf("SYMBOL: %s\n", car(expr).value.(string))
 		switch car(expr).value.(string) {
 		case "quote":
 			// TODO: cdr(cdr(expr)) not being nil is an error
 			return env, car(cdr(expr))
 		case "define":
+			// TODO: cdr(cdr(cdr(expr))) not being nil is an error
 			symb := car(cdr(expr))
-			nenv, value := inst.eval(env, cdr(cdr(expr)))
+			nenv, value := inst.eval(env, car(cdr(cdr(expr))))
 			pair := cons(symb, value)
 			return cons(pair, nenv), symb
 		}
