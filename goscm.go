@@ -292,6 +292,12 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			_, value := inst.eval(env, cdr(cdr(expr)))
 			pair := cons(symb, car(value))
 			return cons(pair, env), symb
+		case "+":
+			value := 0
+			for e := cdr(expr); e != nil; e = cdr(e) {
+				value += *car(e).value.(*int)
+			}
+			return env, SCMInteger(value)
 		}
 	}
 
