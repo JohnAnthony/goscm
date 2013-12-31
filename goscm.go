@@ -1,12 +1,21 @@
 package goscm
 
+// TODO:
+
+// BUGS:
+
+// Paren matching. Currently unbalanced parens seem to be wonky (A paren
+// effectively just ends input like an EOF, so an early paren causes EOF) and
+// EOF effecitvly just closes all parens. I actually don't know what to do about
+// this
+
 import (
 	"bufio"
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 type ScmType int
@@ -20,6 +29,7 @@ const (
 	scm_integer
 	scm_boolean
 	scm_string
+	scm_gofunc
 	scm_pair
 )
 
@@ -34,21 +44,21 @@ type Pair struct {
 }
 
 func SCMSymbol(str string) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_symbol,
 		value: str,
 	}
 }
 
 func SCMInteger(n int) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_integer,
 		value: &n,
 	}
 }
 
 func SCMBoolean(b bool) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_boolean,
 		value: &b,
 	}
@@ -139,6 +149,7 @@ func gettoken(r *bufio.Reader) (t ScmTok, value string) {
 	case ')':
 		return tok_closesub, ""
 	case '.':
+		// TODO: Need to check for a space afterwards
 		return tok_dot, ""
 	}
 
@@ -161,15 +172,17 @@ func gettoken(r *bufio.Reader) (t ScmTok, value string) {
 	return tok_identifier, string(buffer)
 }
 
-func parse(r *bufio.Reader) *Cell {
+func (inst *Instance) parse(r *bufio.Reader) *Cell {
 	var car *Cell
 	tokt, tokv := gettoken(r)
 	switch tokt {
 	case tok_identifier:
 		car = identifier_to_cell(tokv)
 	case tok_opensub:
-		car = parse(r)
+		inst.paren_depth++
+		car = inst.parse(r)
 	case tok_closesub:
+		inst.paren_depth--
 		return nil
 	case tok_dot:
 		tokt, tokv = gettoken(r)
@@ -180,7 +193,7 @@ func parse(r *bufio.Reader) *Cell {
 		return nil
 	}
 
-	return SCMPair(car, parse(r))
+	return SCMPair(car, inst.parse(r))
 }
 
 // EVAL
@@ -191,7 +204,7 @@ func display(c *Cell) string {
 	if c == nil {
 		return "nil"
 	}
-	
+
 	switch c.stype {
 	case scm_symbol:
 		return "#<SYMBOL " + c.value.(string) + ">"
@@ -204,14 +217,19 @@ func display(c *Cell) string {
 	case scm_rational:
 		return "#<RATIONAL>"
 	case scm_integer:
-		return fmt.Sprintf("#<INTEGER %d>", *c.value.(*int))
+		return fmt.Sprintf("%d", *c.value.(*int))
 	case scm_boolean:
-		return "#<BOOLEAN>"
+		if *c.value.(*bool) == true {
+			return "#t"
+		}
+		return "#f"
 	case scm_string:
 		return "#<STRING>"
+	case scm_gofunc:
+		return "#<GOFUNC>"
 	case scm_pair:
 		str := "("
-		for ; c != nil ; c = cdr(c) {
+		for ; c != nil; c = cdr(c) {
 			str += display(car(c))
 			if cdr(c) == nil {
 				break
@@ -228,33 +246,48 @@ func display(c *Cell) string {
 		return str
 	}
 
+	// We should never be getting here
 	return "#<ERROR>"
 }
 
 // EXPORTED
 
-func NewEnvironment() *Cell {
-	return nil
+type Instance struct {
+	paren_depth int
+	env *Cell
 }
 
-func REPL(env *Cell, fin *os.File, fout *os.File) {
+func NewInstance() *Instance {
+	return &Instance {
+		paren_depth: 0,
+		env: nil,
+	}
+}
+
+func (inst* Instance) REPL(fin *os.File, fout *os.File) {
 	var expr *Cell
 	read := bufio.NewReader(fin)
 	write := bufio.NewWriter(fout)
 
+	// READ
 	for {
-		// READ
-		expr = parse(read)
+		expr = inst.parse(read)
 		if expr == nil {
 			break
 		}
 
+		if inst.paren_depth != 0 {
+			fmt.Fprintln(write, "ERR: Unbalanced parentheses")
+			write.Flush()
+			return
+		}
+
 		// EVAL
 		//		expr = eval(expr)
-
+		
 		// PRINT
-		for c := expr; c != nil ; c = cdr(c) {
-			fmt.Fprintln(write, display(car(c)))
+		for c := expr; c != nil; c = cdr(c) {
+			fmt.Fprintf(write, "|> %s\n", display(car(c)))
 		}
 		write.Flush()
 	}
