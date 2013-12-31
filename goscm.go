@@ -220,7 +220,7 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 		return nil
 	}
 
-	// If we are in the bottom-level interpreter
+	// If we are in the bottom-level interpreter return now
 	if inst.paren_depth == 0 {
 		return SCMPair(car, nil)
 	}
@@ -282,6 +282,7 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 
 	head := car(expr)
 	if head.stype == scm_symbol {
+		// TODO: Move as many of the below as possible into discrete functions
 		switch head.value.(string) {
 		case "quote":
 			// TODO: cdr(cdr(expr)) not being nil is an error
@@ -293,6 +294,7 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			pair := cons(symb, value)
 			return cons(pair, env), symb
 		case "*":
+			// TODO: Safe handling of numerical forms and non-integers
 			value := 1
 			for e := cdr(expr); e != nil; e = cdr(e) {
 				_, e := inst.eval(env, (car(e)))
@@ -300,10 +302,29 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			}
 			return env, SCMInteger(value)
 		case "+":
+			// TODO: Safe handling of numerical forms and non-integers
 			value := 0
 			for e := cdr(expr); e != nil; e = cdr(e) {
 				_, e := inst.eval(env, (car(e)))
 				value += *e.value.(*int)
+			}
+			return env, SCMInteger(value)
+		case "-":
+			// TODO: Safe handling of numerical forms and non-integers
+			// TODO: This function requires at least one argument
+			value := *car(cdr(expr)).value.(*int)
+			for e := cdr(cdr(expr)); e != nil; e = cdr(e) {
+				_, e := inst.eval(env, (car(e)))
+				value -= *e.value.(*int)
+			}
+			return env, SCMInteger(value)
+		case "/":
+			// TODO: Safe handling of numerical forms and non-integers
+			// TODO: This function requires at least one argument
+			value := *car(cdr(expr)).value.(*int)
+			for e := cdr(cdr(expr)); e != nil; e = cdr(e) {
+				_, e := inst.eval(env, (car(e)))
+				value /= *e.value.(*int)
 			}
 			return env, SCMInteger(value)
 		}
