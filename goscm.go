@@ -71,6 +71,13 @@ func SCMBoolean(b bool) *Cell {
 	}
 }
 
+func SCMString(str string) *Cell {
+	return &Cell {
+		stype: scm_string,
+		value: str,
+	}
+}
+
 func SCMPair(a *Cell, b *Cell) *Cell {
 	return &Cell{
 		stype: scm_pair,
@@ -98,14 +105,6 @@ func isSpace(b byte) bool {
 	return false
 }
 
-func isSpecial(b byte) bool {
-	switch b {
-	case '(', ')':
-		return true
-	}
-	return false
-}
-
 type ScmTok int
 
 const (
@@ -118,8 +117,16 @@ const (
 
 func identifier_to_cell(str string) *Cell {
 	if str[0] >= '0' && str[0] <= '9' {
+		// TODO: This is obviously woefully inadequate and needs to handle
+		// different number types
 		val, _ := strconv.Atoi(str)
 		return SCMInteger(val)
+	}
+
+	if str[0] == '"' {
+		// TODO: The last character should be " and we should only be trimming
+		// one " from each side. AND we need to handle escape characters
+		return SCMString(strings.Trim(str, "\""))
 	}
 
 	if strings.ToLower(str) == "#t" {
@@ -169,7 +176,7 @@ func gettoken(r *bufio.Reader) (t ScmTok, value string) {
 			break
 		}
 
-		if isSpecial(b) {
+		if b == '(' || b == ')' {
 			r.UnreadByte()
 			break
 		}
@@ -186,16 +193,16 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 	case tok_identifier:
 		car = identifier_to_cell(tokv)
 	case tok_opensub:
-		inst.DepthAdd()
+		inst.depthAdd()
 		car = inst.parse(r)
 	case tok_closesub:
-		inst.DepthRem()
+		inst.depthRem()
 		return nil
 	case tok_dot:
 		tokt, tokv = gettoken(r)
 		tokt, _ = gettoken(r)
 		// TODO: If tokt isn't tok_closesub we've got a problem
-		inst.DepthRem()
+		inst.depthRem()
 		return identifier_to_cell(tokv)
 	case tok_eof:
 		return nil
@@ -237,7 +244,7 @@ func display(c *Cell) string {
 		}
 		return "#f"
 	case scm_string:
-		return "#<STRING>"
+		return fmt.Sprintf("\"%s\"", c.value.(string))
 	case scm_gofunc:
 		return "#<GOFUNC>"
 	case scm_pair:
@@ -277,11 +284,11 @@ func NewInstance() *Instance {
 	}
 }
 
-func (inst *Instance) DepthAdd() {
+func (inst *Instance) depthAdd() {
 	inst.paren_depth++
 }
 
-func (inst *Instance) DepthRem() {
+func (inst *Instance) depthRem() {
 	write := bufio.NewWriter(os.Stderr)
 	inst.paren_depth--
 	if inst.paren_depth < 0 {
@@ -297,7 +304,6 @@ func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 
 	for {
 		////////// READ //////////
-
 		expr = inst.parse(read)
 
 		if inst.paren_depth > 0 {
