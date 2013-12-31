@@ -375,4 +375,6 @@ func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 			write.Flush()
 		}
 	}
+
+	fmt.Printf("Ending environment: %s\n", display(inst.env))
 }
