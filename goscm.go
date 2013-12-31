@@ -37,6 +37,7 @@ const (
 	scm_boolean
 	scm_string
 	scm_gofunc
+	scm_procedure
 	scm_pair
 )
 
@@ -93,6 +94,13 @@ func car(c *Cell) *Cell {
 
 func cdr(c *Cell) *Cell {
 	return c.value.(*Pair).cdr
+}
+
+func cons(a *Cell, b *Cell) *Cell {
+	return &Cell {
+		stype: scm_pair,
+		value: &Pair { car: a, cdr: b },
+	}
 }
 
 // READ
@@ -163,7 +171,11 @@ func gettoken(r *bufio.Reader) (t ScmTok, value string) {
 	case ')':
 		return tok_closesub, ""
 	case '.':
-		// TODO: Need to check for a space afterwards
+		b, _ = r.ReadByte()
+		if !isSpace(b) {
+			r.UnreadByte()
+			break
+		}
 		return tok_dot, ""
 	}
 
@@ -218,6 +230,32 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 
 // EVAL
 
+func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
+	if expr == nil {
+		return env, nil
+	}
+
+	if car(expr).stype == scm_symbol {
+		fmt.Printf("SYMBOL: %s\n", car(expr).value.(string))
+		switch car(expr).value.(string) {
+		case "quote":
+			// TODO: cdr(cdr(expr)) not being nil is an error
+			return env, car(cdr(expr))
+		case "define":
+			symb := car(cdr(expr))
+			nenv, value := inst.eval(env, cdr(cdr(expr)))
+			pair := cons(symb, value)
+			return cons(pair, nenv), symb
+		}
+	}
+
+	// Symbol lookup in environment
+
+	//Non-special forms ...
+
+	return env, expr
+}
+
 // PRINT
 
 func display(c *Cell) string {
@@ -227,7 +265,7 @@ func display(c *Cell) string {
 
 	switch c.stype {
 	case scm_symbol:
-		return "#<SYMBOL " + c.value.(string) + ">"
+		return c.value.(string)
 	case scm_number:
 		return "#<NUMBER>"
 	case scm_complex:
@@ -247,6 +285,8 @@ func display(c *Cell) string {
 		return fmt.Sprintf("\"%s\"", c.value.(string))
 	case scm_gofunc:
 		return "#<GOFUNC>"
+	case scm_procedure:
+		return "#<PROCEDURE>"
 	case scm_pair:
 		str := "("
 		for ; c != nil; c = cdr(c) {
@@ -297,6 +337,11 @@ func (inst *Instance) depthRem() {
 	}
 }
 
+func (inst *Instance) EnvironmentalEval(expr *Cell) *Cell {
+	inst.env, expr = inst.eval(inst.env, expr)
+	return expr
+}
+
 func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 	var expr *Cell
 	read := bufio.NewReader(fin)
@@ -320,13 +365,14 @@ func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 
 		////////// EVAL //////////
 
-		//		expr = eval(expr)
-
-		////////// PRINT //////////
-
 		for c := expr; c != nil; c = cdr(c) {
-			fmt.Fprintf(write, "|> %s\n", display(car(c)))
+			fmt.Fprintln(write, display(car(c)))
+			expr = inst.EnvironmentalEval(car(c))
+
+			////////// PRINT //////////
+
+			fmt.Fprintf(write, "|> %s\n", display(expr))
+			write.Flush()
 		}
-		write.Flush()
 	}
 }
