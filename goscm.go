@@ -292,11 +292,18 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			_, value := inst.eval(env, car(cdr(cdr(expr))))
 			pair := cons(symb, value)
 			return cons(pair, env), symb
+		case "*":
+			value := 1
+			for e := cdr(expr); e != nil; e = cdr(e) {
+				_, e := inst.eval(env, (car(e)))
+				value *= *e.value.(*int)
+			}
+			return env, SCMInteger(value)
 		case "+":
 			value := 0
 			for e := cdr(expr); e != nil; e = cdr(e) {
-				_, e2 := inst.eval(env, (car(e)))
-				value += *e2.value.(*int)
+				_, e := inst.eval(env, (car(e)))
+				value += *e.value.(*int)
 			}
 			return env, SCMInteger(value)
 		}
