@@ -119,8 +119,11 @@ const (
 	tok_identifier ScmTok = iota
 	tok_opensub
 	tok_closesub
-	tok_eof
 	tok_dot
+	tok_quote
+	tok_quasiquote
+	tok_unquote
+	tok_eof
 )
 
 func identifier_to_cell(str string) *Cell {
@@ -177,6 +180,8 @@ func gettoken(r *bufio.Reader) (t ScmTok, value string) {
 			break
 		}
 		return tok_dot, ""
+	case '\'':
+		return tok_quote, "'"
 	}
 
 	// Read our symbol into the buffer
@@ -199,14 +204,14 @@ func gettoken(r *bufio.Reader) (t ScmTok, value string) {
 }
 
 func (inst *Instance) parse(r *bufio.Reader) *Cell {
-	var car *Cell
+	var this *Cell
 	tokt, tokv := gettoken(r)
 	switch tokt {
 	case tok_identifier:
-		car = identifier_to_cell(tokv)
+		this = identifier_to_cell(tokv)
 	case tok_opensub:
 		inst.depthAdd()
-		car = inst.parse(r)
+		this = inst.parse(r)
 	case tok_closesub:
 		inst.depthRem()
 		return nil
@@ -216,16 +221,26 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 		// TODO: If tokt isn't tok_closesub we've got a problem
 		inst.depthRem()
 		return identifier_to_cell(tokv)
+	case tok_quote:
+		// This feels off
+		rest := inst.parse(r)
+		carlst:= SCMPair(SCMSymbol("quote"), SCMPair(car(rest), nil))
+		return SCMPair(carlst, cdr(rest))
+		// TODO
+	case tok_quasiquote:
+		// TODO
+	case tok_unquote:
+		// TODO
 	case tok_eof:
 		return nil
 	}
 
 	// If we are in the bottom-level interpreter return now
 	if inst.paren_depth == 0 {
-		return SCMPair(car, nil)
+		return SCMPair(this, nil)
 	}
 
-	return SCMPair(car, inst.parse(r))
+	return SCMPair(this, inst.parse(r))
 }
 
 // EVAL
