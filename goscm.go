@@ -1,11 +1,20 @@
 package goscm
 
-// TODO:
+///////////
+// TODO: //
+///////////
 
-// BUGS:
+// Errors to the Instance through signals
+// :: Consing with . mis-matched
+// :: Wrong number/type of args to function
+// :: Ill-formed symbols or numbers
+// :: Floating-point arithmetic
 
-// Paren matching after the last one is still off - you can add as many parens
-// as you want after the last one
+// Numerical tower
+
+///////////
+// BUGS: //
+///////////
 
 import (
 	"bufio"
@@ -177,15 +186,16 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 	case tok_identifier:
 		car = identifier_to_cell(tokv)
 	case tok_opensub:
-		inst.paren_depth++
+		inst.DepthAdd()
 		car = inst.parse(r)
 	case tok_closesub:
-		inst.paren_depth--
+		inst.DepthRem()
 		return nil
 	case tok_dot:
 		tokt, tokv = gettoken(r)
 		tokt, _ = gettoken(r)
 		// TODO: If tokt isn't tok_closesub we've got a problem
+		inst.DepthRem()
 		return identifier_to_cell(tokv)
 	case tok_eof:
 		return nil
@@ -267,26 +277,32 @@ func NewInstance() *Instance {
 	}
 }
 
+func (inst *Instance) DepthAdd() {
+	inst.paren_depth++
+}
+
+func (inst *Instance) DepthRem() {
+	write := bufio.NewWriter(os.Stderr)
+	inst.paren_depth--
+	if inst.paren_depth < 0 {
+		fmt.Fprintln(write, "ERR :: Unbalanced parentheses - too many")
+		write.Flush()
+	}
+}
+
 func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 	var expr *Cell
 	read := bufio.NewReader(fin)
 	write := bufio.NewWriter(fout)
 
 	for {
-		//////////////////////////
 		////////// READ //////////
-		//////////////////////////
 
 		expr = inst.parse(read)
 
-		// Paren matching
-		if inst.paren_depth != 0 {
-			fmt.Fprintf(write, "ERR: Unbalanced parentheses ")
-			if inst.paren_depth > 0 {
-				fmt.Fprintln(write, "(too many)")
-			} else {
-				fmt.Fprintln(write, "(too few)")
-			}
+		if inst.paren_depth > 0 {
+			write := bufio.NewWriter(os.Stderr)
+			fmt.Fprintln(write, "ERR :: EOF reached with unterminated parens")
 			write.Flush()
 			return
 		}
@@ -296,15 +312,11 @@ func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 			break
 		}
 
-		//////////////////////////
 		////////// EVAL //////////
-		//////////////////////////
 
 		//		expr = eval(expr)
 
-		///////////////////////////
 		////////// PRINT //////////
-		///////////////////////////
 
 		for c := expr; c != nil; c = cdr(c) {
 			fmt.Fprintf(write, "|> %s\n", display(car(c)))
