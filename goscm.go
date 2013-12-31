@@ -73,7 +73,7 @@ func SCMBoolean(b bool) *Cell {
 }
 
 func SCMString(str string) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_string,
 		value: str,
 	}
@@ -97,9 +97,9 @@ func cdr(c *Cell) *Cell {
 }
 
 func cons(a *Cell, b *Cell) *Cell {
-	return &Cell {
+	return &Cell{
 		stype: scm_pair,
-		value: &Pair { car: a, cdr: b },
+		value: &Pair{car: a, cdr: b},
 	}
 }
 
@@ -230,22 +230,68 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 
 // EVAL
 
+func symbolLookup(env *Cell, symb string) *Cell {
+	for c := env; c != nil; c = cdr(c) {
+		if car(car(c)).value.(string) == symb {
+			return cdr(car(c))
+		}
+	}
+	return nil
+}
+
 func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 	if expr == nil {
 		return env, nil
 	}
 
-	if car(expr).stype == scm_symbol {
-		switch car(expr).value.(string) {
+	switch expr.stype {
+	case scm_symbol:
+		return env, symbolLookup(env, expr.value.(string))
+	case scm_number:
+		fallthrough
+	case scm_complex:
+		fallthrough
+	case scm_real:
+		fallthrough
+	case scm_rational:
+		fallthrough
+	case scm_integer:
+		fallthrough
+	case scm_boolean:
+		fallthrough
+	case scm_string:
+		fallthrough
+	case scm_gofunc:
+		fallthrough
+	case scm_procedure:
+		return env, expr
+	case scm_pair:
+		// Nothing
+	}
+
+	if expr.stype != scm_pair && expr.stype != scm_gofunc && expr.stype != scm_procedure {
+		return env, expr
+	}
+
+	//	if expr.stype != scm_pair {
+	//	}
+
+	//	if head.stype != scm_symbol && head.stype != scm_gofunc && head.stype != scm_procedure {
+	//		return env, expr
+	//	}
+
+	head := car(expr)
+	if head.stype == scm_symbol {
+		switch head.value.(string) {
 		case "quote":
 			// TODO: cdr(cdr(expr)) not being nil is an error
 			return env, car(cdr(expr))
 		case "define":
 			// TODO: cdr(cdr(cdr(expr))) not being nil is an error
 			symb := car(cdr(expr))
-			nenv, value := inst.eval(env, car(cdr(cdr(expr))))
-			pair := cons(symb, value)
-			return cons(pair, nenv), symb
+			_, value := inst.eval(env, cdr(cdr(expr)))
+			pair := cons(symb, car(value))
+			return cons(pair, env), symb
 		}
 	}
 
@@ -364,13 +410,9 @@ func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 		}
 
 		////////// EVAL //////////
-
 		for c := expr; c != nil; c = cdr(c) {
-			fmt.Fprintln(write, display(car(c)))
 			expr = inst.EnvironmentalEval(car(c))
-
 			////////// PRINT //////////
-
 			fmt.Fprintf(write, "|> %s\n", display(expr))
 			write.Flush()
 		}
