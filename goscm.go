@@ -465,6 +465,18 @@ func scm_divide(tail *Cell) *Cell {
 	return SCMInteger(value)
 }
 
+func scm_car(tail *Cell) *Cell {
+	// TODO: Check type correctness
+	// TODO: Check number of arguments exactly one
+	return car(car(tail))
+}
+
+func scm_cdr(tail *Cell) *Cell {
+	// TODO: Check type correctness
+	// TODO: Check number of arguments exactly one
+	return cdr(car(tail))
+}
+
 // EXPORTED
 
 type Instance struct {
@@ -481,6 +493,8 @@ func NewInstance() *Instance {
 	inst.AddRawGoFunc("*", scm_multiply)
 	inst.AddRawGoFunc("-", scm_subtract)
 	inst.AddRawGoFunc("/", scm_divide)
+	inst.AddRawGoFunc("car", scm_car)
+	inst.AddRawGoFunc("cdr", scm_cdr)
 	return &inst
 }
 
