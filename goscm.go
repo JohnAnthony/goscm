@@ -336,7 +336,7 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			// TODO: Check exactly two arguments
 			// TODO: Type checking
 			_, pred := inst.eval(env, car(tail))
-			if pred == nil || (pred.stype == scm_boolean && *car(tail).value.(*bool) == false) {
+			if pred == nil || (pred.stype == scm_boolean && *pred.value.(*bool) == false) {
 				return inst.eval(env, car(cdr(cdr(tail))))
 			}
 			return inst.eval(env, car(cdr(tail)))
@@ -364,10 +364,6 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		return env, nil
 	}
 
-	return inst.apply(env, head, tail)
-}
-
-func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
 	var collect *Cell = nil
 	for e := tail; e != nil; e = cdr(e) {
 		var ev *Cell
@@ -376,6 +372,10 @@ func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret 
 	}
 	tail = reverse(collect)
 	
+	return inst.apply(env, head, tail)
+}
+
+func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
 	if head.stype == scm_procedure {
 		return inst.scmapply(env, head, tail)
 	} else if head.stype == scm_gofunc {
