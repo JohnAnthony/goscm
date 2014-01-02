@@ -316,16 +316,24 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 	if head.stype == scm_symbol {
 		switch head.value.(string) {
 		case "quote":
-			// TODO: cdr(cdr(expr)) not being nil is an error
+			// TODO: Check exactly one argument
 			return env, car(tail)
 		case "define":
-			// TODO: cdr(cdr(cdr(expr))) not being nil is an error
+			// TODO: Check exactly two arguments
+			// TODO: Type checking
 			symb := car(tail)
 			_, value := inst.eval(env, car(cdr(tail)))
 			pair := cons(symb, value)
 			return cons(pair, env), symb
 		case "lambda":
+			// TODO: Type checking
 			return env, SCMProcedure(car(tail), cdr(tail))
+		case "set!":
+			// TODO: Check exactly two arguments
+			// TODO: Type checking
+			symb := symbolLookup(env, car(tail).value.(string))
+			*symb = *car(cdr(tail))
+			return env, nil
 		default:
 			env, head = inst.eval(env, head)
 		}
@@ -352,7 +360,6 @@ func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret 
 		env = cons(SCMPair(car(k), car(v)), env)
 	}
 	nenv = env
-	fmt.Printf("Apply called with new environment: %s\n", display(nenv))
 	for subex := cdr(head); subex != nil; subex = cdr(subex) {
 		nenv, ret = inst.eval(nenv, car(subex))
 	}
