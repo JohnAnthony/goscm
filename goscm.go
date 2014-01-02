@@ -282,8 +282,6 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 	}
 
 	switch expr.stype {
-	case scm_symbol:
-		return env, symbolLookup(env, expr.value.(string))
 	case scm_number:
 		fallthrough
 	case scm_complex:
@@ -302,6 +300,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		fallthrough
 	case scm_procedure:
 		return env, expr
+	case scm_symbol:
+		return env, symbolLookup(env, expr.value.(string))
 	case scm_pair:
 		// Nothing
 	}
@@ -318,6 +318,13 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "quote":
 			// TODO: Check exactly one argument
 			return env, car(tail)
+		case "set!":
+			// TODO: Check exactly two arguments
+			// TODO: Type checking
+			symb := symbolLookup(env, car(tail).value.(string))
+			_, ret = inst.eval(env, car(cdr(tail)))
+			*symb = *ret
+			return env, symb
 		case "define":
 			// TODO: Check exactly two arguments
 			// TODO: Type checking
@@ -325,62 +332,66 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			_, value := inst.eval(env, car(cdr(tail)))
 			pair := cons(symb, value)
 			return cons(pair, env), symb
+		case "if":
+			// TODO: Check exactly two arguments
+			// TODO: Type checking
+			pred := car(tail)
+			if pred == nil || (pred.stype == scm_boolean && *car(tail).value.(*bool) == false) {
+				return env, car(cdr(cdr(tail)))
+			}
+			return env, car(cdr(tail))
 		case "lambda":
 			// TODO: Type checking
 			return env, SCMProcedure(car(tail), cdr(tail))
-		case "set!":
-			// TODO: Check exactly two arguments
-			// TODO: Type checking
-			symb := symbolLookup(env, car(tail).value.(string))
-			_, ret = inst.eval(env, car(cdr(tail)))
-			*symb = *ret
-			return env, nil
 		case "begin":
 			nenv = env
 			for e := tail; e != nil; e = cdr(e) {
 				fmt.Printf("Env at start of begin loop: %s\n", display(nenv))
-				nenv, ret = inst.eval(nenv, car(e))
+				nenv, ret = inst.apply(nenv, car(car(e)), cdr(car(e)))
 			}
 			return nenv, ret
-		default:
-			env, head = inst.eval(env, head)
 		}
 	}
 
+	env, head = inst.eval(env, head)
 	if head == nil {
 		fmt.Println("Error: Symbol not found")
 		return env, nil
 	}
 
-	tail = nil
-	for e := cdr(expr); e != nil; e = cdr(e) {
-		if car(e).stype == scm_symbol {
-			tail = cons(car(e), tail)
-		} else {
-			var ncell *Cell
-			env, ncell = inst.eval(env, car(e))
-			tail = cons(ncell, tail)
-		}
+	if head.stype != scm_procedure && head.stype != scm_gofunc {
+		fmt.Println("Error: About to apply a non-procedure")
+		return env, nil
 	}
-	tail = reverse(tail)
 
+	return inst.apply(env, head, tail)
+}
+
+func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
+	var collect *Cell = nil
+	for e := tail; e != nil; e = cdr(e) {
+		var ev *Cell
+		env, ev = inst.eval(env, car(e))
+		collect = cons(ev, collect)
+	}
+	tail = reverse(collect)
+	
 	if head.stype == scm_procedure {
-		return inst.apply(env, head, tail)
+		return inst.scmapply(env, head, tail)
 	} else if head.stype == scm_gofunc {
 		return inst.goapply(env, head, tail)
 	}
 
-	// Error
-	fmt.Printf("Error: reached end of eval with %s\n", display(expr))
+	fmt.Println("Error: reached end of apply")
 	return env, nil
 }
 
-func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
+func (inst *Instance) scmapply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
 	nenv = env
 	for k, v := car(head), tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
 		nenv = cons(SCMPair(car(k), car(v)), nenv)
 	}
-	for e := tail; e != nil; e = cdr(e) {
+	for e := cdr(head); e != nil; e = cdr(e) {
 		nenv, ret = inst.eval(nenv, car(e))
 	}
 	return env, ret
