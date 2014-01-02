@@ -273,7 +273,7 @@ func symbolLookup(env *Cell, symb string) *Cell {
 			return cdr(car(c))
 		}
 	}
-	return nil
+	return SCMSymbol(symb)
 }
 
 func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
@@ -335,6 +335,13 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			_, ret = inst.eval(env, car(cdr(tail)))
 			*symb = *ret
 			return env, nil
+		case "begin":
+			nenv = env
+			for e := tail; e != nil; e = cdr(e) {
+				fmt.Printf("Env at start of begin loop: %s\n", display(nenv))
+				nenv, ret = inst.eval(nenv, car(e))
+			}
+			return nenv, ret
 		default:
 			env, head = inst.eval(env, head)
 		}
@@ -345,6 +352,18 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		return env, nil
 	}
 
+	tail = nil
+	for e := cdr(expr); e != nil; e = cdr(e) {
+		if car(e).stype == scm_symbol {
+			tail = cons(car(e), tail)
+		} else {
+			var ncell *Cell
+			env, ncell = inst.eval(env, car(e))
+			tail = cons(ncell, tail)
+		}
+	}
+	tail = reverse(tail)
+
 	if head.stype == scm_procedure {
 		return inst.apply(env, head, tail)
 	} else if head.stype == scm_gofunc {
@@ -352,31 +371,24 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 	}
 
 	// Error
-	fmt.Println("Error: reached end of eval")
+	fmt.Printf("Error: reached end of eval with %s\n", display(expr))
 	return env, nil
 }
 
 func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
-	for k, v := car(head), tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
-		env = cons(SCMPair(car(k), car(v)), env)
-	}
 	nenv = env
-	for subex := cdr(head); subex != nil; subex = cdr(subex) {
-		nenv, ret = inst.eval(nenv, car(subex))
+	for k, v := car(head), tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
+		nenv = cons(SCMPair(car(k), car(v)), nenv)
+	}
+	for e := tail; e != nil; e = cdr(e) {
+		nenv, ret = inst.eval(nenv, car(e))
 	}
 	return env, ret
 }
 
 func (inst *Instance) goapply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
 	f := head.value.(func (*Cell) *Cell)
-	nenv = env
-	var collect *Cell
-	for e := tail; e != nil; e = cdr(e) {
-		nenv, collect = inst.eval(nenv, car(e))
-		ret = cons(collect, ret)
-	}
-	ret = reverse(ret)
-	return env, f(ret)
+	return env, f(tail)
 }
 
 // PRINT
@@ -485,10 +497,10 @@ func scm_cdr(tail *Cell) *Cell {
 	return cdr(car(tail))
 }
 
-func scm_begin(tail *Cell) *Cell {
-	var e *Cell
-	for e = tail; cdr(e) != nil; e = cdr(e) {}
-	return car(e)
+func scm_display(tail *Cell) *Cell {
+	// TODO: Check number of arguments exactly one
+	fmt.Println(display(car(tail)))
+	return car(tail)
 }
 
 // EXPORTED
@@ -509,7 +521,7 @@ func NewInstance() *Instance {
 	inst.AddRawGoFunc("/", scm_divide)
 	inst.AddRawGoFunc("car", scm_car)
 	inst.AddRawGoFunc("cdr", scm_cdr)
-	inst.AddRawGoFunc("begin", scm_begin)
+	inst.AddRawGoFunc("display", scm_display)
 	return &inst
 }
 
@@ -564,6 +576,4 @@ func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 			write.Flush()
 		}
 	}
-
-	fmt.Printf("Ending environment: %s\n", display(inst.env))
 }
