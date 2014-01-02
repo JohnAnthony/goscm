@@ -10,6 +10,8 @@ package goscm
 // :: Ill-formed symbols or numbers
 // :: Floating-point arithmetic
 
+// Closures
+
 // Numerical tower
 
 ///////////
@@ -342,6 +344,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			return inst.eval(env, car(cdr(tail)))
 		case "lambda":
 			// TODO: Type checking
+			// TODO: Alternate define syntax i.e. (define (square x) (* x x))
+			// TODO: A . notation for "&rest"
 			return env, SCMProcedure(car(tail), cdr(tail))
 		case "begin":
 			nenv = env
