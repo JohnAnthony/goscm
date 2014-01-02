@@ -331,6 +331,11 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		}
 	}
 
+	if head == nil {
+		fmt.Println("Error: Symbol not found")
+		return env, nil
+	}
+
 	if head.stype == scm_procedure {
 		return inst.apply(env, head, tail)
 	} else if head.stype == scm_gofunc {
@@ -344,13 +349,13 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 
 func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
 	for k, v := car(head), tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
-		env = cons(SCMPair(k, v), env)
+		env = cons(SCMPair(car(k), car(v)), env)
 	}
 	nenv = env
+	fmt.Printf("Apply called with new environment: %s\n", display(nenv))
 	for subex := cdr(head); subex != nil; subex = cdr(subex) {
 		nenv, ret = inst.eval(nenv, car(subex))
 	}
-	fmt.Printf("Result of apply (head): %s\n", display(ret))
 	return env, ret
 }
 
