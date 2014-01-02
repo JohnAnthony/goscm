@@ -332,7 +332,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			// TODO: Check exactly two arguments
 			// TODO: Type checking
 			symb := symbolLookup(env, car(tail).value.(string))
-			*symb = *car(cdr(tail))
+			_, ret = inst.eval(env, car(cdr(tail)))
+			*symb = *ret
 			return env, nil
 		default:
 			env, head = inst.eval(env, head)
@@ -484,6 +485,12 @@ func scm_cdr(tail *Cell) *Cell {
 	return cdr(car(tail))
 }
 
+func scm_begin(tail *Cell) *Cell {
+	var e *Cell
+	for e = tail; cdr(e) != nil; e = cdr(e) {}
+	return car(e)
+}
+
 // EXPORTED
 
 type Instance struct {
@@ -502,6 +509,7 @@ func NewInstance() *Instance {
 	inst.AddRawGoFunc("/", scm_divide)
 	inst.AddRawGoFunc("car", scm_car)
 	inst.AddRawGoFunc("cdr", scm_cdr)
+	inst.AddRawGoFunc("begin", scm_begin)
 	return &inst
 }
 
