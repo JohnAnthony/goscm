@@ -79,6 +79,20 @@ func SCMString(str string) *Cell {
 	}
 }
 
+func SCMGoFunc(f func(*Cell) *Cell) *Cell {
+	return &Cell {
+		stype: scm_gofunc,
+		value: f,
+	}
+}
+
+func SCMProcedure(params *Cell, body *Cell) *Cell {
+	return &Cell{
+		stype: scm_procedure,
+		value: &Pair{car: params, cdr: body},
+	}
+}
+
 func SCMPair(a *Cell, b *Cell) *Cell {
 	return &Cell{
 		stype: scm_pair,
@@ -101,6 +115,14 @@ func cons(a *Cell, b *Cell) *Cell {
 		stype: scm_pair,
 		value: &Pair{car: a, cdr: b},
 	}
+}
+
+func reverse(a *Cell) *Cell {
+	var ret *Cell = nil
+	for e := a; e != nil; e = cdr(e) {
+		ret = cons(car(e), ret)
+	}
+	return ret
 }
 
 // READ
@@ -224,7 +246,7 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 	case tok_quote:
 		// This feels off
 		rest := inst.parse(r)
-		carlst:= SCMPair(SCMSymbol("quote"), SCMPair(car(rest), nil))
+		carlst := SCMPair(SCMSymbol("quote"), SCMPair(car(rest), nil))
 		return SCMPair(carlst, cdr(rest))
 		// TODO
 	case tok_quasiquote:
@@ -285,15 +307,14 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 	}
 
 	// We ONLY deal with evaluating lists from this point onwards
-	
+
 	head := car(expr)
-	symbol := head.value.(string)
 	tail := cdr(expr)
 
 	// Special form symbols
 	// TODO: Move as many of the below as possible into discrete functions
 	if head.stype == scm_symbol {
-		switch symbol {
+		switch head.value.(string) {
 		case "quote":
 			// TODO: cdr(cdr(expr)) not being nil is an error
 			return env, car(tail)
@@ -303,48 +324,46 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			_, value := inst.eval(env, car(cdr(tail)))
 			pair := cons(symb, value)
 			return cons(pair, env), symb
-		case "*":
-			// TODO: Safe handling of numerical forms and non-integers
-			value := 1
-			for e := tail; e != nil; e = cdr(e) {
-				_, e := inst.eval(env, (car(e)))
-				value *= *e.value.(*int)
-			}
-			return env, SCMInteger(value)
-		case "+":
-			// TODO: Safe handling of numerical forms and non-integers
-			value := 0
-			for e := tail; e != nil; e = cdr(e) {
-				_, e := inst.eval(env, (car(e)))
-				value += *e.value.(*int)
-			}
-			return env, SCMInteger(value)
-		case "-":
-			// TODO: Safe handling of numerical forms and non-integers
-			// TODO: This function requires at least one argument
-			value := *car(tail).value.(*int)
-			for e := cdr(tail); e != nil; e = cdr(e) {
-				_, e := inst.eval(env, (car(e)))
-				value -= *e.value.(*int)
-			}
-			return env, SCMInteger(value)
-		case "/":
-			// TODO: Safe handling of numerical forms and non-integers
-			// TODO: This function requires at least one argument
-			value := *car(tail).value.(*int)
-			for e := cdr(tail); e != nil; e = cdr(e) {
-				_, e := inst.eval(env, (car(e)))
-				value /= *e.value.(*int)
-			}
-			return env, SCMInteger(value)
+		case "lambda":
+			return env, SCMProcedure(car(tail), cdr(tail))
+		default:
+			env, head = inst.eval(env, head)
 		}
 	}
 
-	// Symbol lookup in environment
+	if head.stype == scm_procedure {
+		return inst.apply(env, head, tail)
+	} else if head.stype == scm_gofunc {
+		return inst.goapply(env, head, tail)
+	}
 
-	//Non-special forms ...
+	// Error
+	fmt.Println("Error: reached end of eval")
+	return env, nil
+}
 
-	return env, expr
+func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
+	for k, v := car(head), tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
+		env = cons(SCMPair(k, v), env)
+	}
+	nenv = env
+	for subex := cdr(head); subex != nil; subex = cdr(subex) {
+		nenv, ret = inst.eval(nenv, car(subex))
+	}
+	fmt.Printf("Result of apply (head): %s\n", display(ret))
+	return env, ret
+}
+
+func (inst *Instance) goapply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
+	f := head.value.(func (*Cell) *Cell)
+	nenv = env
+	var collect *Cell
+	for e := tail; e != nil; e = cdr(e) {
+		nenv, collect = inst.eval(nenv, car(e))
+		ret = cons(collect, ret)
+	}
+	ret = reverse(ret)
+	return env, f(ret)
 }
 
 // PRINT
@@ -401,6 +420,46 @@ func display(c *Cell) string {
 	return "#<ERROR>"
 }
 
+// BUILTIN
+
+func scm_add(tail *Cell) *Cell {
+	// TODO: Check for type correctness
+	value := 0
+	for e := tail; e != nil; e = cdr(e) {
+		value += *car(e).value.(*int)
+	}
+	return SCMInteger(value)
+}
+
+func scm_multiply(tail *Cell) *Cell {
+	// TODO: Check for type correctness
+	value := 1
+	for e := tail; e != nil; e = cdr(e) {
+		value *= *car(e).value.(*int)
+	}
+	return SCMInteger(value)
+}
+
+func scm_subtract(tail *Cell) *Cell {
+	// TODO: Check for type correctness
+	// TODO: Check number of arguments at least one
+	value := *car(tail).value.(*int)
+	for e := cdr(tail); e != nil; e = cdr(e) {
+		value -= *car(e).value.(*int)
+	}
+	return SCMInteger(value)
+}
+
+func scm_divide(tail *Cell) *Cell {
+	// TODO: Check for type correctness
+	// TODO: Check number of arguments at least one
+	value := *car(tail).value.(*int)
+	for e := cdr(tail); e != nil; e = cdr(e) {
+		value /= *car(e).value.(*int)
+	}
+	return SCMInteger(value)
+}
+
 // EXPORTED
 
 type Instance struct {
@@ -409,10 +468,15 @@ type Instance struct {
 }
 
 func NewInstance() *Instance {
-	return &Instance{
+	inst := Instance{
 		paren_depth: 0,
 		env:         nil,
 	}
+	inst.AddRawGoFunc("+", scm_add)
+	inst.AddRawGoFunc("*", scm_multiply)
+	inst.AddRawGoFunc("-", scm_subtract)
+	inst.AddRawGoFunc("/", scm_divide)
+	return &inst
 }
 
 func (inst *Instance) depthAdd() {
@@ -431,6 +495,10 @@ func (inst *Instance) depthRem() {
 func (inst *Instance) EnvironmentalEval(expr *Cell) *Cell {
 	inst.env, expr = inst.eval(inst.env, expr)
 	return expr
+}
+
+func (inst *Instance) AddRawGoFunc(name string, f func(*Cell) *Cell) {
+	inst.env = cons(SCMPair(SCMSymbol(name), SCMGoFunc(f)), inst.env)
 }
 
 func (inst *Instance) REPL(fin *os.File, fout *os.File) {
