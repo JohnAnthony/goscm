@@ -335,11 +335,11 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "if":
 			// TODO: Check exactly two arguments
 			// TODO: Type checking
-			pred := car(tail)
+			_, pred := inst.eval(env, car(tail))
 			if pred == nil || (pred.stype == scm_boolean && *car(tail).value.(*bool) == false) {
-				return env, car(cdr(cdr(tail)))
+				return inst.eval(env, car(cdr(cdr(tail))))
 			}
-			return env, car(cdr(tail))
+			return inst.eval(env, car(cdr(tail)))
 		case "lambda":
 			// TODO: Type checking
 			return env, SCMProcedure(car(tail), cdr(tail))
@@ -496,6 +496,20 @@ func scm_divide(tail *Cell) *Cell {
 	return SCMInteger(value)
 }
 
+func scm_numeq(tail *Cell) *Cell {
+	// TODO: Check for type correctness
+	if tail == nil {
+		return SCMBoolean(true)
+	}
+	if cdr(tail) == nil {
+		return SCMBoolean(true)
+	}
+	if *car(tail).value.(*int) == *car(cdr(tail)).value.(*int) {
+		return scm_numeq(cdr(tail))
+	}
+	return SCMBoolean(false)
+}
+
 func scm_car(tail *Cell) *Cell {
 	// TODO: Check type correctness
 	// TODO: Check number of arguments exactly one
@@ -530,6 +544,7 @@ func NewInstance() *Instance {
 	inst.AddRawGoFunc("*", scm_multiply)
 	inst.AddRawGoFunc("-", scm_subtract)
 	inst.AddRawGoFunc("/", scm_divide)
+	inst.AddRawGoFunc("=", scm_numeq)
 	inst.AddRawGoFunc("car", scm_car)
 	inst.AddRawGoFunc("cdr", scm_cdr)
 	inst.AddRawGoFunc("display", scm_display)
