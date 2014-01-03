@@ -112,6 +112,34 @@ func cdr(c *Cell) *Cell {
 	return c.value.(*Pair).cdr
 }
 
+func caar(c *Cell) *Cell { return car(car(c)) }
+func cdar(c *Cell) *Cell { return cdr(car(c)) }
+func cadr(c *Cell) *Cell { return car(cdr(c)) }
+func caaar(c *Cell) *Cell { return car(car(car(c))) }
+func cdaar(c *Cell) *Cell { return cdr(car(car(c))) }
+func cadar(c *Cell) *Cell { return car(cdr(car(c))) }
+func caadr(c *Cell) *Cell { return car(car(cdr(c))) }
+func cddar(c *Cell) *Cell { return cdr(cdr(car(c))) }
+func cdadr(c *Cell) *Cell { return cdr(car(cdr(c))) }
+func caddr(c *Cell) *Cell { return car(cdr(cdr(c))) }
+func cdddr(c *Cell) *Cell { return cdr(cdr(cdr(c))) }
+func caaaar(c *Cell) *Cell { return car(car(car(car(c)))) }
+func cdaaar(c *Cell) *Cell { return cdr(car(car(car(c)))) }
+func cadaar(c *Cell) *Cell { return car(cdr(car(car(c)))) }
+func caadar(c *Cell) *Cell { return car(car(cdr(car(c)))) }
+func caaadr(c *Cell) *Cell { return car(car(car(cdr(c)))) }
+func cddaar(c *Cell) *Cell { return cdr(cdr(car(car(c)))) }
+func cdadar(c *Cell) *Cell { return cdr(car(cdr(car(c)))) }
+func cdaadr(c *Cell) *Cell { return cdr(car(car(cdr(c)))) }
+func caddar(c *Cell) *Cell { return car(cdr(cdr(car(c)))) }
+func cadadr(c *Cell) *Cell { return car(cdr(car(cdr(c)))) }
+func caaddr(c *Cell) *Cell { return car(car(cdr(cdr(c)))) }
+func cdddar(c *Cell) *Cell { return cdr(cdr(cdr(car(c)))) }
+func cddadr(c *Cell) *Cell { return cdr(cdr(car(cdr(c)))) }
+func cdaddr(c *Cell) *Cell { return cdr(car(cdr(cdr(c)))) }
+func cadddr(c *Cell) *Cell { return car(cdr(cdr(cdr(c)))) }
+func cddddr(c *Cell) *Cell { return cdr(cdr(cdr(cdr(c)))) }
+
 func cons(a *Cell, b *Cell) *Cell {
 	return &Cell{
 		stype: scm_pair,
@@ -271,8 +299,8 @@ func (inst *Instance) parse(r *bufio.Reader) *Cell {
 
 func symbolLookup(env *Cell, symb string) *Cell {
 	for c := env; c != nil; c = cdr(c) {
-		if car(car(c)).value.(string) == symb {
-			return cdr(car(c))
+		if caar(c).value.(string) == symb {
+			return cdar(c)
 		}
 	}
 	return SCMSymbol(symb)
@@ -324,14 +352,14 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			// TODO: Check exactly two arguments
 			// TODO: Type checking
 			symb := symbolLookup(env, car(tail).value.(string))
-			_, ret = inst.eval(env, car(cdr(tail)))
+			_, ret = inst.eval(env, cadr(tail))
 			*symb = *ret
 			return env, symb
 		case "define":
 			// TODO: Check exactly two arguments
 			// TODO: Type checking
 			symb := car(tail)
-			_, value := inst.eval(env, car(cdr(tail)))
+			_, value := inst.eval(env, cadr(tail))
 			pair := cons(symb, value)
 			return cons(pair, env), symb
 		case "if":
@@ -339,9 +367,9 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			// TODO: Type checking
 			_, pred := inst.eval(env, car(tail))
 			if pred == nil || (pred.stype == scm_boolean && *pred.value.(*bool) == false) {
-				return inst.eval(env, car(cdr(cdr(tail))))
+				return inst.eval(env, caddr(tail))
 			}
-			return inst.eval(env, car(cdr(tail)))
+			return inst.eval(env, cadr(tail))
 		case "lambda":
 			// TODO: Type checking
 			// TODO: Alternate define syntax i.e. (define (square x) (* x x))
@@ -507,7 +535,7 @@ func scm_numeq(tail *Cell) *Cell {
 	if cdr(tail) == nil {
 		return SCMBoolean(true)
 	}
-	if *car(tail).value.(*int) == *car(cdr(tail)).value.(*int) {
+	if *car(tail).value.(*int) == *cadr(tail).value.(*int) {
 		return scm_numeq(cdr(tail))
 	}
 	return SCMBoolean(false)
@@ -516,13 +544,13 @@ func scm_numeq(tail *Cell) *Cell {
 func scm_car(tail *Cell) *Cell {
 	// TODO: Check type correctness
 	// TODO: Check number of arguments exactly one
-	return car(car(tail))
+	return caar(tail)
 }
 
 func scm_cdr(tail *Cell) *Cell {
 	// TODO: Check type correctness
 	// TODO: Check number of arguments exactly one
-	return cdr(car(tail))
+	return cdar(tail)
 }
 
 func scm_display(tail *Cell) *Cell {
