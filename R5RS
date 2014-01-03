@@ -1,11 +1,12 @@
 DONE:
 =====
 
-if
+append
 car
 cdr
 begin (*)
 cons
+if
 reverse
 
 PARTIAL:
@@ -32,7 +33,6 @@ abs
 acos
 and (L)
 angle
-append
 apply
 asin
 assoc
