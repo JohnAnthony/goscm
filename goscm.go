@@ -586,6 +586,14 @@ func scm_display(tail *Cell) *Cell {
 	return car(tail)
 }
 
+func scm_null_p(tail *Cell) *Cell {
+	// TODO: Check number of arguments exactly one
+	if car(tail) != nil {
+		return SCMBoolean(false)
+	}
+	return SCMBoolean(true)
+}
+
 // EXPORTED
 
 type Instance struct {
@@ -606,6 +614,7 @@ func NewInstance() *Instance {
 	inst.AddRawGoFunc("car", scm_car)
 	inst.AddRawGoFunc("cdr", scm_cdr)
 	inst.AddRawGoFunc("display", scm_display)
+	inst.AddRawGoFunc("null?", scm_null_p)
 	return &inst
 }
 
