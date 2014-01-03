@@ -7,7 +7,9 @@ cdr
 begin (*)
 cons
 if
-reverse
+not
+null?
+quote (')
 
 PARTIAL:
 ========
@@ -27,6 +29,7 @@ define
 TODO:
 =====
 
+reverse
 <
 <=
 >
@@ -42,7 +45,6 @@ assq
 assv
 atan
 boolean?
-boolean? not
 call-with-current-continuation (call/cc)
 call-with-input-file
 call-with-output-file
@@ -125,7 +127,6 @@ named let (L)
 negative?
 newline
 null-environment
-null?
 number->string
 number?
 numerator
@@ -139,7 +140,6 @@ port?
 positive? odd? even?
 procedure?
 quasiquote(`)
-quote(')
 quotient
 rational?
 rationalize
