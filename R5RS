@@ -1,0 +1,193 @@
+DONE:
+=====
+
+if
+car
+cdr
+begin (*)
+cons
+
+PARTIAL:
+========
+
+display
+set!
+lambda
+define
+*
++
+-
+/
+=
+
+TODO:
+=====
+
+<
+<=
+>
+>=
+abs
+acos
+and (L)
+angle
+append
+apply
+asin
+assoc
+assq
+assv
+atan
+boolean?
+boolean? not
+call-with-current-continuation (call/cc)
+call-with-input-file
+call-with-output-file
+call-with-values
+case (L)
+ceiling
+char->integer
+char-alphabetic?
+char-ci=?
+char-downcase
+char-lower-case?
+char-numeric?
+char-ready?
+char-upcase
+char-upper-case?
+char-whitespace?
+char<=? char-ci<=?
+char<? char-ci<?
+char=?
+char>=? char-ci>=?
+char>? char-ci>?
+char?
+close-input-port
+close-output-port
+complex?
+cond (L)
+cos
+current-input-port
+current-output-port
+define-syntax
+delay (L)
+denominator
+do (L)
+dynamic-wind
+eof-object? open-input-file
+eq?
+equal?
+eqv?
+eval
+exact->inexact
+exact?
+exp
+expt
+floor
+for-each
+gcd
+imag-part
+inexact->exact
+inexact?
+input-port?
+integer->char
+integer?
+interaction-environment (optional)
+lcm
+length
+let (L)
+let* (L)
+let-syntax
+letrec (L)
+letrec-syntax
+list
+list->string
+list->vector
+list-ref
+list-tail
+list?
+load (optional)
+log
+magnitude
+make-polar
+make-rectangular
+make-string
+make-vector
+map
+max
+memq. memv. member
+min
+modulo
+named let (L)
+negative?
+newline
+null-environment
+null?
+number->string
+number?
+numerator
+open-output-file
+or (L)
+output-port?
+pair?
+peek-char
+port?
+positive? odd? even?
+procedure?
+quasiquote(`)
+quote(')
+quotient
+rational?
+rationalize
+read
+read-char
+real-part
+real?
+remainder
+reverse
+round
+scheme-report-environment
+set-car!
+set-cdr!
+sin
+sqrt
+string
+string->list
+string->number
+string->symbol
+string-append
+string-ci=?
+string-copy
+string-fill!
+string-length
+string-ref
+string-set!
+string<=? string-ci<=?
+string<? string-ci<?
+string=?
+string>=? string-ci>=?
+string>? string-ci>?
+string?
+substring
+symbol->string
+symbol?
+syntax-rules
+tan
+transcript-off (optional)
+transcript-on (optional)
+truncate
+unquote(,)
+unquote-splicing(,@)
+values
+vector
+vector->list
+vector-fill!
+vector-length
+vector-ref
+vector-set!
+vector?
+with-input-from-file(optional)
+with-output-to-file(optional)
+write
+write-char
+zero?
