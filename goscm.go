@@ -88,11 +88,17 @@ func SCMGoFunc(f func(*Cell) *Cell) *Cell {
 	}
 }
 
-func SCMProcedure(params *Cell, body *Cell) *Cell {
-	return &Cell{
-		stype: scm_procedure,
-		value: &Pair{car: params, cdr: body},
-	}
+func SCMProcedure(params *Cell, body *Cell, env *Cell) *Cell {
+	sublist := SCMPair(params, SCMPair(body, SCMPair(env, nil)))
+	sublist.stype = scm_procedure
+	return sublist
+}
+
+func SCMProcedureUnfold(proc *Cell) (params *Cell, body *Cell, env *Cell) {
+	params = car(proc)
+	body = cadr(proc)
+	env = caddr(proc)
+	return params, body, env
 }
 
 func SCMPair(a *Cell, b *Cell) *Cell {
@@ -101,6 +107,7 @@ func SCMPair(a *Cell, b *Cell) *Cell {
 		value: &Pair{car: a, cdr: b},
 	}
 }
+
 
 // Scheme-like functions
 
@@ -373,8 +380,9 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			return inst.eval(env, cadr(tail))
 		case "lambda":
 			// TODO: Type checking
+			// TODO: Check exactly two arguments
 			// TODO: A . notation for "&rest"
-			return env, SCMProcedure(car(tail), cdr(tail))
+			return env, SCMProcedure(car(tail), cadr(tail), env)
 		case "begin":
 			nenv = env
 			for e := tail; e != nil; e = cdr(e) {
@@ -391,7 +399,6 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 				return env, nil
 			}
 			defer file.Close()
-			fmt.Println("Ding")
 			read := bufio.NewReader(file)
 			nexpr := inst.parse(read)
 			if inst.paren_depth != 0 {
@@ -401,7 +408,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			for c := nexpr; c != nil; c = cdr(c) {
 				env, _ = inst.eval(env, car(nexpr))
 			}
-			return env, SCMBoolean(false)
+			fmt.Println("Handled file load successfully")
+			return env, nil
 		}
 	}
 
@@ -424,34 +432,33 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 	}
 	tail = reverse(collect)
 	
-	return inst.apply(env, head, tail)
+	return env, inst.apply(head, tail)
 }
 
-func (inst *Instance) apply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
+func (inst *Instance) apply(head *Cell, tail *Cell) (ret *Cell) {
 	if head.stype == scm_procedure {
-		return inst.scmapply(env, head, tail)
+		return inst.scmapply(head, tail)
 	} else if head.stype == scm_gofunc {
-		return inst.goapply(env, head, tail)
+		return inst.goapply(head, tail)
 	}
 
 	fmt.Println("Error: reached end of apply")
-	return env, nil
+	return nil
 }
 
-func (inst *Instance) scmapply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
-	nenv = env
-	for k, v := car(head), tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
-		nenv = cons(SCMPair(car(k), car(v)), nenv)
+func (inst *Instance) scmapply(head *Cell, tail *Cell) (ret *Cell) {
+	params, body, subenv := SCMProcedureUnfold(head)
+	for k, v := params, tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
+		subenv = cons(SCMPair(car(k), car(v)), subenv)
 	}
-	for e := cdr(head); e != nil; e = cdr(e) {
-		nenv, ret = inst.eval(nenv, car(e))
-	}
-	return env, ret
+	fmt.Printf("Our final env list is: %s\n", display(subenv))
+	_, ret = inst.eval(subenv, body)
+	return ret
 }
 
-func (inst *Instance) goapply(env *Cell, head *Cell, tail *Cell) (nenv *Cell, ret *Cell) {
+func (inst *Instance) goapply(head *Cell, tail *Cell) (ret *Cell) {
 	f := head.value.(func (*Cell) *Cell)
-	return env, f(tail)
+	return f(tail)
 }
 
 // PRINT
