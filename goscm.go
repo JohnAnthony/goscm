@@ -451,7 +451,6 @@ func (inst *Instance) scmapply(head *Cell, tail *Cell) (ret *Cell) {
 	for k, v := params, tail; k != nil && v != nil; k, v = cdr(k), cdr(v) {
 		subenv = cons(SCMPair(car(k), car(v)), subenv)
 	}
-	fmt.Printf("Our final env list is: %s\n", display(subenv))
 	_, ret = inst.eval(subenv, body)
 	return ret
 }
