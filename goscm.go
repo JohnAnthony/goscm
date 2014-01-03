@@ -382,7 +382,26 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			}
 			return nenv, ret
 		case "load-from-path": // Non-r5rs
-			// TODO
+			// TODO: Check exactly one argument
+			// TODO: Type checking
+			path := car(tail).value.(string)
+			file, err := os.Open(path)
+			if err != nil {
+				fmt.Println(err)
+				return env, nil
+			}
+			defer file.Close()
+			fmt.Println("Ding")
+			read := bufio.NewReader(file)
+			nexpr := inst.parse(read)
+			if inst.paren_depth != 0 {
+				fmt.Println("Mis-matched parens in file: %s\n", path)
+				return env, nil
+			}
+			for c := nexpr; c != nil; c = cdr(c) {
+				env, _ = inst.eval(env, car(nexpr))
+			}
+			return env, SCMBoolean(false)
 		}
 	}
 
@@ -599,6 +618,12 @@ func (inst *Instance) depthRem() {
 
 func (inst *Instance) EnvironmentalEval(expr *Cell) *Cell {
 	inst.env, expr = inst.eval(inst.env, expr)
+	if inst.paren_depth > 0 {
+		write := bufio.NewWriter(os.Stderr)
+		fmt.Fprintln(write, "ERR :: EOF reached with unterminated parens")
+		write.Flush()
+		return nil
+	}
 	return expr
 }
 
@@ -614,13 +639,6 @@ func (inst *Instance) REPL(fin *os.File, fout *os.File) {
 	for {
 		////////// READ //////////
 		expr = inst.parse(read)
-
-		if inst.paren_depth > 0 {
-			write := bufio.NewWriter(os.Stderr)
-			fmt.Fprintln(write, "ERR :: EOF reached with unterminated parens")
-			write.Flush()
-			return
-		}
 
 		// Break out when parse returns nothing (EOF)
 		if expr == nil {
