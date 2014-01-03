@@ -357,6 +357,7 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			return env, symb
 		case "define":
 			// TODO: Check exactly two arguments
+			// TODO: Alternate define syntax i.e. (define (square x) (* x x))
 			// TODO: Type checking
 			symb := car(tail)
 			_, value := inst.eval(env, cadr(tail))
@@ -372,7 +373,6 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 			return inst.eval(env, cadr(tail))
 		case "lambda":
 			// TODO: Type checking
-			// TODO: Alternate define syntax i.e. (define (square x) (* x x))
 			// TODO: A . notation for "&rest"
 			return env, SCMProcedure(car(tail), cdr(tail))
 		case "begin":
@@ -381,6 +381,8 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 				nenv, ret = inst.eval(nenv, car(e))
 			}
 			return nenv, ret
+		case "load-from-path": // Non-r5rs
+			// TODO
 		}
 	}
 
