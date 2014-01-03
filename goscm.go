@@ -9,10 +9,10 @@ package goscm
 // :: Wrong number/type of args to function
 // :: Ill-formed symbols or numbers
 // :: Floating-point arithmetic
-
 // Closures
-
 // Numerical tower
+// Char type
+// Escape sequences in string literals
 
 ///////////
 // BUGS: //
@@ -559,6 +559,12 @@ func scm_display(tail *Cell) *Cell {
 	return car(tail)
 }
 
+func scm_reverse(tail *Cell) *Cell {
+	// TODO: Check number of arguments exactly one
+	fmt.Printf("About to reverse: %s\n", display(car(tail)))
+	return reverse(car(tail))
+}
+
 // EXPORTED
 
 type Instance struct {
@@ -579,6 +585,7 @@ func NewInstance() *Instance {
 	inst.AddRawGoFunc("car", scm_car)
 	inst.AddRawGoFunc("cdr", scm_cdr)
 	inst.AddRawGoFunc("display", scm_display)
+	inst.AddRawGoFunc("reverse", scm_reverse)
 	return &inst
 }
 

@@ -6,6 +6,7 @@ car
 cdr
 begin (*)
 cons
+reverse
 
 PARTIAL:
 ========
@@ -74,7 +75,7 @@ delay (L)
 denominator
 do (L)
 dynamic-wind
-eof-object? open-input-file
+eof-object?
 eq?
 equal?
 eqv?
@@ -126,6 +127,7 @@ null?
 number->string
 number?
 numerator
+open-input-file
 open-output-file
 or (L)
 output-port?
@@ -144,7 +146,6 @@ read-char
 real-part
 real?
 remainder
-reverse
 round
 scheme-report-environment
 set-car!
