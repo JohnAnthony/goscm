@@ -350,8 +350,7 @@ func (inst *Instance) eval(env *Cell, expr *Cell) (nenv *Cell, ret *Cell) {
 		case "begin":
 			nenv = env
 			for e := tail; e != nil; e = cdr(e) {
-				fmt.Printf("Env at start of begin loop: %s\n", display(nenv))
-				nenv, ret = inst.apply(nenv, car(car(e)), cdr(car(e)))
+				nenv, ret = inst.eval(nenv, car(e))
 			}
 			return nenv, ret
 		}
