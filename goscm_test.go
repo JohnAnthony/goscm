@@ -6,7 +6,7 @@ import (
 
 func Test_Read(t *testing.T) {
 	inst := NewInstance(nil)
-	var ret *SCMCell
+	var ret *SCMType
 	var remain string
 	
 	// Numbers //
@@ -27,22 +27,22 @@ func Test_Read(t *testing.T) {
 	// if (remain != " 3 4 5")
 	// error
 	
-	// Lists //
+	// Pairs //
 
 	ret, remain = inst.Read("(1 2 3)")
-	// if (ret.Type != SCM_List)
+	// if (ret.Type != SCM_Pair)
 	// error
 	// if (ret.Value.Car.Type != SCM_Number)
 	// error
 	// if (ret.Value.Car.Value != 1)
 	// error
-	// if (ret.Value.Cdr.Type != SCM_List)
+	// if (ret.Value.Cdr.Type != SCM_Pair)
 	// error
 	// if (ret.Value.Cdr.Value.Car.Type != SCM_Number)
 	// error
 	// if (ret.Value.Cdr.Value.Car.Value != 2)
 	// error
-	// if (ret.Value.Cdr.Value.Cdr.Type != SCM_List)
+	// if (ret.Value.Cdr.Value.Cdr.Type != SCM_Pair)
 	// error
 	// if (ret.Value.Cdr.Value.Cdr.Value.Car.Type != SCM_Number)
 	// error

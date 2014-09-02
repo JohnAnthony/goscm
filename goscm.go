@@ -6,7 +6,7 @@ import (
 type Instance struct {
 }
 
-type SCMCell struct {
+type SCMType struct {
 }
 
 // NewInstance takes a string description of a standard and returns a new scheme
@@ -18,21 +18,21 @@ func NewInstance(std string) *Instance {
 }
 
 // Read takes a string and reads it using the instance's syntax rules.
-// It returns a *SCMCell of the first sexp it encounters and a string containing
+// It returns a *SCMType of the first sexp it encounters and a string containing
 // the unprocessed remainder of the input string.
 // If EOF is reached while attempting to read an sexp, then an appropriate
 // scheme error is returned
-func (inst *Instance) Read(s string) (*SCMCell, string) {
+func (inst *Instance) Read(s string) (*SCMType, string) {
 	return nil, ""
 }
 
-// Eval takes a *SCMCell and evaluates it inside of an environment
-func (inst *Instance) Eval(*SCMCell) *SCMCell {
+// Eval takes a *SCMType and evaluates it inside of an environment
+func (inst *Instance) Eval(*SCMType) *SCMType {
 	return nil
 }
 
-// Print takes a *SCMCell and returns a string representation of that value
+// Print takes a *SCMType and returns a string representation of that value
 // Note the this function does not actually print the value to the screen
-func (inst *Instance) Print(*SCMCell) string {
+func (inst *Instance) Print(*SCMType) string {
 	return ""
 }
