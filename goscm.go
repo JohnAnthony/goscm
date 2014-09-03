@@ -7,7 +7,14 @@ type Instance struct {
 }
 
 type SCMType struct {
+	Type int
+	Value interface {}
 }
+
+const (
+	SCM_Error = iota
+	SCM_Number
+)
 
 // NewInstance takes a string description of a standard and returns a new scheme
 // interpreter instance initialized to meet that standard.
@@ -23,7 +30,7 @@ func NewInstance(std string) *Instance {
 // If EOF is reached while attempting to read an sexp, then an appropriate
 // scheme error is returned
 func (inst *Instance) Read(s string) (*SCMType, string) {
-	return nil, ""
+	return &SCMType{ Type: SCM_Error, Value: "Not implemented" }, ""
 }
 
 // Eval takes a *SCMType and evaluates it inside of an environment
