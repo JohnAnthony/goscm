@@ -12,8 +12,7 @@ type SCMType struct {
 }
 
 const (
-	SCM_Error = iota
-	SCM_Number
+	SCM_Integer = iota
 )
 
 // NewInstance takes a string description of a standard and returns a new scheme

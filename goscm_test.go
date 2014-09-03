@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func Test_Read(t *testing.T) {
+func Test_Read_Integer(t *testing.T) {
 	var inst *Instance
 	var ret *SCMType
 	var remain string
 	
-	// Numbers //
+	// Integers //
 
 	inst = NewInstance("")
 	ret, remain = inst.Read("2")
@@ -28,34 +28,4 @@ func Test_Read(t *testing.T) {
 	// error
 	// if (remain != " 3 4 5")
 	// error
-	
-	// Pairs //
-
-	// ret, remain = inst.Read("(1 2 3)")
-	// if (ret.Type != SCM_Pair)
-	// error
-	// if (ret.Value.Car.Type != SCM_Integer)
-	// error
-	// if (ret.Value.Car.Value != 1)
-	// error
-	// if (ret.Value.Cdr.Type != SCM_Pair)
-	// error
-	// if (ret.Value.Cdr.Value.Car.Type != SCM_Integer)
-	// error
-	// if (ret.Value.Cdr.Value.Car.Value != 2)
-	// error
-	// if (ret.Value.Cdr.Value.Cdr.Type != SCM_Pair)
-	// error
-	// if (ret.Value.Cdr.Value.Cdr.Value.Car.Type != SCM_Integer)
-	// error
-	// if (ret.Value.Cdr.Value.Cdr.Value.Car.Value != 3)
-	// error
-	// if (ret.Value.Cdr.Value.Cdr.Value.Cdr != nil)
-	// error
-}
-
-func Test_Eval(t *testing.T) {
-}
-
-func Test_Print(t *testing.T) {
 }
