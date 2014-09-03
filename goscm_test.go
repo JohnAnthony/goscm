@@ -12,14 +12,15 @@ func Test_Read(t *testing.T) {
 	// Numbers //
 
 	ret, remain = inst.Read("2")
-	//if (ret.Type != SCM_Number)
-	// error
-	// if (ret.Value != 2)
-	// error
-	// if (remain != "")
-	// error
+	if ret.Type != SCM_Number {
+		t.Error("Expected to be of type SCM_Number")
+	} else if *ret.Value.(*int) != 2 {
+    	t.Error("Expected returned value to be 2")
+	} else if remain != "" {
+    	t.Error("Expected no remainder")
+	}
 
-	ret, remain = inst.Read("2 3 4 5")
+	// ret, remain = inst.Read("2 3 4 5")
 	// if (ret.Type != SCM_Number)
 	// error
 	// if (ret.Value != 2)
@@ -29,7 +30,7 @@ func Test_Read(t *testing.T) {
 	
 	// Pairs //
 
-	ret, remain = inst.Read("(1 2 3)")
+	// ret, remain = inst.Read("(1 2 3)")
 	// if (ret.Type != SCM_Pair)
 	// error
 	// if (ret.Value.Car.Type != SCM_Number)
