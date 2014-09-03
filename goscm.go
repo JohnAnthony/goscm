@@ -1,18 +1,21 @@
 package goscm
 
 import (
+	"strconv"
 )
 
 type Instance struct {
 }
 
 type SCMType struct {
-	Type int
+	Type SCMT
 	Value interface {}
 }
 
+type SCMT int
+
 const (
-	SCM_Integer = iota
+	SCM_Integer SCMT = iota
 )
 
 // NewInstance takes a string description of a standard and returns a new scheme
@@ -29,7 +32,18 @@ func NewInstance(std string) *Instance {
 // If EOF is reached while attempting to read an sexp, then an appropriate
 // scheme error is returned
 func (inst *Instance) Read(s string) (*SCMType, string) {
-	return &SCMType{ Type: SCM_Error, Value: "Not implemented" }, ""
+	var ret SCMType
+	var start int
+	var end int
+	var val int
+
+	ret.Type = SCM_Integer
+	ret.Value = &val
+	for start = 0; s[start] == ' '; start++ {}
+	for end = start; end < len(s) && s[end] != ' '; end++ {}
+	val, _ = strconv.Atoi(s[start:end])
+
+	return &ret, s[end:]
 }
 
 // Eval takes a *SCMType and evaluates it inside of an environment
