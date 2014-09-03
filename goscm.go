@@ -11,7 +11,7 @@ type SCMType struct {
 
 // NewInstance takes a string description of a standard and returns a new scheme
 // interpreter instance initialized to meet that standard.
-// If the string description is nil, then we return a very minimal instance.
+// If the string description is "", then we return a very minimal instance.
 func NewInstance(std string) *Instance {
 	return &Instance {
 	}

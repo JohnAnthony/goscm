@@ -5,7 +5,7 @@ import (
 )
 
 func Test_Read(t *testing.T) {
-	inst := NewInstance(nil)
+	inst := NewInstance("")
 	var ret *SCMType
 	var remain string
 	
@@ -50,4 +50,10 @@ func Test_Read(t *testing.T) {
 	// error
 	// if (ret.Value.Cdr.Value.Cdr.Value.Cdr != nil)
 	// error
+}
+
+func Test_Eval(t *testing.T) {
+}
+
+func Test_Print(t *testing.T) {
 }
