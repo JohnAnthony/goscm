@@ -53,4 +53,7 @@ func Test_Read_String(t *testing.T) {
 	} else if remain != " 2 3 4" {
     	t.Error("Expected remainder to be \" 2 3 4\", got", remain)
 	}
+
+	// TODO: Test for handling of empty strings
+	// TODO: Test for handling of unterminated strings
 }
