@@ -9,8 +9,6 @@ func Test_Read_Integer(t *testing.T) {
 	var ret *SCMType
 	var remain string
 	
-	// Integers //
-
 	inst = NewInstance("")
 	ret, remain = inst.Read("2")
 	if ret.Type != SCM_Integer {
@@ -28,5 +26,31 @@ func Test_Read_Integer(t *testing.T) {
     	t.Error("Expected returned value to be 90, got", *ret.Value.(*int))
 	} else if remain != " 30 40 50" {
 		t.Error("Expected remainder to be \" 30 40 50\", got", remain)
+	}
+}
+
+func Test_Read_String(t *testing.T) {
+	var inst *Instance
+	var ret *SCMType
+	var remain string
+
+	inst = NewInstance("")
+	ret, remain = inst.Read("\"Test string\"")
+	if ret.Type != SCM_String {
+		t.Error("Expected to be of type SCM_String")
+	} else if *ret.Value.(*string) != "Test string" {
+    	t.Error("Expected returned value to be \"Test string\", got", *ret.Value.(*string))
+	} else if remain != "" {
+    	t.Error("Expected no remainder, got", remain)
+	}
+	
+	inst = NewInstance("")
+	ret, remain = inst.Read("\"Test string\" 2 3 4")
+	if ret.Type != SCM_String {
+		t.Error("Expected to be of type SCM_String")
+	} else if *ret.Value.(*string) != "Test string" {
+    	t.Error("Expected returned value to be \"Test string\", got", *ret.Value.(*string))
+	} else if remain != " 2 3 4" {
+    	t.Error("Expected remainder to be \" 2 3 4\", got", remain)
 	}
 }
