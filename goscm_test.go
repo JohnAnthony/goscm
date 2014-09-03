@@ -27,6 +27,6 @@ func Test_Read_Integer(t *testing.T) {
 	} else if *ret.Value.(*int) != 90 {
     	t.Error("Expected returned value to be 90, got", *ret.Value.(*int))
 	} else if remain != " 30 40 50" {
-		t.Error("Expected remainder to be \" 30 40 50\", got:", remain)
+		t.Error("Expected remainder to be \" 30 40 50\", got", remain)
 	}
 }
