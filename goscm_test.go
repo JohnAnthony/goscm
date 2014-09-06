@@ -62,7 +62,18 @@ func Test_Read_String(t *testing.T) {
     	t.Error("Expected remainder to be \" 2 3 4\", got", remain)
 	}
 
-	// TODO: Test for handling of empty strings
+	inst = NewInstance("")
+	ret, remain = inst.Read("\"\"")
+	if ret.Type != SCM_String {
+		t.Error("Expected to be of type SCM_String")
+	}
+	if *ret.Value.(*string) != "" {
+    	t.Error("Expected returned value to be \"\", got", *ret.Value.(*string))
+	}
+	if remain != "" {
+    	t.Error("Expected remainder to be \"\", got", remain)
+	}
+
 	// TODO: Test for handling of unterminated strings
 }
 
