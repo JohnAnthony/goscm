@@ -95,3 +95,52 @@ func Test_Read_Symbol(t *testing.T) {
 		t.Error("Expected no remainder, got", remain)
 	}
 }
+
+func Test_Read_List(t *testing.T) {
+	var inst *Instance
+	var ret *SCMType
+	var remain string
+
+	inst = NewInstance("")
+	ret, remain = inst.Read("(+ 10 20)")
+	head := ret
+	if head.Type != SCM_Pair {
+		t.Error("Expected to be of type SCM_Pair")
+	}
+	if *head.Value.(*SCMPair).Car.Type != SCM_Symbol {
+		t.Error("Expected list's car to be a SCMPair")
+	}
+	if *head.Value.(*SCMPair).Car.Value.(*string) != "+" {
+		t.Error("Expected list's car to be symbol \"+\"")
+	}
+	if *head.Value.(*SCMPair).Cdr.Type != SCM_Pair {
+		t.Error("Expected list's cdr to be a SCM_Pair")
+	}
+	head = head.Value.(*SCMPair).Cdr
+	if *head.Value.(*SCMPair).Car != SCM_Integer {
+		t.Error("Expected list's cdar to be a SCM_Integer")
+	}
+	if *head.Value.(*SCMPair).Car.Value.(*int) != 10 {
+		t.Error(
+			"Expected list's cdar value to be 10, got",
+			*head.Value.(*SCMPair).Car.Value.(*int))
+	}
+	if *head.Value.(*SCMPair).Cdr.Type != SCM_Pair {
+		t.Error("Expected list's next element to be a SCM_Pair")
+	}
+	head = head.Value.(*SCMPair).Cdr
+	if *head.Value.(*SCMPair).Car != SCM_Integer {
+		t.Error("Expected list's cdar to be a SCM_Integer")
+	}
+	if *head.Value.(*SCMPair).Car.Value.(*int) != 20 {
+		t.Error(
+			"Expected list's cdar value to be 20, got",
+			*head.Cdr.Value.(*SCMPair).Car.Value.(*int))
+	}
+	if *head.Value.(*SCMPair).Cdr != nil {
+		t.Error("Expected next list element to be nil")
+	}
+	if remain != "" {
+		t.Error("Expected no remainder, got", remain)
+	}
+}
