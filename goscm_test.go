@@ -209,3 +209,16 @@ func Test_Print_Symbol(t *testing.T) {
 		t.Error("Expected symbol foo to evaluate to FOO, got", p)
 	}
 }
+
+func Test_Print_List(t *testing.T) {
+	var inst *Instance
+	var ret *SCMType
+	var p string
+
+	inst = NewInstance("")
+	ret, _ = inst.Read("(+ 10 20 30 40)")
+	p = inst.Print(ret)
+	if p != "(+ 10 20 30 40)" {
+		t.Error("Expected (+ 10 20 30 40), got", p)
+	}
+}
