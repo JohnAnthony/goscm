@@ -46,7 +46,8 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 
 	s = strings.TrimLeft(s, " ")
 	
-	if (s[0] == '(') { // A list
+	switch {
+	case s[0] == '(': // A list
 		tip := &ret
 		s = s[1:]
 		remain := s
@@ -61,13 +62,13 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 			tip.Value.(*SCMPair).Cdr = new(SCMType)
 			tip = tip.Value.(*SCMPair).Cdr
 		}
-	} else if (s[0] >= '0' && s[0] <= '9') { // A number
+	case s[0] >= '0' && s[0] <= '9': // A number
 		ret.Type = SCM_Integer
 		var val int
 		for end = 0; end < len(s) && s[end] != ' ' && s[end] != ')'; end++ {}
 		val, _ = strconv.Atoi(s[:end])
 		ret.Value = &val
-	} else if (s[0] == '"') { // A string
+	case s[0] == '"': // A string
 		ret.Type = SCM_String
 		var val string
 		s = s[1:]
@@ -75,14 +76,14 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 		val = s[:end]
 		end++
 		ret.Value = &val
-	} else { // A symbol
+	default: // A symbol
 		ret.Type = SCM_Symbol
 		var val string
 		for end = 0; end < len(s) && s[end] != ' ' && s[end] != ')'; end++ {}
 		val = s[:end]
 		ret.Value = &val
 	}
-
+	
 	return &ret, s[end:]
 }
 
