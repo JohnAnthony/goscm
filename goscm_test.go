@@ -198,5 +198,14 @@ func Test_Print_String(t *testing.T) {
 }
 
 func Test_Print_Symbol(t *testing.T) {
+	var inst *Instance
+	var ret *SCMType
+	var p string
 
+	inst = NewInstance("")
+	ret, _ = inst.Read("foo")
+	p = inst.Print(ret)
+	if p != "FOO" {
+		t.Error("Expected symbol foo to evaluate to FOO, got", p)
+	}
 }
