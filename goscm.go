@@ -50,7 +50,10 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 	case s[0] == '(': // A list
 		tip := &ret
 		s = s[1:]
-		remain := s
+		remain := strings.TrimLeft(s, " ")
+		if remain[0] == ')' {
+			return nil, remain[1:]
+		}
 		for {
 			tip.Type = SCM_Pair
 			tip.Value = new(SCMPair)
