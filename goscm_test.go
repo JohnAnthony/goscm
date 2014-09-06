@@ -174,7 +174,16 @@ func Test_Read_List(t *testing.T) {
 		t.Error("Expected no remainder, got", remain)
 	}
 	
-	// TODO: Test empty list return value
+	inst = NewInstance("")
+	ret, remain = inst.Read("()")
+	if ret != nil {
+		t.Error("Expected return value to be nil (an empty list), got", ret)
+	}
+	if remain != "" {
+		t.Error("Expected no remainder, got", remain)
+	}
+	
+	// TODO: Add test for remainders
 }
 
 func Test_Print_Integer(t *testing.T) {
