@@ -103,6 +103,15 @@ func (inst *Instance) Print(cell *SCMType) string {
 	case SCM_Symbol:
 		return *cell.Value.(*string)
 	case SCM_Pair:
+		ret := "("
+		for ; cell != nil; {
+			ret += inst.Print(cell.Value.(*SCMPair).Car)
+			if cell.Value.(*SCMPair).Cdr != nil {
+				ret += " "
+			}
+			cell = cell.Value.(*SCMPair).Cdr
+		}
+		return ret + ")"
 	}
 	
 	return "ERROR UNPRINTABLE" // Add some error handling here
