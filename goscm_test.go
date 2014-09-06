@@ -175,4 +175,11 @@ func Test_Print_Integer(t *testing.T) {
 	if p != "10" {
 		t.Error("Expected Read(\"10\") to return 10, got", p)
 	}
+
+	inst = NewInstance("")
+	ret, _ = inst.Read("9984523")
+	p = inst.Print(ret)
+	if p != "9984523" {
+		t.Error("Expected Read(\"9984523\") to return 9984523, got", p)
+	}
 }
