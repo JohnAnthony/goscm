@@ -80,7 +80,7 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 		ret.Type = SCM_Symbol
 		var val string
 		for end = 0; end < len(s) && s[end] != ' ' && s[end] != ')'; end++ {}
-		val = s[:end]
+		val = strings.ToUpper(s[:end])
 		ret.Value = &val
 	}
 	
