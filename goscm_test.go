@@ -227,7 +227,7 @@ func Test_Print_List(t *testing.T) {
 	inst = NewInstance("")
 	ret, _ = inst.Read("(foo (sub list) 45 5)")
 	p = inst.Print(ret)
-	if p != "(foo (sub list) 45 5)" {
-		t.Error("Expected (foo (sub list) 45 5), got", p)
+	if p != "(FOO (SUB LIST) 45 5)" {
+		t.Error("Expected (FOO (SUB LIST) 45 5), got", p)
 	}
 }
