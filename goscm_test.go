@@ -162,6 +162,8 @@ func Test_Read_List(t *testing.T) {
 	if remain != "" {
 		t.Error("Expected no remainder, got", remain)
 	}
+	
+	// TODO: Test empty list return value
 }
 
 func Test_Print_Integer(t *testing.T) {
@@ -219,6 +221,13 @@ func Test_Print_List(t *testing.T) {
 	ret, _ = inst.Read("(+ 10 20 30 40)")
 	p = inst.Print(ret)
 	if p != "(+ 10 20 30 40)" {
+		t.Error("Expected (+ 10 20 30 40), got", p)
+	}
+	
+	inst = NewInstance("")
+	ret, _ = inst.Read("(foo (sub list) 45 5)")
+	p = inst.Print(ret)
+	if p != "(foo (sub list) 45 5)" {
 		t.Error("Expected (+ 10 20 30 40), got", p)
 	}
 }
