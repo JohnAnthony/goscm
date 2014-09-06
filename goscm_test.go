@@ -65,3 +65,33 @@ func Test_Read_String(t *testing.T) {
 	// TODO: Test for handling of empty strings
 	// TODO: Test for handling of unterminated strings
 }
+
+func Test_Read_Symbol(t *testing.T) {
+	var inst *Instance
+	var ret *SCMType
+	var remain string
+
+	inst = NewInstance("")
+	ret, remain = inst.Read("foo")
+	if ret.Type != SCM_Symbol {
+		t.Error("Expected to be of type SCM_Symbol")
+	}
+	if *ret.Value.(*string) != "foo" {
+		t.Error("Expected returned value to be \"foo\", got", *ret.Value.(*string))
+	}
+	if remain != "" {
+		t.Error("Expected no remainder, got", remain)
+	}
+
+	inst = NewInstance("")
+	ret, remain = inst.Read("abrax ebran ubrol irwin")
+	if ret.Type != SCM_Symbol {
+		t.Error("Expected to be of type SCM_Symbol")
+	}
+	if *ret.Value.(*string) != "abrax" {
+		t.Error("Expected returned value to be \"abrax\", got", *ret.Value.(*string))
+	}
+	if remain != " ebran ubrol irwin" {
+		t.Error("Expected no remainder, got", remain)
+	}
+}
