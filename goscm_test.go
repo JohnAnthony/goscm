@@ -163,3 +163,16 @@ func Test_Read_List(t *testing.T) {
 		t.Error("Expected no remainder, got", remain)
 	}
 }
+
+func Test_Print_Integer(t *testing.T) {
+	var inst *Instance
+	var ret *SCMType
+	var p string
+
+	inst = NewInstance("")
+	ret, _ = inst.Read("10")
+	p = inst.Print(ret)
+	if p != "10" {
+		t.Error("Expected Read(\"10\") to return 10, got", p)
+	}
+}
