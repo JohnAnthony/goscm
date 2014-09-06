@@ -76,8 +76,8 @@ func Test_Read_Symbol(t *testing.T) {
 	if ret.Type != SCM_Symbol {
 		t.Error("Expected to be of type SCM_Symbol")
 	}
-	if *ret.Value.(*string) != "foo" {
-		t.Error("Expected returned value to be \"foo\", got", *ret.Value.(*string))
+	if *ret.Value.(*string) != "FOO" {
+		t.Error("Expected returned value to be \"FOO\", got", *ret.Value.(*string))
 	}
 	if remain != "" {
 		t.Error("Expected no remainder, got", remain)
@@ -88,8 +88,8 @@ func Test_Read_Symbol(t *testing.T) {
 	if ret.Type != SCM_Symbol {
 		t.Error("Expected to be of type SCM_Symbol")
 	}
-	if *ret.Value.(*string) != "abrax" {
-		t.Error("Expected returned value to be \"abrax\", got", *ret.Value.(*string))
+	if *ret.Value.(*string) != "ABRAX" {
+		t.Error("Expected returned value to be \"ABRAX\", got", *ret.Value.(*string))
 	}
 	if remain != " ebran ubrol irwin" {
 		t.Error("Expected no remainder, got", remain)
@@ -195,4 +195,8 @@ func Test_Print_String(t *testing.T) {
 	if p != "\"foo\"" {
 		t.Error("Expected string \"foo\" to evaluate to itself in quotes")
 	}
+}
+
+func Test_Print_Symbol(t *testing.T) {
+
 }
