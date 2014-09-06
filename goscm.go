@@ -50,9 +50,9 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 		tip := &ret
 		s = s[1:]
 		remain := s
-		tip.Value = new(SCMPair)
 		for {
 			tip.Type = SCM_Pair
+			tip.Value = new(SCMPair)
 			tip.Value.(*SCMPair).Car, remain = inst.Read(remain)
 			remain = strings.TrimLeft(remain, " ")
 			if remain[0] == ')' {
