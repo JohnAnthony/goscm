@@ -101,6 +101,7 @@ func (inst *Instance) Print(cell *SCMType) string {
 	case SCM_String:
 		return "\"" + *cell.Value.(*string) + "\""
 	case SCM_Symbol:
+		return *cell.Value.(*string)
 	case SCM_Pair:
 	}
 	
