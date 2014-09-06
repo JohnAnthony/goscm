@@ -114,5 +114,5 @@ func (inst *Instance) Print(cell *SCMType) string {
 		return ret + ")"
 	}
 	
-	return "ERROR UNPRINTABLE" // Add some error handling here
+	return "ERROR UNPRINTABLE"
 }
