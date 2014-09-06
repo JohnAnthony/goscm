@@ -93,6 +93,14 @@ func (inst *Instance) Eval(*SCMType) *SCMType {
 
 // Print takes a *SCMType and returns a string representation of that value
 // Note the this function does not actually print the value to the screen
-func (inst *Instance) Print(*SCMType) string {
-	return ""
+func (inst *Instance) Print(cell *SCMType) string {
+	switch cell.Type {
+	case SCM_Integer:
+		return strconv.Itoa(*cell.Value.(*int))
+	case SCM_String:
+	case SCM_Symbol:
+	case SCM_Pair:
+	}
+	
+	return "ERROR UNPRINTABLE" // Add some error handling here
 }
