@@ -193,7 +193,7 @@ func Test_Print_String(t *testing.T) {
 	ret, _ = inst.Read("\"foo\"")
 	p = inst.Print(ret)
 	if p != "\"foo\"" {
-		t.Error("Expected string \"foo\" to evaluate to itself in quotes")
+		t.Error("Expected string \"foo\" to evaluate to itself in quotes, got", p)
 	}
 }
 
