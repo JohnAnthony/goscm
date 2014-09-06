@@ -183,3 +183,16 @@ func Test_Print_Integer(t *testing.T) {
 		t.Error("Expected Read(\"9984523\") to return 9984523, got", p)
 	}
 }
+
+func Test_Print_String(t *testing.T) {
+	var inst *Instance
+	var ret *SCMType
+	var p string
+
+	inst = NewInstance("")
+	ret, _ = inst.Read("\"foo\"")
+	p = inst.Print(ret)
+	if p != "\"foo\"" {
+		t.Error("Expected string \"foo\" to evaluate to itself in quotes")
+	}
+}

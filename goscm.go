@@ -98,6 +98,7 @@ func (inst *Instance) Print(cell *SCMType) string {
 	case SCM_Integer:
 		return strconv.Itoa(*cell.Value.(*int))
 	case SCM_String:
+		return "\"" + *cell.Value.(*string) + "\""
 	case SCM_Symbol:
 	case SCM_Pair:
 	}
