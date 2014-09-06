@@ -100,7 +100,27 @@ func Test_Read_List(t *testing.T) {
 	var inst *Instance
 	var ret *SCMType
 	var remain string
+	
+	inst = NewInstance("")
+	ret, remain = inst.Read("(69)")
+	if ret.Type != SCM_Pair {
+		t.Error("Expected to be of type SCM_Pair")
+	}
+	if ret.Value.(*SCMPair).Car.Type != SCM_Integer {
+		t.Error("Expected list's car to be a SCMInteger")
+	}
+	if *ret.Value.(*SCMPair).Car.Value.(*int) != 69 {
+		t.Error("Expected list's car to be 69, got",
+		*ret.Value.(*SCMPair).Car.Value.(*int) != 69)
+	}
+	if ret.Value.(*SCMPair).Cdr != nil {
+		t.Error("The list's cdr is not nil")
+	}
+	if remain != "" {
+		t.Error("Expected no remainder, got", remain)
+	}
 
+/*
 	inst = NewInstance("")
 	ret, remain = inst.Read("(+ 10 20)")
 	head := ret
@@ -143,4 +163,5 @@ func Test_Read_List(t *testing.T) {
 	if remain != "" {
 		t.Error("Expected no remainder, got", remain)
 	}
+*/
 }
