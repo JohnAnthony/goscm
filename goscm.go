@@ -17,6 +17,7 @@ type SCMT int
 const (
 	SCM_Integer SCMT = iota
 	SCM_String
+	SCM_Symbol
 )
 
 // NewInstance takes a string description of a standard and returns a new scheme
@@ -52,6 +53,12 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 		for end = start; end < len(s) && s[end] != '"'; end++ {}
 		val = s[start:end]
 		end++
+		ret.Value = &val
+	} else { // A symbol
+		ret.Type = SCM_Symbol
+		var val string
+		for end = start; end < len(s) && s[end] != ' '; end++ {}
+		val = s[start:end]
 		ret.Value = &val
 	}
 
