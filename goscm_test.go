@@ -111,7 +111,7 @@ func Test_Read_List(t *testing.T) {
 	}
 	if *ret.Value.(*SCMPair).Car.Value.(*int) != 69 {
 		t.Error("Expected list's car to be 69, got",
-		*ret.Value.(*SCMPair).Car.Value.(*int) != 69)
+		*ret.Value.(*SCMPair).Car.Value.(*int))
 	}
 	if ret.Value.(*SCMPair).Cdr != nil {
 		t.Error("The list's cdr is not nil")
@@ -120,7 +120,6 @@ func Test_Read_List(t *testing.T) {
 		t.Error("Expected no remainder, got", remain)
 	}
 
-/*
 	inst = NewInstance("")
 	ret, remain = inst.Read("(+ 10 20)")
 	head := ret
@@ -163,5 +162,4 @@ func Test_Read_List(t *testing.T) {
 	if remain != "" {
 		t.Error("Expected no remainder, got", remain)
 	}
-*/
 }
