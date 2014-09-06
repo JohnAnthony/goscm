@@ -2,6 +2,7 @@ package goscm
 
 import (
 	"strconv"
+	"strings"
 )
 
 type Instance struct {
@@ -12,12 +13,18 @@ type SCMType struct {
 	Value interface {}
 }
 
+type SCMPair struct {
+	Car *SCMType
+	Cdr *SCMType
+}
+
 type SCMT int
 
 const (
 	SCM_Integer SCMT = iota
 	SCM_String
 	SCM_Symbol
+	SCM_Pair
 )
 
 // NewInstance takes a string description of a standard and returns a new scheme
@@ -35,30 +42,44 @@ func NewInstance(std string) *Instance {
 // scheme error is returned
 func (inst *Instance) Read(s string) (*SCMType, string) {
 	var ret SCMType
-	var start int
 	var end int
 
-	for start = 0; s[start] == ' '; start++ {}
+	s = strings.TrimLeft(s, " ")
 	
-	if (s[start] >= '0' && s[start] <= '9') { // A number
+	if (s[0] == '(') { // A list
+		tip := &ret
+		s = s[1:]
+		remain := s
+		tip.Value = new(SCMPair)
+		for {
+			tip.Type = SCM_Pair
+			tip.Value.(*SCMPair).Car, remain = inst.Read(remain)
+			remain = strings.TrimLeft(remain, " ")
+			if remain[0] == ')' {
+				return &ret, remain[1:]
+			}
+			tip.Value.(*SCMPair).Cdr = new(SCMType)
+			tip = tip.Value.(*SCMPair).Cdr
+		}
+	} else if (s[0] >= '0' && s[0] <= '9') { // A number
 		ret.Type = SCM_Integer
 		var val int
-		for end = start; end < len(s) && s[end] != ' '; end++ {}
-		val, _ = strconv.Atoi(s[start:end])
+		for end = 0; end < len(s) && s[end] != ' ' && s[end] != ')'; end++ {}
+		val, _ = strconv.Atoi(s[:end])
 		ret.Value = &val
-	} else if (s[start] == '"') { // A string
+	} else if (s[0] == '"') { // A string
 		ret.Type = SCM_String
 		var val string
-		start++
-		for end = start; end < len(s) && s[end] != '"'; end++ {}
-		val = s[start:end]
+		s = s[1:]
+		for end = 0; end < len(s) && s[end] != '"'; end++ {}
+		val = s[:end]
 		end++
 		ret.Value = &val
 	} else { // A symbol
 		ret.Type = SCM_Symbol
 		var val string
-		for end = start; end < len(s) && s[end] != ' '; end++ {}
-		val = s[start:end]
+		for end = 0; end < len(s) && s[end] != ' ' && s[end] != ')'; end++ {}
+		val = s[:end]
 		ret.Value = &val
 	}
 
