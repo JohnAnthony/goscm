@@ -254,14 +254,26 @@ func Test_Print_List(t *testing.T) {
 
 func Test_Eval_Self_Evaluators(t *testing.T) {
 	var inst *Instance
+	var read *SCMType
+	var evald *SCMType
 
 	inst = NewInstance("")
-	read, _ := inst.Read("2")
-	evald := inst.Eval(read)
+	read, _ = inst.Read("2")
+	evald = inst.Eval(read)
 	if evald.Type != SCM_Integer {
 		t.Error("Expected integer type")
 	}
 	if *evald.Value.(*int) != 2 {
 		t.Error("Expected integer return value to be 2, got", *evald.Value.(*int))
+	}
+
+	inst = NewInstance("")
+	read, _ = inst.Read("\"fOo\"")
+	evald = inst.Eval(read)
+	if evald.Type != SCM_String {
+		t.Error("Expected string type")
+	}
+	if *evald.Value.(*string) != "fOo" {
+		t.Error("Expected return value to be \"fOo\", got", *evald.Value.(*string))
 	}
 }
