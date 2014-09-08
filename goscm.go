@@ -91,8 +91,11 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 }
 
 // Eval takes a *SCMType and evaluates it inside of an environment
-func (inst *Instance) Eval(*SCMType) *SCMType {
-	return nil
+func (inst *Instance) Eval(cell *SCMType) *SCMType {
+	switch cell.Type {
+	default:
+		return cell 
+	}
 }
 
 // Print takes a *SCMType and returns a string representation of that value
