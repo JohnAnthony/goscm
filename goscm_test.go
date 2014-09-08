@@ -251,3 +251,17 @@ func Test_Print_List(t *testing.T) {
 		t.Error("Expected (FOO (SUB LIST) 45 5), got", p)
 	}
 }
+
+func Test_Eval_Self_Evaluators(t *testing.T) {
+	var inst *Instance
+
+	inst = NewInstance("")
+	read, _ := inst.Read("2")
+	evald := inst.Eval(read)
+	if evald.Type != SCM_Integer {
+		t.Error("Expected integer type")
+	}
+	if *evald.Value.(*int) != 2 {
+		t.Error("Expected integer return value to be 2, got", *evald.Value.(*int))
+	}
+}
