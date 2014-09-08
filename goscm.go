@@ -93,6 +93,8 @@ func (inst *Instance) Read(s string) (*SCMType, string) {
 // Eval takes a *SCMType and evaluates it inside of an environment
 func (inst *Instance) Eval(cell *SCMType) *SCMType {
 	switch cell.Type {
+	case SCM_Symbol:
+	case SCM_Pair:
 	default:
 		return cell 
 	}
