@@ -1,5 +1,9 @@
 package goscm
 
+// TODO
+// Add cons, car and cdr helpers
+// Add From_SCM_Integer, From_SCM_String helpers
+
 import (
 	"strconv"
 	"strings"
