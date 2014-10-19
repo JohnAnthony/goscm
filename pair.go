@@ -1,6 +1,8 @@
 package goscm
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type SCMT_Pair struct {
 	car SCMT
@@ -13,13 +15,15 @@ func (pair *SCMT_Pair) scm_eval(env *SCMT_Environment) SCMT {
 }
 
 func (pair *SCMT_Pair) scm_print() string {
+	// NOTE: This reflection to a string followed by a string comparison MUST be
+	// a terrible way to do this
 	ret := "("
 	for {
 		ret += pair.car.scm_print()
 		if pair.cdr == nil {
 			ret += ")"
 			break
-		} else if reflect.TypeOf(pair.cdr).Name() != "SCMT_Pair" {
+		} else if reflect.TypeOf(pair.cdr).String() != "*goscm.SCMT_Pair" {
 			ret += " . "
 			ret += pair.cdr.scm_print()
 			ret += ")"
