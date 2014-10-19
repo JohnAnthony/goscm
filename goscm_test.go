@@ -71,3 +71,13 @@ func Test_Pair(t *testing.T) {
 		t.Error()
 	}
 }
+
+func Test_Nil(t *testing.T) {
+	n := Make_SCMT(nil)
+	if reflect.TypeOf(n).String() != "*goscm.SCMT_Nil" {
+		t.Error()
+	}
+	if n.String() != "()" {
+		t.Error()
+	}
+}
