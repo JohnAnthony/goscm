@@ -16,6 +16,9 @@ func Test_String(t *testing.T) {
 }
 
 func Test_Pair(t *testing.T) {
-	pair := Cons(Make_SCMT(4), Make_SCMT(5))
+	pair := Cons(Make_SCMT("Foobarrrr!"), nil)
 	fmt.Println(pair.scm_print())
+	
+	pair2 := Cons(Make_SCMT(4), Make_SCMT(5))
+	fmt.Println(pair2.scm_print())
 }
