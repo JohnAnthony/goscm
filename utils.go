@@ -11,6 +11,7 @@ func Make_SCMT(in interface {}) SCMT {
 	case reflect.String:
 		return &SCMT_String { value: in.(string) }
 	default:
+		// TODO: We probably need to put an error here
 		return nil
 	}
 }
