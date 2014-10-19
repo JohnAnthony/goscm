@@ -20,7 +20,7 @@ func (pair *SCMT_Pair) scm_print() string {
 	ret := "("
 	for {
 		ret += pair.car.scm_print()
-		if pair.cdr == nil {
+		if reflect.TypeOf(pair.cdr).String() == "*goscm.SCMT_Nil" {
 			ret += ")"
 			break
 		} else if reflect.TypeOf(pair.cdr).String() != "*goscm.SCMT_Pair" {

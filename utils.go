@@ -5,6 +5,10 @@ import (
 )
 
 func Make_SCMT(in interface {}) SCMT {
+	if in == nil {
+		return &SCMT_Nil {}
+	}
+
 	switch reflect.TypeOf(in).Kind() {
 	case reflect.Int:
 		return &SCMT_Integer { value: in.(int) }
