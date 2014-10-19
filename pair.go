@@ -19,3 +19,20 @@ func (pair *SCMT_Pair) scm_print() string {
 
 	return ret
 }
+
+// Some standard scheme pair functions provided for use in Go
+
+func Cons(car SCMT, cdr SCMT) *SCMT_Pair {
+	return &SCMT_Pair {
+		car: car,
+		cdr: cdr,
+	}
+}
+
+func Car(pair *SCMT_Pair) SCMT {
+	return pair.car
+}
+
+func Cdr(pair *SCMT_Pair) SCMT {
+	return pair.cdr
+}

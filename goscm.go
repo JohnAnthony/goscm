@@ -1,9 +1,5 @@
 package goscm
 
-// External package for type/integer
-// External package for type/string
-// External package for pair traversal
-
 import (
 )
 
