@@ -5,7 +5,7 @@ type SCMT_String struct {
 }
 
 func (in *SCMT_String) scm_print() string {
-	return in.value
+	return "\"" + in.value + "\""
 }
 
 func (in *SCMT_String) scm_eval(*SCMT_Environment) SCMT {
