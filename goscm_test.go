@@ -14,7 +14,7 @@ func Test_Integer(t *testing.T) {
 	if in.(*SCMT_Integer).value != 31337 {
 		t.Error()
 	}
-	if in.scm_print() != "31337" {
+	if in.String() != "31337" {
 		t.Error()
 	}
 }
@@ -28,7 +28,7 @@ func Test_String(t *testing.T) {
 	if str.(*SCMT_String).value != "foobar!" {
 		t.Error()
 	}
-	if str.scm_print() != "\"foobar!\"" {
+	if str.String() != "\"foobar!\"" {
 		t.Error()
 	}
 }
@@ -39,7 +39,7 @@ func Test_Pair(t *testing.T) {
 	if reflect.TypeOf(sing).String() != "*goscm.SCMT_Pair" {
 		t.Error()
 	}
-	if sing.scm_print() != "(\"Foobarrrr!\")" {
+	if sing.String() != "(\"Foobarrrr!\")" {
 		t.Error()
 	}
 	
@@ -48,7 +48,7 @@ func Test_Pair(t *testing.T) {
 	if reflect.TypeOf(pair).String() != "*goscm.SCMT_Pair" {
 		t.Error()
 	}
-	if pair.scm_print() != "(4 . 5)" {
+	if pair.String() != "(4 . 5)" {
 		t.Error()
 	}
 	
@@ -67,7 +67,7 @@ func Test_Pair(t *testing.T) {
 	if reflect.TypeOf(list).String() != "*goscm.SCMT_Pair" {
 		t.Error()
 	}
-	if list.scm_print() != "(1 2 3 4 5 6 7 8 9)" {
+	if list.String() != "(1 2 3 4 5 6 7 8 9)" {
 		t.Error()
 	}
 }

@@ -14,18 +14,18 @@ func (pair *SCMT_Pair) scm_eval(env *SCMT_Environment) SCMT {
 	return nil
 }
 
-func (pair *SCMT_Pair) scm_print() string {
+func (pair *SCMT_Pair) String() string {
 	// NOTE: This reflection to a string followed by a string comparison MUST be
 	// a terrible way to do this
 	ret := "("
 	for {
-		ret += pair.car.scm_print()
+		ret += pair.car.String()
 		if reflect.TypeOf(pair.cdr).String() == "*goscm.SCMT_Nil" {
 			ret += ")"
 			break
 		} else if reflect.TypeOf(pair.cdr).String() != "*goscm.SCMT_Pair" {
 			ret += " . "
-			ret += pair.cdr.scm_print()
+			ret += pair.cdr.String()
 			ret += ")"
 			break
 		} else { //reflection shows us to have a SCMT_Pair

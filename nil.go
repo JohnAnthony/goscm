@@ -7,6 +7,6 @@ func (*SCMT_Nil) scm_eval(*SCMT_Environment) SCMT {
 	return &SCMT_Nil {}
 }
 
-func (*SCMT_Nil) scm_print() string {
+func (*SCMT_Nil) String() string {
 	return "()"
 }
