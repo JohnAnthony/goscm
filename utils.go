@@ -9,6 +9,7 @@ func Make_SCMT(in interface {}) SCMT {
 		return &SCMT_Nil {}
 	}
 
+	// This reflection must be ineffiecient...
 	switch reflect.TypeOf(in).Kind() {
 	case reflect.Int:
 		return &SCMT_Integer { value: in.(int) }
