@@ -84,3 +84,7 @@ func Test_Nil(t *testing.T) {
 		t.Error()
 	}
 }
+
+// TODO: Test for symbols
+// TODO: Test for environments
+// TODO: Test for foreign functions
