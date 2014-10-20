@@ -20,3 +20,11 @@ func EnvEmpty(child *SCMT_Environment) *SCMT_Environment {
 		child: child,
 	}
 }
+
+func (env *SCMT_Environment) Add(symb *SCMT_Symbol, val SCMT) {
+	env.table[symb.value] = val
+}
+
+func (env *SCMT_Environment) Find(symb *SCMT_Symbol) SCMT {
+	return env.table[symb.value]
+}

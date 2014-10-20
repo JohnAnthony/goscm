@@ -105,6 +105,15 @@ func Test_Environment(t *testing.T) {
 	if env.String() != "#<environment>" {
 		t.Error()
 	}
+	
+	env.Add(Make_Symbol("derp"), Make_SCMT(9987654))
+	ret := env.Find(Make_Symbol("DeRp"))
+	if reflect.TypeOf(ret).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if ret.String() != "9987654" {
+		t.Error()
+	}
 }
 
 // TODO: Test for functions
