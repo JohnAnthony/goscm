@@ -96,5 +96,16 @@ func Test_Symbol(t *testing.T) {
 	}
 }
 
-// TODO: Test for environments
+func Test_Environment(t *testing.T) {
+	env := EnvEmpty(nil)
+
+	if reflect.TypeOf(env).String() != "*goscm.SCMT_Environment" {
+		t.Error()
+	}
+	if env.String() != "#<environment>" {
+		t.Error()
+	}
+}
+
+// TODO: Test for functions
 // TODO: Test for foreign functions
