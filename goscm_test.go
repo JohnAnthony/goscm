@@ -85,6 +85,16 @@ func Test_Nil(t *testing.T) {
 	}
 }
 
-// TODO: Test for symbols
+func Test_Symbol(t *testing.T) {
+	s := Make_Symbol("Foo-bar")
+
+	if reflect.TypeOf(s).String() != "*goscm.SCMT_Symbol" {
+		t.Error()
+	}
+	if s.String() != "FOO-BAR" {
+		t.Error()
+	}
+}
+
 // TODO: Test for environments
 // TODO: Test for foreign functions
