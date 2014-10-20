@@ -6,7 +6,7 @@ type SCMT_Environment struct {
 }
 
 func (*SCMT_Environment) scm_eval(*SCMT_Environment) SCMT {
-	// TODO: This shoudl probably be an error
+	// TODO: This should probably be an error
 	return nil
 }
 
