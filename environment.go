@@ -26,5 +26,12 @@ func (env *SCMT_Environment) Add(symb *SCMT_Symbol, val SCMT) {
 }
 
 func (env *SCMT_Environment) Find(symb *SCMT_Symbol) SCMT {
-	return env.table[symb.value]
+	ret := env.table[symb.value]
+	if ret != nil {
+		return ret
+	}
+	if env.child == nil {
+		return nil
+	}
+	return env.child.Find(symb)
 }
