@@ -119,20 +119,20 @@ func Test_Environment(t *testing.T) {
 	}
 }
 
-/*
 func Test_Foreign(t *testing.T) {
-	f := func (l SCM_List) {
-		return Make_SCMT(Car(l) * Car(l))
+	f := func (list *SCMT_Pair) SCMT {
+		n := Car(list).(*SCMT_Integer).value
+		return Make_SCMT(n * n)
 	}
-	scm_f := Make_SCMT(f)
+	scm_f := Make_Foreign(f)
 	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)))
 
 	if reflect.TypeOf(sq).String() != "*goscm.SCMT_Integer" {
 		t.Error()
 	}
-	if ret.String() != "169" {
+	if sq.String() != "169" {
 		t.Error()
 	}
 }
-*/
+
 // TODO: Test for procedures

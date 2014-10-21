@@ -5,5 +5,7 @@ A note on terminology:
 ===
 
 Despite the fact that "function" and "procedure" are often used interchangably,
-fucntion/func are used in this project to mean Go functions and procedure/proc
-are used to mean scheme procedures.
+"foreign" is used in this project to mean Go functions that have been bound to
+scheme and procedure/proc are used to mean scheme procedures. Both are
+compatible with the interface "Function", which means we can apply them to a
+list of arguments.
