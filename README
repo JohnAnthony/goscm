@@ -1,0 +1,9 @@
+GoSCM: A scheme interpreter written in Go, designed to be a great extension
+language
+
+A note on terminology:
+===
+
+Despite the fact that "function" and "procedure" are often used interchangably,
+fucntion/func are used in this project to mean Go functions and procedure/proc
+are used to mean scheme procedures.
