@@ -124,9 +124,13 @@ func Test_Foreign(t *testing.T) {
 		n := Car(list).(*SCMT_Integer).value
 		return Make_SCMT(n * n)
 	}
-	scm_f := Make_Foreign(f)
-	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)))
 
+	scm_f := Make_Foreign(f)
+	if scm_f.String() != "#<foreign function>" {
+		t.Error()
+	}
+
+	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)))
 	if reflect.TypeOf(sq).String() != "*goscm.SCMT_Integer" {
 		t.Error()
 	}
