@@ -7,9 +7,13 @@ type SCMT interface {
 	String() string
 }
 
+type SCMT_Func interface {
+	Apply(SCMT_Pair)
+}
+
 func Make_SCMT(in interface {}) SCMT {
 	if in == nil {
-		return &SCMT_Nil {}
+		return SCMT_Nil
 	}
 
 	switch reflect.TypeOf(in).Kind() {

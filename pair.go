@@ -9,34 +9,40 @@ type SCMT_Pair struct {
 	cdr SCMT
 }
 
+var SCMT_Nil = &SCMT_Pair {}
+
 func (pair *SCMT_Pair) scm_eval(env *SCMT_Environment) SCMT {
 	// COMPLEX!
 	return nil
 }
 
 func (pair *SCMT_Pair) String() string {
-	// NOTE: This reflection to a string followed by a string comparison MUST be
-	// a terrible way to do this
+	if pair.IsNil() { 
+		return "()"
+	}
+
 	ret := "("
 	for {
 		ret += pair.car.String()
-		if reflect.TypeOf(pair.cdr).String() == "*goscm.SCMT_Nil" {
-			ret += ")"
+		if reflect.TypeOf(pair.cdr).String() != "*goscm.SCMT_Pair" {
+			ret = ret + " . " + pair.cdr.String()
 			break
-		} else if reflect.TypeOf(pair.cdr).String() != "*goscm.SCMT_Pair" {
-			ret += " . "
-			ret += pair.cdr.String()
-			ret += ")"
-			break
-		} else { //reflection shows us to have a SCMT_Pair
-			ret += " "
-			pair = pair.cdr.(*SCMT_Pair)
 		}
+		if pair.cdr.(*SCMT_Pair).IsNil() {
+			break
+		} else {
+			ret += " "
+		}
+		pair = pair.cdr.(*SCMT_Pair)
 	}
-	return ret
+	return ret + ")"
 }
 
 // Some standard scheme pair functions provided for use in Go
+
+func (pair *SCMT_Pair) IsNil() bool {
+	return pair == SCMT_Nil
+}
 
 func Cons(car SCMT, cdr SCMT) *SCMT_Pair {
 	return &SCMT_Pair {

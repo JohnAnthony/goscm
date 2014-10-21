@@ -52,7 +52,7 @@ func Test_Pair(t *testing.T) {
 		t.Error()
 	}
 	if pair.String() != "(4 . 5)" {
-		t.Error()
+		t.Error(pair)
 	}
 	
 	// A test with the list (1 2 3 4 5 6 7 8 9) aka
@@ -77,10 +77,13 @@ func Test_Pair(t *testing.T) {
 
 func Test_Nil(t *testing.T) {
 	n := Make_SCMT(nil)
-	if reflect.TypeOf(n).String() != "*goscm.SCMT_Nil" {
+	if reflect.TypeOf(n).String() != "*goscm.SCMT_Pair" {
 		t.Error()
 	}
 	if n.String() != "()" {
+		t.Error()
+	}
+	if n.(*SCMT_Pair).IsNil() != true {
 		t.Error()
 	}
 }
@@ -116,5 +119,20 @@ func Test_Environment(t *testing.T) {
 	}
 }
 
-// TODO: Test for functions
-// TODO: Test for foreign functions
+/*
+func Test_Foreign(t *testing.T) {
+	f := func (l SCM_List) {
+		return Make_SCMT(Car(l) * Car(l))
+	}
+	scm_f := Make_SCMT(f)
+	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)))
+
+	if reflect.TypeOf(sq).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if ret.String() != "169" {
+		t.Error()
+	}
+}
+*/
+// TODO: Test for procedures
