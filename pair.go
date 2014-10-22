@@ -11,7 +11,7 @@ type SCMT_Pair struct {
 
 var SCMT_Nil = &SCMT_Pair {}
 
-func (pair *SCMT_Pair) scm_eval(env *SCMT_Environment) SCMT {
+func (pair *SCMT_Pair) scm_eval(env *SCMT_Env) SCMT {
 	// COMPLEX!
 	return nil
 }

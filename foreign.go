@@ -4,7 +4,7 @@ type SCMT_Foreign struct {
 	function func (*SCMT_Pair) SCMT
 }
 
-func (fo *SCMT_Foreign) scm_eval(*SCMT_Environment) SCMT {
+func (fo *SCMT_Foreign) scm_eval(*SCMT_Env) SCMT {
 	return fo
 }
 

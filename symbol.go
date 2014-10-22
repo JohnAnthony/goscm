@@ -6,7 +6,7 @@ type SCMT_Symbol struct {
 	value string
 }
 
-func (symb *SCMT_Symbol) scm_eval(env *SCMT_Environment) SCMT {
+func (symb *SCMT_Symbol) scm_eval(env *SCMT_Env) SCMT {
 	// TODO: Look up in environment!
 	return nil
 }

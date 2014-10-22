@@ -1,31 +1,31 @@
 package goscm
 
-type SCMT_Environment struct {
+type SCMT_Env struct {
 	table map[string]SCMT
-	parent *SCMT_Environment
+	parent *SCMT_Env
 }
 
-func (*SCMT_Environment) scm_eval(*SCMT_Environment) SCMT {
+func (*SCMT_Env) scm_eval(*SCMT_Env) SCMT {
 	// TODO: This should probably be an error
 	return nil
 }
 
-func (*SCMT_Environment) String() string {
+func (*SCMT_Env) String() string {
 	return "#<environment>"
 }
 
-func EnvEmpty(parent *SCMT_Environment) *SCMT_Environment {
-	return &SCMT_Environment {
+func EnvEmpty(parent *SCMT_Env) *SCMT_Env {
+	return &SCMT_Env {
 		table: make(map[string]SCMT),
 		parent: parent,
 	}
 }
 
-func (env *SCMT_Environment) Add(symb *SCMT_Symbol, val SCMT) {
+func (env *SCMT_Env) Add(symb *SCMT_Symbol, val SCMT) {
 	env.table[symb.value] = val
 }
 
-func (env *SCMT_Environment) Find(symb *SCMT_Symbol) SCMT {
+func (env *SCMT_Env) Find(symb *SCMT_Symbol) SCMT {
 	ret := env.table[symb.value]
 	if ret != nil {
 		return ret

@@ -102,7 +102,7 @@ func Test_Symbol(t *testing.T) {
 func Test_Environment(t *testing.T) {
 	env := EnvEmpty(nil)
 
-	if reflect.TypeOf(env).String() != "*goscm.SCMT_Environment" {
+	if reflect.TypeOf(env).String() != "*goscm.SCMT_Env" {
 		t.Error()
 	}
 	if env.String() != "#<environment>" {
