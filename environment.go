@@ -2,7 +2,7 @@ package goscm
 
 type SCMT_Environment struct {
 	table map[string]SCMT
-	child *SCMT_Environment
+	parent *SCMT_Environment
 }
 
 func (*SCMT_Environment) scm_eval(*SCMT_Environment) SCMT {
@@ -14,10 +14,10 @@ func (*SCMT_Environment) String() string {
 	return "#<environment>"
 }
 
-func EnvEmpty(child *SCMT_Environment) *SCMT_Environment {
+func EnvEmpty(parent *SCMT_Environment) *SCMT_Environment {
 	return &SCMT_Environment {
 		table: make(map[string]SCMT),
-		child: child,
+		parent: parent,
 	}
 }
 
@@ -30,8 +30,8 @@ func (env *SCMT_Environment) Find(symb *SCMT_Symbol) SCMT {
 	if ret != nil {
 		return ret
 	}
-	if env.child == nil {
+	if env.parent == nil {
 		return nil
 	}
-	return env.child.Find(symb)
+	return env.parent.Find(symb)
 }
