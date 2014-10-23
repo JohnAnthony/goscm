@@ -167,12 +167,12 @@ func Test_Foreign_List(t *testing.T) {
 }
 
 func Test_Special(t *testing.T) {
-	quote := Make_Special(func (args *SCMT_Pair) {
+	quote := Make_Special(func (args *SCMT_Pair) SCMT {
 		return args
 	})
 
 	env := EnvEmpty(nil)
-	env.Add("quote", quote)
+	env.Add(Make_Symbol("quote"), quote)
 
 	list := SCMT_Nil
 	list = Cons(Make_Symbol("E"), list)
