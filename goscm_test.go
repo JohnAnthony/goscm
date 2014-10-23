@@ -139,4 +139,31 @@ func Test_Foreign(t *testing.T) {
 	}
 }
 
+func Test_Foreign_List(t *testing.T) {
+	list := SCMT_Nil
+	list = Cons(Make_SCMT(11), list)
+	list = Cons(Make_SCMT(3), list)
+	list = Cons(Make_SCMT(190), list)
+	list = Cons(Make_Symbol("+"), list)
+
+	fo := Make_Foreign(func (args *SCMT_Pair) SCMT {
+		ret := 0
+		for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
+			ret += Car(args).(*SCMT_Integer).value
+		}
+		return Make_SCMT(ret)
+	})
+
+	env := EnvEmpty(nil)
+	env.Add(Make_Symbol("+"), fo)
+	
+	ret := list.scm_eval(env)
+	if reflect.TypeOf(ret).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if ret.String() != "204" {
+		t.Error()
+	}
+}
+
 // TODO: Test for procedures

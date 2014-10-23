@@ -17,16 +17,19 @@ func (pair *SCMT_Pair) scm_eval(env *SCMT_Env) SCMT {
 		return nil
 	}
 
-	proc := Car(pair).(SCMT_Func)
-	args := SCMT_Nil
-	for pair = Cdr(pair).(*SCMT_Pair); !pair.IsNil(); pair = Cdr(pair).(*SCMT_Pair) {
-		args = Cons(pair.car.scm_eval(env), args)
+	newlist := SCMT_Nil
+	for ; !pair.IsNil(); pair = Cdr(pair).(*SCMT_Pair) {
+		newlist = Cons(pair.car.scm_eval(env), newlist)
 		if reflect.TypeOf(Cdr(pair)).String() != "*goscm.SCMT_Pair" {
-			args = Cons(pair.cdr.scm_eval(env), args)
+			newlist = Cons(pair.cdr.scm_eval(env), newlist)
 			break
 		}
 	}
-	return proc.Apply(args)
+	newlist = Reverse(newlist)
+
+	proc := Car(newlist)
+	args := Cdr(newlist)
+	return proc.(SCMT_Func).Apply(args.(*SCMT_Pair))
 }
 
 func (pair *SCMT_Pair) String() string {
@@ -70,4 +73,12 @@ func Car(pair *SCMT_Pair) SCMT {
 
 func Cdr(pair *SCMT_Pair) SCMT {
 	return pair.cdr
+}
+
+func Reverse(pair *SCMT_Pair) *SCMT_Pair {
+	ret := SCMT_Nil
+	for ; !pair.IsNil(); pair = Cdr(pair).(*SCMT_Pair) {
+		ret = Cons(Car(pair), ret)
+	}
+	return ret
 }
