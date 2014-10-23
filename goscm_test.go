@@ -166,4 +166,29 @@ func Test_Foreign_List(t *testing.T) {
 	}
 }
 
+func Test_Special(t *testing.T) {
+	quote := Make_Special(func (args *SCMT_Pair) {
+		return args
+	})
+
+	env := EnvEmpty(nil)
+	env.Add("quote", quote)
+
+	list := SCMT_Nil
+	list = Cons(Make_Symbol("E"), list)
+	list = Cons(Make_Symbol("D"), list)
+	list = Cons(Make_Symbol("C"), list)
+	list = Cons(Make_Symbol("B"), list)
+	list = Cons(Make_Symbol("A"), list)
+	list = Cons(Make_Symbol("quote"), list)
+	
+	ret := list.scm_eval(env)
+	if reflect.TypeOf(ret).String() != "*goscm.SCMT_Pair" {
+		t.Error()
+	}
+	if ret.String() != "(A B C D E)" {
+		t.Error()
+	}
+}
+
 // TODO: Test for procedures
