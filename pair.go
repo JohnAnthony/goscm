@@ -12,8 +12,21 @@ type SCMT_Pair struct {
 var SCMT_Nil = &SCMT_Pair {}
 
 func (pair *SCMT_Pair) scm_eval(env *SCMT_Env) SCMT {
-	// COMPLEX!
-	return nil
+	if pair.IsNil() {
+		// TODO: Handle this as an error!
+		return nil
+	}
+
+	proc := Car(pair).(SCMT_Func)
+	args := SCMT_Nil
+	for pair = Cdr(pair).(*SCMT_Pair); !pair.IsNil(); pair = Cdr(pair).(*SCMT_Pair) {
+		args = Cons(pair.car.scm_eval(env), args)
+		if reflect.TypeOf(Cdr(pair)).String() != "*goscm.SCMT_Pair" {
+			args = Cons(pair.cdr.scm_eval(env), args)
+			break
+		}
+	}
+	return proc.Apply(args)
 }
 
 func (pair *SCMT_Pair) String() string {
