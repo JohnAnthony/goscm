@@ -7,8 +7,7 @@ type SCMT_Symbol struct {
 }
 
 func (symb *SCMT_Symbol) scm_eval(env *SCMT_Env) SCMT {
-	// TODO: Look up in environment!
-	return nil
+	return env.Find(symb)
 }
 
 func (symb *SCMT_Symbol) String() string {
