@@ -5,9 +5,8 @@ type SCMT_Env struct {
 	parent *SCMT_Env
 }
 
-func (*SCMT_Env) scm_eval(*SCMT_Env) SCMT {
-	// TODO: This should probably be an error
-	return nil
+func (env *SCMT_Env) scm_eval(*SCMT_Env) SCMT {
+	return env
 }
 
 func (*SCMT_Env) String() string {
