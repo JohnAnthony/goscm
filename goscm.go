@@ -8,7 +8,7 @@ type SCMT interface {
 }
 
 type SCMT_Func interface {
-	Apply(*SCMT_Pair) SCMT
+	Apply(*SCMT_Pair, *SCMT_Env) SCMT
 }
 
 func Make_SCMT(in interface {}) SCMT {

@@ -16,20 +16,9 @@ func (pair *SCMT_Pair) scm_eval(env *SCMT_Env) SCMT {
 		// TODO: Handle this as an error!
 		return nil
 	}
-
-	newlist := SCMT_Nil
-	for ; !pair.IsNil(); pair = Cdr(pair).(*SCMT_Pair) {
-		newlist = Cons(pair.car.scm_eval(env), newlist)
-		if reflect.TypeOf(Cdr(pair)).String() != "*goscm.SCMT_Pair" {
-			newlist = Cons(pair.cdr.scm_eval(env), newlist)
-			break
-		}
-	}
-	newlist = Reverse(newlist)
-
-	proc := Car(newlist)
-	args := Cdr(newlist)
-	return proc.(SCMT_Func).Apply(args.(*SCMT_Pair))
+	proc := Car(pair).scm_eval(env)
+	args := Cdr(pair).(*SCMT_Pair)
+	return proc.(SCMT_Func).Apply(args, env)
 }
 
 func (pair *SCMT_Pair) String() string {

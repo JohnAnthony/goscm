@@ -12,8 +12,13 @@ func (*SCMT_Foreign) String() string {
 	return "#<foreign function>"
 }
 
-func (fo *SCMT_Foreign) Apply(args *SCMT_Pair) SCMT {
-	return fo.function(args) // TODO
+func (fo *SCMT_Foreign) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
+	newargs := SCMT_Nil
+	for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
+		newargs = Cons(Car(args).scm_eval(env), newargs)
+	}
+	newargs = Reverse(newargs)
+	return fo.function(newargs)
 }
 
 func Make_Foreign(f func (*SCMT_Pair) SCMT) *SCMT_Foreign {

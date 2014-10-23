@@ -130,7 +130,7 @@ func Test_Foreign(t *testing.T) {
 		t.Error()
 	}
 
-	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)))
+	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)), EnvEmpty(nil))
 	if reflect.TypeOf(sq).String() != "*goscm.SCMT_Integer" {
 		t.Error()
 	}
