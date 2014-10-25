@@ -28,6 +28,14 @@ func (env *SCMT_Env) Find(symb *SCMT_Symbol) SCMT {
 	return env.parent.Find(symb)
 }
 
+func (env *SCMT_Env) BindForeign(name string, f func (*SCMT_Pair) SCMT) {
+	env.Add(Make_Symbol(name), Make_Foreign(f))
+}
+
+func (env *SCMT_Env) BindSpecial(name string, f func (*SCMT_Pair) SCMT) {
+	env.Add(Make_Symbol(name), Make_Special(f))
+}
+
 // Environment provided #1: Completely empty. This is used for procedure
 // environment closures.
 // Procedures provided: NONE
@@ -41,17 +49,69 @@ func EnvEmpty(parent *SCMT_Env) *SCMT_Env {
 
 // Environment provided #2: Simple. This is helpful for testing and as an
 // example of how to build your own scheme env from scratch.
-// Procedures provided: + - / * quote car cdr cons
+// Procedures provided: + - * / quote car cdr cons
 
 func EnvSimple() *SCMT_Env {
 	env := EnvEmpty(nil)
-//	env.Add(Make_Symbol("+", scm_add))
-//	env.Add(Make_Symbol("-", scm_subtract)
-//	env.Add(Make_Symbol("/", scm_divide))
-//	env.Add(Make_Symbol("*", scm_multiply))
-//	env.Add(Make_Symbol("quote", scm_quote))
-//	env.Add(Make_Symbol("car", scm_car))
-//	env.Add(Make_Symbol("cdr", scm_cdr))
-//	env.Add(Make_Symbol("cons", scm_cons))
+	
+	env.BindForeign("+", scm_add)
+	env.BindForeign("-", scm_subtract)
+	env.BindForeign("*", scm_multiply)
+	env.BindForeign("/", scm_divide)
+	env.BindForeign("car", scm_car)
+	env.BindForeign("cdr", scm_cdr)
+	env.BindForeign("cons", scm_cons)
+	env.BindSpecial("quote", scm_quote)
 	return env
+}
+
+// WARNING! These procedures do no input validation, so feeding them incorrect
+// input will have strange effects!
+
+func scm_add(args *SCMT_Pair) SCMT {
+	ret := 0
+	for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
+		ret += Car(args).(*SCMT_Integer).value
+	}
+	return Make_SCMT(ret)
+}
+
+func scm_multiply(args *SCMT_Pair) SCMT {
+	ret := 1
+	for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
+		ret *= Car(args).(*SCMT_Integer).value
+	}
+	return Make_SCMT(ret)
+}
+
+func scm_subtract(args *SCMT_Pair) SCMT {
+	ret := Car(args).(*SCMT_Integer).value
+	for args = Cdr(args).(*SCMT_Pair); !args.IsNil(); args = args.cdr.(*SCMT_Pair) {
+		ret -= Car(args).(*SCMT_Integer).value
+	}
+	return Make_SCMT(ret)
+}
+
+func scm_divide(args *SCMT_Pair) SCMT {
+	ret := Car(args).(*SCMT_Integer).value
+	for args = Cdr(args).(*SCMT_Pair); !args.IsNil(); args = args.cdr.(*SCMT_Pair) {
+		ret /= Car(args).(*SCMT_Integer).value
+	}
+	return Make_SCMT(ret)
+}
+
+func scm_car(args *SCMT_Pair) SCMT {
+	return args.car.(*SCMT_Pair).car
+}
+
+func scm_cdr(args *SCMT_Pair) SCMT {
+	return args.car.(*SCMT_Pair).cdr
+}
+
+func scm_cons(args *SCMT_Pair) SCMT {
+	return Cons(args.car, args.cdr.(*SCMT_Pair).car)
+}
+
+func scm_quote(args *SCMT_Pair) SCMT {
+	return args
 }
