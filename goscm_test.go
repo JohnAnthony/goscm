@@ -190,19 +190,6 @@ func Test_Special(t *testing.T) {
 func Test_EnvSimple(t *testing.T) {
 	env := EnvSimple()
 
-	add_expr := SCMT_Nil
-	add_expr = Cons(Make_SCMT(1000), add_expr)
-	add_expr = Cons(Make_SCMT(222), add_expr)
-	add_expr = Cons(Make_SCMT(321), add_expr)
-	add_expr = Cons(Make_Symbol("+"), add_expr)
-	add_result := add_expr.scm_eval(env)
-	if reflect.TypeOf(add_result).String() != "*goscm.SCMT_Integer" {
-		t.Error()
-	}
-	if add_result.String() != "1543" {
-		t.Error()
-	}
-	
 	define_expr := SCMT_Nil
 	define_expr = Cons(Make_SCMT(1234), define_expr)
 	define_expr = Cons(Make_Symbol("a"), define_expr)
@@ -216,6 +203,20 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error()
 	}
 	
+	add_expr := SCMT_Nil
+	add_expr = Cons(Make_SCMT(1000), add_expr)
+	add_expr = Cons(Make_SCMT(222), add_expr)
+	add_expr = Cons(Make_Symbol("a"), add_expr)
+	add_expr = Cons(Make_SCMT(321), add_expr)
+	add_expr = Cons(Make_Symbol("+"), add_expr)
+	add_result := add_expr.scm_eval(env)
+	if reflect.TypeOf(add_result).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if add_result.String() != "2777" {
+		t.Error()
+	}
+	
 	// Subtract
 	// Multiply
 	// Divide
@@ -223,6 +224,9 @@ func Test_EnvSimple(t *testing.T) {
 	// cdr
 	// cons
 	// quote
+	// let
+	// begin
+	// lambda
 }
 
 // TODO: Test for procedures
