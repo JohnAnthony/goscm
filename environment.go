@@ -118,6 +118,6 @@ func scm_quote(args *SCMT_Pair, env *SCMT_Env) SCMT {
 }
 
 func scm_define(args *SCMT_Pair, env *SCMT_Env) SCMT {
-	// TODO
+	env.Add(Car(args).(*SCMT_Symbol), Car(Cdr(args).(*SCMT_Pair)))
 	return SCMT_Nil 
 }

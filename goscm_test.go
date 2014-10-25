@@ -203,6 +203,19 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error()
 	}
 	
+	define_expr := SCMT_Nil
+	define_expr = Cons(Make_SCMT(1234), define_expr)
+	define_expr = Cons(Make_Symbol("a"), define_expr)
+	define_expr = Cons(Make_Symbol("define"), define_expr)
+	define_expr.scm_eval(env)
+	a_result := Make_Symbol("a").scm_eval(env)
+	if reflect.TypeOf(a_result).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if a_result.String() != "1234" {
+		t.Error()
+	}
+	
 	// Subtract
 	// Multiply
 	// Divide
@@ -210,7 +223,6 @@ func Test_EnvSimple(t *testing.T) {
 	// cdr
 	// cons
 	// quote
-	// define
 }
 
 // TODO: Test for procedures
