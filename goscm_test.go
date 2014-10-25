@@ -146,7 +146,8 @@ func Test_Foreign_List(t *testing.T) {
 	list = Cons(Make_SCMT(190), list)
 	list = Cons(Make_Symbol("+"), list)
 
-	fo := Make_Foreign(func (args *SCMT_Pair) SCMT {
+	env := EnvEmpty(nil)
+	env.BindForeign("+", func (args *SCMT_Pair) SCMT {
 		ret := 0
 		for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
 			ret += Car(args).(*SCMT_Integer).value
@@ -154,9 +155,6 @@ func Test_Foreign_List(t *testing.T) {
 		return Make_SCMT(ret)
 	})
 
-	env := EnvEmpty(nil)
-	env.Add(Make_Symbol("+"), fo)
-	
 	ret := list.scm_eval(env)
 	if reflect.TypeOf(ret).String() != "*goscm.SCMT_Integer" {
 		t.Error()
@@ -167,12 +165,10 @@ func Test_Foreign_List(t *testing.T) {
 }
 
 func Test_Special(t *testing.T) {
-	quote := Make_Special(func (args *SCMT_Pair) SCMT {
+	env := EnvEmpty(nil)
+	env.BindSpecial("quote", func (args *SCMT_Pair) SCMT {
 		return args
 	})
-
-	env := EnvEmpty(nil)
-	env.Add(Make_Symbol("quote"), quote)
 
 	list := SCMT_Nil
 	list = Cons(Make_Symbol("E"), list)
