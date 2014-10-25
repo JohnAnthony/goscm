@@ -120,7 +120,7 @@ func Test_Environment(t *testing.T) {
 }
 
 func Test_Foreign(t *testing.T) {
-	f := func (list *SCMT_Pair) SCMT {
+	f := func (list *SCMT_Pair, env *SCMT_Env) SCMT {
 		n := Car(list).(*SCMT_Integer).value
 		return Make_SCMT(n * n)
 	}
@@ -147,7 +147,7 @@ func Test_Foreign_List(t *testing.T) {
 	list = Cons(Make_Symbol("+"), list)
 
 	env := EnvEmpty(nil)
-	env.BindForeign("+", func (args *SCMT_Pair) SCMT {
+	env.BindForeign("+", func (args *SCMT_Pair, env *SCMT_Env) SCMT {
 		ret := 0
 		for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
 			ret += Car(args).(*SCMT_Integer).value
@@ -166,7 +166,7 @@ func Test_Foreign_List(t *testing.T) {
 
 func Test_Special(t *testing.T) {
 	env := EnvEmpty(nil)
-	env.BindSpecial("quote", func (args *SCMT_Pair) SCMT {
+	env.BindSpecial("quote", func (args *SCMT_Pair, env *SCMT_Env) SCMT {
 		return args
 	})
 
@@ -210,6 +210,7 @@ func Test_EnvSimple(t *testing.T) {
 	// cdr
 	// cons
 	// quote
+	// define
 }
 
 // TODO: Test for procedures

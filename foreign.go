@@ -1,7 +1,7 @@
 package goscm
 
 type SCMT_Foreign struct {
-	function func (*SCMT_Pair) SCMT
+	function func (*SCMT_Pair, *SCMT_Env) SCMT
 }
 
 func (fo *SCMT_Foreign) scm_eval(*SCMT_Env) SCMT {
@@ -18,10 +18,10 @@ func (fo *SCMT_Foreign) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
 		newargs = Cons(Car(args).scm_eval(env), newargs)
 	}
 	newargs = Reverse(newargs)
-	return fo.function(newargs)
+	return fo.function(newargs, env)
 }
 
-func Make_Foreign(f func (*SCMT_Pair) SCMT) *SCMT_Foreign {
+func Make_Foreign(f func (*SCMT_Pair, *SCMT_Env) SCMT) *SCMT_Foreign {
 	return &SCMT_Foreign {
 		function: f,
 	}

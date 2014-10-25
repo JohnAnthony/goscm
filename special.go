@@ -1,7 +1,7 @@
 package goscm
 
 type SCMT_Special struct {
-	function func (*SCMT_Pair) SCMT
+	function func (*SCMT_Pair, *SCMT_Env) SCMT
 }
 
 func (sp *SCMT_Special) scm_eval(*SCMT_Env) SCMT {
@@ -13,10 +13,10 @@ func (*SCMT_Special) String() string {
 }
 
 func (sp *SCMT_Special) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
-	return sp.function(args) // TODO
+	return sp.function(args, env) // TODO
 }
 
-func Make_Special(f func (*SCMT_Pair) SCMT) *SCMT_Special {
+func Make_Special(f func (*SCMT_Pair, *SCMT_Env) SCMT) *SCMT_Special {
 	return &SCMT_Special {
 		function: f,
 	}

@@ -28,11 +28,11 @@ func (env *SCMT_Env) Find(symb *SCMT_Symbol) SCMT {
 	return env.parent.Find(symb)
 }
 
-func (env *SCMT_Env) BindForeign(name string, f func (*SCMT_Pair) SCMT) {
+func (env *SCMT_Env) BindForeign(name string, f func (*SCMT_Pair, *SCMT_Env) SCMT) {
 	env.Add(Make_Symbol(name), Make_Foreign(f))
 }
 
-func (env *SCMT_Env) BindSpecial(name string, f func (*SCMT_Pair) SCMT) {
+func (env *SCMT_Env) BindSpecial(name string, f func (*SCMT_Pair, *SCMT_Env) SCMT) {
 	env.Add(Make_Symbol(name), Make_Special(f))
 }
 
@@ -62,13 +62,14 @@ func EnvSimple() *SCMT_Env {
 	env.BindForeign("cdr", scm_cdr)
 	env.BindForeign("cons", scm_cons)
 	env.BindSpecial("quote", scm_quote)
+	env.BindSpecial("define", scm_define)
 	return env
 }
 
 // WARNING! These procedures do no input validation, so feeding them incorrect
 // input will have strange effects!
 
-func scm_add(args *SCMT_Pair) SCMT {
+func scm_add(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	ret := 0
 	for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
 		ret += Car(args).(*SCMT_Integer).value
@@ -76,7 +77,7 @@ func scm_add(args *SCMT_Pair) SCMT {
 	return Make_SCMT(ret)
 }
 
-func scm_multiply(args *SCMT_Pair) SCMT {
+func scm_multiply(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	ret := 1
 	for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
 		ret *= Car(args).(*SCMT_Integer).value
@@ -84,7 +85,7 @@ func scm_multiply(args *SCMT_Pair) SCMT {
 	return Make_SCMT(ret)
 }
 
-func scm_subtract(args *SCMT_Pair) SCMT {
+func scm_subtract(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	ret := Car(args).(*SCMT_Integer).value
 	for args = Cdr(args).(*SCMT_Pair); !args.IsNil(); args = args.cdr.(*SCMT_Pair) {
 		ret -= Car(args).(*SCMT_Integer).value
@@ -92,7 +93,7 @@ func scm_subtract(args *SCMT_Pair) SCMT {
 	return Make_SCMT(ret)
 }
 
-func scm_divide(args *SCMT_Pair) SCMT {
+func scm_divide(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	ret := Car(args).(*SCMT_Integer).value
 	for args = Cdr(args).(*SCMT_Pair); !args.IsNil(); args = args.cdr.(*SCMT_Pair) {
 		ret /= Car(args).(*SCMT_Integer).value
@@ -100,18 +101,23 @@ func scm_divide(args *SCMT_Pair) SCMT {
 	return Make_SCMT(ret)
 }
 
-func scm_car(args *SCMT_Pair) SCMT {
+func scm_car(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	return args.car.(*SCMT_Pair).car
 }
 
-func scm_cdr(args *SCMT_Pair) SCMT {
+func scm_cdr(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	return args.car.(*SCMT_Pair).cdr
 }
 
-func scm_cons(args *SCMT_Pair) SCMT {
+func scm_cons(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	return Cons(args.car, args.cdr.(*SCMT_Pair).car)
 }
 
-func scm_quote(args *SCMT_Pair) SCMT {
+func scm_quote(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	return args
+}
+
+func scm_define(args *SCMT_Pair, env *SCMT_Env) SCMT {
+	// TODO
+	return SCMT_Nil 
 }
