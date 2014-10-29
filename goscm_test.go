@@ -217,9 +217,47 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error()
 	}
 	
-	// Subtract
-	// Multiply
-	// Divide
+	sub_expr := SCMT_Nil
+	sub_expr = Cons(Make_SCMT(90), sub_expr)
+	sub_expr = Cons(Make_SCMT(9), sub_expr)
+	sub_expr = Cons(Make_SCMT(100), sub_expr)
+	sub_expr = Cons(Make_Symbol("-"), sub_expr)
+	sub_result := sub_expr.scm_eval(env)
+	if reflect.TypeOf(sub_result).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if sub_result.String() != "1" {
+		t.Error()
+	}
+
+	mult_expr := SCMT_Nil
+	mult_expr = Cons(Make_SCMT(5), mult_expr)
+	mult_expr = Cons(Make_SCMT(4), mult_expr)
+	mult_expr = Cons(Make_SCMT(3), mult_expr)
+	mult_expr = Cons(Make_SCMT(2), mult_expr)
+	mult_expr = Cons(Make_SCMT(1), mult_expr)
+	mult_expr = Cons(Make_Symbol("*"), mult_expr)
+	mult_result := mult_expr.scm_eval(env)
+	if reflect.TypeOf(mult_result).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if mult_result.String() != "120" {
+		t.Error()
+	}
+	
+	div_expr := SCMT_Nil
+	div_expr = Cons(Make_SCMT(2), div_expr)
+	div_expr = Cons(Make_SCMT(3), div_expr)
+	div_expr = Cons(Make_SCMT(66), div_expr)
+	div_expr = Cons(Make_Symbol("/"), div_expr)
+	div_result := div_expr.scm_eval(env)
+	if reflect.TypeOf(div_expr).String() != "*goscm.SCMT_Integer" {
+		t.Error()
+	}
+	if div_result.String() != "11" {
+		t.Error()
+	}
+	
 	// car
 	// cdr
 	// cons
