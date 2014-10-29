@@ -239,10 +239,10 @@ func Test_EnvSimple(t *testing.T) {
 	mult_expr = Cons(Make_Symbol("*"), mult_expr)
 	mult_result := mult_expr.scm_eval(env)
 	if reflect.TypeOf(mult_result).String() != "*goscm.SCMT_Integer" {
-		t.Error()
+		t.Error(reflect.TypeOf(mult_result))
 	}
 	if mult_result.String() != "120" {
-		t.Error()
+		t.Error(mult_result)
 	}
 	
 	div_expr := SCMT_Nil
@@ -251,11 +251,11 @@ func Test_EnvSimple(t *testing.T) {
 	div_expr = Cons(Make_SCMT(66), div_expr)
 	div_expr = Cons(Make_Symbol("/"), div_expr)
 	div_result := div_expr.scm_eval(env)
-	if reflect.TypeOf(div_expr).String() != "*goscm.SCMT_Integer" {
-		t.Error()
+	if reflect.TypeOf(div_result).String() != "*goscm.SCMT_Integer" {
+		t.Error(reflect.TypeOf(div_result))
 	}
 	if div_result.String() != "11" {
-		t.Error()
+		t.Error(div_result)
 	}
 	
 	// car
