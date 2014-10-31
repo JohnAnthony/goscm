@@ -258,10 +258,68 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(div_result)
 	}
 	
-	// car
-	// cdr
-	// cons
-	// quote
+	car_expr := SCMT_Nil
+	car_expr = Cons(Make_SCMT("BAR"), car_expr)
+	car_expr = Cons(Make_SCMT("FOO"), car_expr)
+	car_expr = Cons(Make_Symbol("car"), car_expr)
+	car_result := car_expr.scm_eval(env)
+	if reflect.TypeOf(car_result).String() != "*goscm.SCMT_String" {
+		t.Error(reflect.TypeOf(car_result))
+	}
+	if car_result.String() != "\"FOO\"" {
+		t.Error(car_result)
+	}
+
+	cdr_expr := SCMT_Nil
+	cdr_expr = Cons(Make_SCMT("BAR"), cdr_expr)
+	cdr_expr = Cons(Make_SCMT("FOO"), cdr_expr)
+	cdr_expr = Cons(Make_Symbol("cdr"), cdr_expr)
+	cdr_result := cdr_expr.scm_eval(env)
+	if reflect.TypeOf(cdr_result).String() != "*goscm.SCMT_String" {
+		t.Error(reflect.TypeOf(cdr_result))
+	}
+	if cdr_result.String() != "\"BAR\"" {
+		t.Error(cdr_result)
+	}
+	
+	cons_expr := SCMT_Nil
+	cons_expr = Cons(Make_SCMT(5), cons_expr)
+	cons_expr = Cons(Make_SCMT(2), cons_expr)
+	cons_expr = Cons(Make_Symbol("cons"), cons_expr)
+	cons_result := cons_expr.scm_eval(env)
+	if reflect.TypeOf(cons_result).String() != "*goscm.SCMT_Pair" {
+		t.Error(reflect.TypeOf(cons_result))
+	}
+	if cons_result.String() != "(2 . 5)" {
+		t.Error(cons_result)
+	}
+	
+	// This is a little complex - we're actually making a list whose first
+	// element is the symbol "quote", whose second element is a complicated list
+	// and which is then terminated by SCMT_Nil.
+	quote_expr := SCMT_Nil
+	quote_expr = Cons(Make_SCMT(9), quote_expr)
+	quote_expr = Cons(Make_SCMT(8), quote_expr)
+	quote_expr = Cons(Make_SCMT(7), quote_expr)
+	quote_expr = Cons(Make_Symbol("honk"), quote_expr)
+	quote_expr = Cons(Make_SCMT(6), quote_expr)
+	quote_expr = Cons(Make_SCMT(5), quote_expr)
+	quote_expr = Cons(Make_SCMT(4), quote_expr)
+	quote_expr = Cons(Make_SCMT(3), quote_expr)
+	quote_expr = Cons(Make_Symbol("squeak"), quote_expr)
+	quote_expr = Cons(Make_SCMT(2), quote_expr)
+	quote_expr = Cons(Make_SCMT(1), quote_expr)
+	quote_expr = Cons(Make_Symbol("roar"), quote_expr)
+	quote_expr = Cons(quote_expr, SCMT_Nil)
+	quote_expr = Cons(Make_Symbol("quote"), quote_expr)
+	quote_result := quote_expr.scm_eval(env)
+	if reflect.TypeOf(quote_result).String() != "*goscm.SCMT_Pair" {
+		t.Error(reflect.TypeOf(quote_result))
+	}
+	if quote_result.String() != "(ROAR 1 2 SQUEAK 3 4 5 6 HONK 7 8 9)" {
+		t.Error(quote_result)
+	}
+
 	// let
 	// begin
 	// lambda
