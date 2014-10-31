@@ -258,9 +258,12 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(div_result)
 	}
 	
+	// Building this list: (car (cons "FOO" "BAR"))
 	car_expr := SCMT_Nil
 	car_expr = Cons(Make_SCMT("BAR"), car_expr)
 	car_expr = Cons(Make_SCMT("FOO"), car_expr)
+	car_expr = Cons(Make_Symbol("cons"), car_expr)
+	car_expr = Cons(car_expr, SCMT_Nil)
 	car_expr = Cons(Make_Symbol("car"), car_expr)
 	car_result := car_expr.scm_eval(env)
 	if reflect.TypeOf(car_result).String() != "*goscm.SCMT_String" {
@@ -270,9 +273,12 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(car_result)
 	}
 
+	// Building this list: (cdr (cons "FOO" "BAR"))
 	cdr_expr := SCMT_Nil
 	cdr_expr = Cons(Make_SCMT("BAR"), cdr_expr)
 	cdr_expr = Cons(Make_SCMT("FOO"), cdr_expr)
+	cdr_expr = Cons(Make_Symbol("cons"), cdr_expr)
+	cdr_expr = Cons(cdr_expr, SCMT_Nil)
 	cdr_expr = Cons(Make_Symbol("cdr"), cdr_expr)
 	cdr_result := cdr_expr.scm_eval(env)
 	if reflect.TypeOf(cdr_result).String() != "*goscm.SCMT_String" {
