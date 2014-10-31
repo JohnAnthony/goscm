@@ -114,7 +114,7 @@ func scm_cons(args *SCMT_Pair, env *SCMT_Env) SCMT {
 }
 
 func scm_quote(args *SCMT_Pair, env *SCMT_Env) SCMT {
-	return args
+	return args.car
 }
 
 func scm_define(args *SCMT_Pair, env *SCMT_Env) SCMT {
