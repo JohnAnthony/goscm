@@ -381,4 +381,35 @@ func Test_EnvSimple(t *testing.T) {
 	// lambda
 }
 
-// TODO: Test for procedures
+func Test_Proc(t *testing.T) {
+	env := EnvSimple()
+	
+	// We're testing this:
+	// ((lambda (n) (* n n)) 123) => 15129
+	
+	// args = (n)
+	args := SCMT_Nil
+	args = Cons(Make_Symbol("n"), args)
+
+	// body = ((* i j))
+	// Note the nesting, because begin is implied in the body
+	body_inner := SCMT_Nil
+	body_inner = Cons(Make_Symbol("n"), body_inner)
+	body_inner = Cons(Make_Symbol("n"), body_inner)
+	body_inner = Cons(Make_Symbol("*"), body_inner)
+	body := SCMT_Nil
+	
+	proc := Make_Proc(args, body, env)
+	
+	expr := SCMT_Nil
+	expr = Cons(Make_SCMT(123), expr)
+	expr = Cons(proc, expr)
+
+	result := expr.Eval(env)
+	if reflect.TypeOf(result) != reflect.TypeOf(&SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(result))
+	}
+	if result.String() != "15129" {
+		t.Error(result)
+	}
+}
