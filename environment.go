@@ -63,6 +63,7 @@ func EnvSimple() *SCMT_Env {
 	env.BindForeign("cons", scm_cons)
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("define", scm_define)
+	env.BindSpecial("begin", scm_begin)
 	return env
 }
 
@@ -120,4 +121,12 @@ func scm_quote(args *SCMT_Pair, env *SCMT_Env) SCMT {
 func scm_define(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	env.Add(Car(args).(*SCMT_Symbol), Car(Cdr(args).(*SCMT_Pair)))
 	return SCMT_Nil 
+}
+
+func scm_begin(args *SCMT_Pair, env *SCMT_Env) SCMT {
+	var result SCMT
+	for result = SCMT_Nil; args != SCMT_Nil; args = Cdr(args).(*SCMT_Pair) {
+		result = Car(args).scm_eval(env)
+	}
+	return result
 }
