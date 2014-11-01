@@ -332,19 +332,19 @@ func Test_EnvSimple(t *testing.T) {
 	//  (* x 3))
 	// And check that it returns 30
 	begin_subexpr1 := SCMT_Nil
-	begin_subexpr1 = Cons(Make_SCMT(3), begin_subexpr1)
+	begin_subexpr1 = Cons(Make_SCMT(10), begin_subexpr1)
 	begin_subexpr1 = Cons(Make_Symbol("x"), begin_subexpr1)
-	begin_subexpr1 = Cons(Make_Symbol("*"), begin_subexpr1)
+	begin_subexpr1 = Cons(Make_Symbol("define"), begin_subexpr1)
 	begin_subexpr2 := SCMT_Nil
-	begin_subexpr2 = Cons(Make_SCMT(10), begin_subexpr1)
-	begin_subexpr2 = Cons(Make_Symbol("x"), begin_subexpr1)
-	begin_subexpr2 = Cons(Make_Symbol("define"), begin_subexpr1)
+	begin_subexpr2 = Cons(Make_SCMT(3), begin_subexpr2)
+	begin_subexpr2 = Cons(Make_Symbol("x"), begin_subexpr2)
+	begin_subexpr2 = Cons(Make_Symbol("*"), begin_subexpr2)
 	begin_expr := SCMT_Nil
 	begin_expr = Cons(begin_subexpr2, begin_expr)
 	begin_expr = Cons(begin_subexpr1, begin_expr)
 	begin_expr = Cons(Make_Symbol("begin"), begin_expr)
 	begin_result := begin_expr.scm_eval(env)
-	if reflect.TypeOf(begin_result).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(begin_result).String() != "*goscm.SCMT_Integer" {
 		t.Error(reflect.TypeOf(begin_result))
 	}
 	if begin_result.String() != "30" {
