@@ -1,8 +1,5 @@
 package goscm
 
-// NOTE: Using reflection this way (converting the type to a string and then
-// comparing the string) must be inefficient and not best practise.
-
 import (
 	"testing"
 	"reflect"

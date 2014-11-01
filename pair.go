@@ -29,7 +29,7 @@ func (pair *SCMT_Pair) String() string {
 	ret := "("
 	for {
 		ret += pair.car.String()
-		if reflect.TypeOf(pair.cdr).String() != "*goscm.SCMT_Pair" {
+		if reflect.TypeOf(pair.cdr) != reflect.TypeOf(&SCMT_Pair{}) {
 			ret = ret + " . " + pair.cdr.String()
 			break
 		}
