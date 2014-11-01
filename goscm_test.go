@@ -326,7 +326,7 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(quote_result)
 	}
 
-	// This is a little complex as well. We need to make a list that looks like this
+	// This is a little complex as well. We need to make a list that looks like
 	// (begin
 	//  (define x 10)
 	//  (* x 3))
