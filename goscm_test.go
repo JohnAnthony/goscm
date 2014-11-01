@@ -351,7 +351,36 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(begin_result)
 	}
 
-	// let
+	// Another complex one. We need to make this:
+	// (let ((a 11)
+	//       (b 12))
+	//   (* a b))
+	// Note: This should clobber the top-level environment's symbol "A"
+	let_a_expr := SCMT_Nil
+	let_a_expr = Cons(Make_SCMT(11), let_a_expr)
+	let_a_expr = Cons(Make_Symbol("a"), let_a_expr)
+	let_b_expr := SCMT_Nil
+	let_b_expr = Cons(Make_SCMT(12), let_b_expr)
+	let_b_expr = Cons(Make_Symbol("b"), let_b_expr)
+	let_variables_expr := SCMT_Nil
+	let_variables_expr = Cons(let_b_expr, let_variables_expr)
+	let_variables_expr = Cons(let_a_expr, let_variables_expr)
+	let_body_expr := SCMT_Nil
+	let_body_expr = Cons(Make_Symbol("b"), let_body_expr)
+	let_body_expr = Cons(Make_Symbol("a"), let_body_expr)
+	let_body_expr = Cons(Make_Symbol("*"), let_body_expr)
+	let_expr := SCMT_Nil
+	let_expr = Cons(let_body_expr, let_expr)
+	let_expr = Cons(let_variables_expr, let_expr)
+	let_expr = Cons(Make_Symbol("let"), let_expr)
+	let_result := let_expr.scm_eval(env)
+	if reflect.TypeOf(let_result).String() != "*goscm.SCMT_Integer" {
+		t.Error(reflect.TypeOf(let_result))
+	}
+	if let_result.String() != "132" {
+		t.Error(let_result)
+	}
+
 	// lambda
 }
 
