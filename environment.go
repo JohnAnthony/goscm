@@ -64,6 +64,7 @@ func EnvSimple() *SCMT_Env {
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("define", scm_define)
 	env.BindSpecial("begin", scm_begin)
+	env.BindSpecial("let", scm_let)
 	return env
 }
 
@@ -129,4 +130,17 @@ func scm_begin(args *SCMT_Pair, env *SCMT_Env) SCMT {
 		result = Car(args).scm_eval(env)
 	}
 	return result
+}
+
+func scm_let(args *SCMT_Pair, env *SCMT_Env) SCMT {
+	body := Cdr(args).(*SCMT_Pair)
+	newenv := EnvEmpty(env)
+	
+	for vars := Car(args).(*SCMT_Pair); vars != SCMT_Nil; vars = Cdr(vars).(*SCMT_Pair) {
+		symb := Car(Car(vars).(*SCMT_Pair)).(*SCMT_Symbol)
+		val := Car(Cdr(Car(vars).(*SCMT_Pair)).(*SCMT_Pair)).scm_eval(env)
+		newenv.Add(symb, val)
+	}
+
+	return scm_begin(body, newenv)
 }
