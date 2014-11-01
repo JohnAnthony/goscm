@@ -6,7 +6,7 @@ type SCMT_Symbol struct {
 	value string
 }
 
-func (symb *SCMT_Symbol) scm_eval(env *SCMT_Env) SCMT {
+func (symb *SCMT_Symbol) Eval(env *SCMT_Env) SCMT {
 	return env.Find(symb)
 }
 

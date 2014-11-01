@@ -4,7 +4,7 @@ type SCMT_Foreign struct {
 	function func (*SCMT_Pair, *SCMT_Env) SCMT
 }
 
-func (fo *SCMT_Foreign) scm_eval(*SCMT_Env) SCMT {
+func (fo *SCMT_Foreign) Eval(*SCMT_Env) SCMT {
 	return fo
 }
 
@@ -15,7 +15,7 @@ func (*SCMT_Foreign) String() string {
 func (fo *SCMT_Foreign) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	newargs := SCMT_Nil
 	for ; !args.IsNil(); args = Cdr(args).(*SCMT_Pair) {
-		newargs = Cons(Car(args).scm_eval(env), newargs)
+		newargs = Cons(Car(args).Eval(env), newargs)
 	}
 	newargs = Reverse(newargs)
 	return fo.function(newargs, env)

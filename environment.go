@@ -5,7 +5,7 @@ type SCMT_Env struct {
 	parent *SCMT_Env
 }
 
-func (env *SCMT_Env) scm_eval(*SCMT_Env) SCMT {
+func (env *SCMT_Env) Eval(*SCMT_Env) SCMT {
 	return env
 }
 
@@ -127,7 +127,7 @@ func scm_define(args *SCMT_Pair, env *SCMT_Env) SCMT {
 func scm_begin(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	var result SCMT
 	for result = SCMT_Nil; args != SCMT_Nil; args = Cdr(args).(*SCMT_Pair) {
-		result = Car(args).scm_eval(env)
+		result = Car(args).Eval(env)
 	}
 	return result
 }
@@ -138,7 +138,7 @@ func scm_let(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	
 	for vars := Car(args).(*SCMT_Pair); vars != SCMT_Nil; vars = Cdr(vars).(*SCMT_Pair) {
 		symb := Car(Car(vars).(*SCMT_Pair)).(*SCMT_Symbol)
-		val := Car(Cdr(Car(vars).(*SCMT_Pair)).(*SCMT_Pair)).scm_eval(env)
+		val := Car(Cdr(Car(vars).(*SCMT_Pair)).(*SCMT_Pair)).Eval(env)
 		newenv.Add(symb, val)
 	}
 

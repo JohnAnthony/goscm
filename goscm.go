@@ -3,7 +3,7 @@ package goscm
 import "reflect"
 
 type SCMT interface {
-	scm_eval(*SCMT_Env) SCMT
+	Eval(*SCMT_Env) SCMT
 	String() string
 }
 

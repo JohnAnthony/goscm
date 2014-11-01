@@ -11,12 +11,12 @@ type SCMT_Pair struct {
 
 var SCMT_Nil = &SCMT_Pair {}
 
-func (pair *SCMT_Pair) scm_eval(env *SCMT_Env) SCMT {
+func (pair *SCMT_Pair) Eval(env *SCMT_Env) SCMT {
 	if pair.IsNil() {
 		// TODO: Handle this as an error!
 		return nil
 	}
-	proc := Car(pair).scm_eval(env)
+	proc := Car(pair).Eval(env)
 	args := Cdr(pair).(*SCMT_Pair)
 	return proc.(SCMT_Func).Apply(args, env)
 }

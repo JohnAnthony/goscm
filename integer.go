@@ -12,6 +12,6 @@ func (in *SCMT_Integer) String() string {
 	return strconv.Itoa(in.value)
 }
 
-func (in *SCMT_Integer) scm_eval(*SCMT_Env) SCMT {
+func (in *SCMT_Integer) Eval(*SCMT_Env) SCMT {
 	return in
 }

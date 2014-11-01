@@ -152,7 +152,7 @@ func Test_Foreign_List(t *testing.T) {
 		return Make_SCMT(ret)
 	})
 
-	ret := list.scm_eval(env)
+	ret := list.Eval(env)
 	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
@@ -175,7 +175,7 @@ func Test_Special(t *testing.T) {
 	list = Cons(Make_Symbol("A"), list)
 	list = Cons(Make_Symbol("quote"), list)
 	
-	ret := list.scm_eval(env)
+	ret := list.Eval(env)
 	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
@@ -191,8 +191,8 @@ func Test_EnvSimple(t *testing.T) {
 	define_expr = Cons(Make_SCMT(1234), define_expr)
 	define_expr = Cons(Make_Symbol("a"), define_expr)
 	define_expr = Cons(Make_Symbol("define"), define_expr)
-	define_expr.scm_eval(env)
-	a_result := Make_Symbol("a").scm_eval(env)
+	define_expr.Eval(env)
+	a_result := Make_Symbol("a").Eval(env)
 	if reflect.TypeOf(a_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
@@ -206,7 +206,7 @@ func Test_EnvSimple(t *testing.T) {
 	add_expr = Cons(Make_Symbol("a"), add_expr)
 	add_expr = Cons(Make_SCMT(321), add_expr)
 	add_expr = Cons(Make_Symbol("+"), add_expr)
-	add_result := add_expr.scm_eval(env)
+	add_result := add_expr.Eval(env)
 	if reflect.TypeOf(add_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
@@ -219,7 +219,7 @@ func Test_EnvSimple(t *testing.T) {
 	sub_expr = Cons(Make_SCMT(9), sub_expr)
 	sub_expr = Cons(Make_SCMT(100), sub_expr)
 	sub_expr = Cons(Make_Symbol("-"), sub_expr)
-	sub_result := sub_expr.scm_eval(env)
+	sub_result := sub_expr.Eval(env)
 	if reflect.TypeOf(sub_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
@@ -234,7 +234,7 @@ func Test_EnvSimple(t *testing.T) {
 	mult_expr = Cons(Make_SCMT(2), mult_expr)
 	mult_expr = Cons(Make_SCMT(1), mult_expr)
 	mult_expr = Cons(Make_Symbol("*"), mult_expr)
-	mult_result := mult_expr.scm_eval(env)
+	mult_result := mult_expr.Eval(env)
 	if reflect.TypeOf(mult_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(mult_result))
 	}
@@ -247,7 +247,7 @@ func Test_EnvSimple(t *testing.T) {
 	div_expr = Cons(Make_SCMT(3), div_expr)
 	div_expr = Cons(Make_SCMT(66), div_expr)
 	div_expr = Cons(Make_Symbol("/"), div_expr)
-	div_result := div_expr.scm_eval(env)
+	div_result := div_expr.Eval(env)
 	if reflect.TypeOf(div_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(div_result))
 	}
@@ -262,7 +262,7 @@ func Test_EnvSimple(t *testing.T) {
 	car_expr = Cons(Make_Symbol("cons"), car_expr)
 	car_expr = Cons(car_expr, SCMT_Nil)
 	car_expr = Cons(Make_Symbol("car"), car_expr)
-	car_result := car_expr.scm_eval(env)
+	car_result := car_expr.Eval(env)
 	if reflect.TypeOf(car_result) != reflect.TypeOf(&SCMT_String{}) {
 		t.Error(reflect.TypeOf(car_result))
 	}
@@ -277,7 +277,7 @@ func Test_EnvSimple(t *testing.T) {
 	cdr_expr = Cons(Make_Symbol("cons"), cdr_expr)
 	cdr_expr = Cons(cdr_expr, SCMT_Nil)
 	cdr_expr = Cons(Make_Symbol("cdr"), cdr_expr)
-	cdr_result := cdr_expr.scm_eval(env)
+	cdr_result := cdr_expr.Eval(env)
 	if reflect.TypeOf(cdr_result) != reflect.TypeOf(&SCMT_String{}) {
 		t.Error(reflect.TypeOf(cdr_result))
 	}
@@ -289,7 +289,7 @@ func Test_EnvSimple(t *testing.T) {
 	cons_expr = Cons(Make_SCMT(5), cons_expr)
 	cons_expr = Cons(Make_SCMT(2), cons_expr)
 	cons_expr = Cons(Make_Symbol("cons"), cons_expr)
-	cons_result := cons_expr.scm_eval(env)
+	cons_result := cons_expr.Eval(env)
 	if reflect.TypeOf(cons_result) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(cons_result))
 	}
@@ -315,7 +315,7 @@ func Test_EnvSimple(t *testing.T) {
 	quote_expr = Cons(Make_Symbol("roar"), quote_expr)
 	quote_expr = Cons(quote_expr, SCMT_Nil)
 	quote_expr = Cons(Make_Symbol("quote"), quote_expr)
-	quote_result := quote_expr.scm_eval(env)
+	quote_result := quote_expr.Eval(env)
 	if reflect.TypeOf(quote_result) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(quote_result))
 	}
@@ -340,7 +340,7 @@ func Test_EnvSimple(t *testing.T) {
 	begin_expr = Cons(begin_subexpr2, begin_expr)
 	begin_expr = Cons(begin_subexpr1, begin_expr)
 	begin_expr = Cons(Make_Symbol("begin"), begin_expr)
-	begin_result := begin_expr.scm_eval(env)
+	begin_result := begin_expr.Eval(env)
 	if reflect.TypeOf(begin_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(begin_result))
 	}
@@ -370,7 +370,7 @@ func Test_EnvSimple(t *testing.T) {
 	let_expr = Cons(let_body_expr, let_expr)
 	let_expr = Cons(let_variables_expr, let_expr)
 	let_expr = Cons(Make_Symbol("let"), let_expr)
-	let_result := let_expr.scm_eval(env)
+	let_result := let_expr.Eval(env)
 	if reflect.TypeOf(let_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(let_result))
 	}

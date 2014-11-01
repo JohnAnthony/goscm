@@ -5,7 +5,7 @@ type ECMT_Proc struct {
 	body *SCMT_Pair
 }
 
-func (p *SCMT_Proc) scm_eval(*SCMT_Env) SCMT {
+func (p *SCMT_Proc) Eval(*SCMT_Env) SCMT {
 	return p
 }
 
