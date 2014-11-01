@@ -11,7 +11,7 @@ import (
 func Test_Integer(t *testing.T) {
 	// A test with the integer 31337
 	in := Make_SCMT(31337)
-	if reflect.TypeOf(in).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(in) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
 	if in.(*SCMT_Integer).value != 31337 {
@@ -25,7 +25,7 @@ func Test_Integer(t *testing.T) {
 func Test_String(t *testing.T) {
 	// A test with the string "foobar!"
 	str := Make_SCMT("foobar!")
-	if reflect.TypeOf(str).String() != "*goscm.SCMT_String" {
+	if reflect.TypeOf(str) != reflect.TypeOf(&SCMT_String{}) {
 		t.Error()
 	}
 	if str.(*SCMT_String).value != "foobar!" {
@@ -39,7 +39,7 @@ func Test_String(t *testing.T) {
 func Test_Pair(t *testing.T) {
 	// A test with the singleton ("Foobarrrr!")
 	sing := Cons(Make_SCMT("Foobarrrr!"), Make_SCMT(nil))
-	if reflect.TypeOf(sing).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(sing) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
 	if sing.String() != "(\"Foobarrrr!\")" {
@@ -48,7 +48,7 @@ func Test_Pair(t *testing.T) {
 	
 	// A test with the pair (4 . 5)
 	pair := Cons(Make_SCMT(4), Make_SCMT(5))
-	if reflect.TypeOf(pair).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(pair) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
 	if pair.String() != "(4 . 5)" {
@@ -67,7 +67,7 @@ func Test_Pair(t *testing.T) {
 	list = Cons(Make_SCMT(3), list)
 	list = Cons(Make_SCMT(2), list)
 	list = Cons(Make_SCMT(1), list)
-	if reflect.TypeOf(list).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(list) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
 	if list.String() != "(1 2 3 4 5 6 7 8 9)" {
@@ -77,7 +77,7 @@ func Test_Pair(t *testing.T) {
 
 func Test_Nil(t *testing.T) {
 	n := Make_SCMT(nil)
-	if reflect.TypeOf(n).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(n) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
 	if n.String() != "()" {
@@ -91,7 +91,7 @@ func Test_Nil(t *testing.T) {
 func Test_Symbol(t *testing.T) {
 	s := Make_Symbol("Foo-bar")
 
-	if reflect.TypeOf(s).String() != "*goscm.SCMT_Symbol" {
+	if reflect.TypeOf(s) != reflect.TypeOf(&SCMT_Symbol{}) {
 		t.Error()
 	}
 	if s.String() != "FOO-BAR" {
@@ -102,7 +102,7 @@ func Test_Symbol(t *testing.T) {
 func Test_Environment(t *testing.T) {
 	env := EnvEmpty(nil)
 
-	if reflect.TypeOf(env).String() != "*goscm.SCMT_Env" {
+	if reflect.TypeOf(env) != reflect.TypeOf(&SCMT_Env{}) {
 		t.Error()
 	}
 	if env.String() != "#<environment>" {
@@ -111,7 +111,7 @@ func Test_Environment(t *testing.T) {
 	
 	env.Add(Make_Symbol("derp"), Make_SCMT(9987654))
 	ret := env.Find(Make_Symbol("DeRp"))
-	if reflect.TypeOf(ret).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
 	if ret.String() != "9987654" {
@@ -131,7 +131,7 @@ func Test_Foreign(t *testing.T) {
 	}
 
 	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)), EnvEmpty(nil))
-	if reflect.TypeOf(sq).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(sq) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
 	if sq.String() != "169" {
@@ -156,7 +156,7 @@ func Test_Foreign_List(t *testing.T) {
 	})
 
 	ret := list.scm_eval(env)
-	if reflect.TypeOf(ret).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
 	if ret.String() != "204" {
@@ -179,7 +179,7 @@ func Test_Special(t *testing.T) {
 	list = Cons(Make_Symbol("quote"), list)
 	
 	ret := list.scm_eval(env)
-	if reflect.TypeOf(ret).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
 	if ret.String() != "(A B C D E)" {
@@ -196,7 +196,7 @@ func Test_EnvSimple(t *testing.T) {
 	define_expr = Cons(Make_Symbol("define"), define_expr)
 	define_expr.scm_eval(env)
 	a_result := Make_Symbol("a").scm_eval(env)
-	if reflect.TypeOf(a_result).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(a_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
 	if a_result.String() != "1234" {
@@ -210,7 +210,7 @@ func Test_EnvSimple(t *testing.T) {
 	add_expr = Cons(Make_SCMT(321), add_expr)
 	add_expr = Cons(Make_Symbol("+"), add_expr)
 	add_result := add_expr.scm_eval(env)
-	if reflect.TypeOf(add_result).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(add_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
 	if add_result.String() != "2777" {
@@ -223,7 +223,7 @@ func Test_EnvSimple(t *testing.T) {
 	sub_expr = Cons(Make_SCMT(100), sub_expr)
 	sub_expr = Cons(Make_Symbol("-"), sub_expr)
 	sub_result := sub_expr.scm_eval(env)
-	if reflect.TypeOf(sub_result).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(sub_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
 	if sub_result.String() != "1" {
@@ -238,7 +238,7 @@ func Test_EnvSimple(t *testing.T) {
 	mult_expr = Cons(Make_SCMT(1), mult_expr)
 	mult_expr = Cons(Make_Symbol("*"), mult_expr)
 	mult_result := mult_expr.scm_eval(env)
-	if reflect.TypeOf(mult_result).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(mult_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(mult_result))
 	}
 	if mult_result.String() != "120" {
@@ -251,7 +251,7 @@ func Test_EnvSimple(t *testing.T) {
 	div_expr = Cons(Make_SCMT(66), div_expr)
 	div_expr = Cons(Make_Symbol("/"), div_expr)
 	div_result := div_expr.scm_eval(env)
-	if reflect.TypeOf(div_result).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(div_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(div_result))
 	}
 	if div_result.String() != "11" {
@@ -266,7 +266,7 @@ func Test_EnvSimple(t *testing.T) {
 	car_expr = Cons(car_expr, SCMT_Nil)
 	car_expr = Cons(Make_Symbol("car"), car_expr)
 	car_result := car_expr.scm_eval(env)
-	if reflect.TypeOf(car_result).String() != "*goscm.SCMT_String" {
+	if reflect.TypeOf(car_result) != reflect.TypeOf(&SCMT_String{}) {
 		t.Error(reflect.TypeOf(car_result))
 	}
 	if car_result.String() != "\"FOO\"" {
@@ -281,7 +281,7 @@ func Test_EnvSimple(t *testing.T) {
 	cdr_expr = Cons(cdr_expr, SCMT_Nil)
 	cdr_expr = Cons(Make_Symbol("cdr"), cdr_expr)
 	cdr_result := cdr_expr.scm_eval(env)
-	if reflect.TypeOf(cdr_result).String() != "*goscm.SCMT_String" {
+	if reflect.TypeOf(cdr_result) != reflect.TypeOf(&SCMT_String{}) {
 		t.Error(reflect.TypeOf(cdr_result))
 	}
 	if cdr_result.String() != "\"BAR\"" {
@@ -293,7 +293,7 @@ func Test_EnvSimple(t *testing.T) {
 	cons_expr = Cons(Make_SCMT(2), cons_expr)
 	cons_expr = Cons(Make_Symbol("cons"), cons_expr)
 	cons_result := cons_expr.scm_eval(env)
-	if reflect.TypeOf(cons_result).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(cons_result) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(cons_result))
 	}
 	if cons_result.String() != "(2 . 5)" {
@@ -319,7 +319,7 @@ func Test_EnvSimple(t *testing.T) {
 	quote_expr = Cons(quote_expr, SCMT_Nil)
 	quote_expr = Cons(Make_Symbol("quote"), quote_expr)
 	quote_result := quote_expr.scm_eval(env)
-	if reflect.TypeOf(quote_result).String() != "*goscm.SCMT_Pair" {
+	if reflect.TypeOf(quote_result) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(quote_result))
 	}
 	if quote_result.String() != "(ROAR 1 2 SQUEAK 3 4 5 6 HONK 7 8 9)" {
@@ -344,7 +344,7 @@ func Test_EnvSimple(t *testing.T) {
 	begin_expr = Cons(begin_subexpr1, begin_expr)
 	begin_expr = Cons(Make_Symbol("begin"), begin_expr)
 	begin_result := begin_expr.scm_eval(env)
-	if reflect.TypeOf(begin_result).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(begin_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(begin_result))
 	}
 	if begin_result.String() != "30" {
@@ -374,7 +374,7 @@ func Test_EnvSimple(t *testing.T) {
 	let_expr = Cons(let_variables_expr, let_expr)
 	let_expr = Cons(Make_Symbol("let"), let_expr)
 	let_result := let_expr.scm_eval(env)
-	if reflect.TypeOf(let_result).String() != "*goscm.SCMT_Integer" {
+	if reflect.TypeOf(let_result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(let_result))
 	}
 	if let_result.String() != "132" {
