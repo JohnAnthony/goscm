@@ -5,11 +5,11 @@ import (
 )
 
 type SCMT_Integer struct {
-	value int
+	Value int
 }
 
 func (in *SCMT_Integer) String() string {
-	return strconv.Itoa(in.value)
+	return strconv.Itoa(in.Value)
 }
 
 func (in *SCMT_Integer) Eval(*SCMT_Env) SCMT {

@@ -1,11 +1,11 @@
 package goscm
 
 type SCMT_String struct {
-	value string
+	Value string
 }
 
 func (in *SCMT_String) String() string {
-	return "\"" + in.value + "\""
+	return "\"" + in.Value + "\""
 }
 
 func (in *SCMT_String) Eval(*SCMT_Env) SCMT {

@@ -3,7 +3,7 @@ package goscm
 import "strings"
 
 type SCMT_Symbol struct {
-	value string
+	Value string
 }
 
 func (symb *SCMT_Symbol) Eval(env *SCMT_Env) SCMT {
@@ -11,13 +11,13 @@ func (symb *SCMT_Symbol) Eval(env *SCMT_Env) SCMT {
 }
 
 func (symb *SCMT_Symbol) String() string {
-	return symb.value
+	return symb.Value
 }
 
 // Helpers
 
 func Make_Symbol(s string) *SCMT_Symbol {
 	return &SCMT_Symbol {
-		value: strings.ToUpper(s),
+		Value: strings.ToUpper(s),
 	}
 }

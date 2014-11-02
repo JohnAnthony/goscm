@@ -20,9 +20,9 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	arg := args
 	symb := p.args
 	for arg != SCMT_Nil && symb != SCMT_Nil {
-		argenv.Add(Car(symb).(*SCMT_Symbol), Car(arg))
-		arg = Cdr(arg).(*SCMT_Pair)
-		symb = Cdr(symb).(*SCMT_Pair)
+		argenv.Add(symb.Car.(*SCMT_Symbol), arg.Car)
+		arg = arg.Cdr.(*SCMT_Pair)
+		symb = symb.Cdr.(*SCMT_Pair)
 		
 		if arg == SCMT_Nil && symb == SCMT_Nil {
 			break
@@ -30,8 +30,8 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	}
 
 	var result SCMT
-	for expr := p.body; expr != SCMT_Nil; expr = Cdr(expr).(*SCMT_Pair) {
-		result = Car(expr).Eval(argenv)
+	for expr := p.body; expr != SCMT_Nil; expr = expr.Cdr.(*SCMT_Pair) {
+		result = expr.Car.Eval(argenv)
 	}
 
 	return result

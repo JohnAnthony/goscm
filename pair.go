@@ -5,8 +5,8 @@ import (
 )
 
 type SCMT_Pair struct {
-	car SCMT
-	cdr SCMT
+	Car SCMT
+	Cdr SCMT
 }
 
 var SCMT_Nil = &SCMT_Pair {}
@@ -16,8 +16,8 @@ func (pair *SCMT_Pair) Eval(env *SCMT_Env) SCMT {
 		// TODO: Handle this as an error!
 		return nil
 	}
-	proc := Car(pair).Eval(env)
-	args := Cdr(pair).(*SCMT_Pair)
+	proc := pair.Car.Eval(env)
+	args := pair.Cdr.(*SCMT_Pair)
 	return proc.(SCMT_Func).Apply(args, env)
 }
 
@@ -28,17 +28,17 @@ func (pair *SCMT_Pair) String() string {
 
 	ret := "("
 	for {
-		ret += pair.car.String()
-		if reflect.TypeOf(pair.cdr) != reflect.TypeOf(&SCMT_Pair{}) {
-			ret = ret + " . " + pair.cdr.String()
+		ret += pair.Car.String()
+		if reflect.TypeOf(pair.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+			ret = ret + " . " + pair.Cdr.String()
 			break
 		}
-		if pair.cdr.(*SCMT_Pair).IsNil() {
+		if pair.Cdr.(*SCMT_Pair).IsNil() {
 			break
 		} else {
 			ret += " "
 		}
-		pair = pair.cdr.(*SCMT_Pair)
+		pair = pair.Cdr.(*SCMT_Pair)
 	}
 	return ret + ")"
 }
@@ -51,23 +51,15 @@ func (pair *SCMT_Pair) IsNil() bool {
 
 func Cons(car SCMT, cdr SCMT) *SCMT_Pair {
 	return &SCMT_Pair {
-		car: car,
-		cdr: cdr,
+		Car: car,
+		Cdr: cdr,
 	}
-}
-
-func Car(pair *SCMT_Pair) SCMT {
-	return pair.car
-}
-
-func Cdr(pair *SCMT_Pair) SCMT {
-	return pair.cdr
 }
 
 func Reverse(pair *SCMT_Pair) *SCMT_Pair {
 	ret := SCMT_Nil
-	for ; !pair.IsNil(); pair = Cdr(pair).(*SCMT_Pair) {
-		ret = Cons(Car(pair), ret)
+	for ; !pair.IsNil(); pair = pair.Cdr.(*SCMT_Pair) {
+		ret = Cons(pair.Car, ret)
 	}
 	return ret
 }
