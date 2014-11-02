@@ -3,7 +3,6 @@ package goscm
 import (
 	"testing"
 	"reflect"
-	"fmt"
 )
 
 func Test_Integer(t *testing.T) {
