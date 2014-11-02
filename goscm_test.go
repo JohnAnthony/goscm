@@ -184,7 +184,6 @@ func Test_Special(t *testing.T) {
 	}
 }
 
-
 func Test_Proc(t *testing.T) {
 	// We're testing this:
 	// ((lambda (n) (* n n)) 123) => 15129
