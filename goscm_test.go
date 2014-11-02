@@ -184,13 +184,22 @@ func Test_Special(t *testing.T) {
 	}
 }
 
-/*
+
 func Test_Proc(t *testing.T) {
-	env := EnvSimple()
-	
 	// We're testing this:
 	// ((lambda (n) (* n n)) 123) => 15129
+	env := EnvEmpty(nil)
 	
+	// We have to also provide a multiplication primitive
+	scm_multiply := func (args *SCMT_Pair, env *SCMT_Env) SCMT {
+		ret := 1
+		for ; !args.IsNil(); args = args.Cdr.(*SCMT_Pair) {
+			ret *= args.Car.(*SCMT_Integer).Value
+		}
+		return Make_SCMT(ret)
+	}
+	env.BindForeign("*", scm_multiply)
+
 	// args = (n)
 	args := SCMT_Nil
 	args = Cons(Make_Symbol("n"), args)
@@ -218,4 +227,3 @@ func Test_Proc(t *testing.T) {
 		t.Error(result)
 	}
 }
-*/
