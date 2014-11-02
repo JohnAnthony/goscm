@@ -65,6 +65,7 @@ func EnvSimple() *SCMT_Env {
 	env.BindSpecial("define", scm_define)
 	env.BindSpecial("begin", scm_begin)
 	env.BindSpecial("let", scm_let)
+	env.BindSpecial("lambda", scm_lambda)
 	return env
 }
 
@@ -143,4 +144,8 @@ func scm_let(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	}
 
 	return scm_begin(body, newenv)
+}
+
+func scm_lambda(args *SCMT_Pair, env *SCMT_Env) SCMT {
+	return Make_Proc(Car(args).(*SCMT_Pair), Cdr(args).(*SCMT_Pair), env)
 }
