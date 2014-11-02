@@ -398,6 +398,7 @@ func Test_Proc(t *testing.T) {
 	body_inner = Cons(Make_Symbol("n"), body_inner)
 	body_inner = Cons(Make_Symbol("*"), body_inner)
 	body := SCMT_Nil
+	body = Cons(body_inner, body)
 	
 	proc := Make_Proc(args, body, env)
 	
