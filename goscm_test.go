@@ -3,6 +3,7 @@ package goscm
 import (
 	"testing"
 	"reflect"
+	"fmt"
 )
 
 func Test_Integer(t *testing.T) {
@@ -378,7 +379,29 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(let_result)
 	}
 
-	// lambda
+	// Test with this expression:
+	// ((lambda (x) (+ x 2)) 58835) => 58837
+	lambda_args := Cons(Make_Symbol("x"), SCMT_Nil)
+	lambda_body := SCMT_Nil
+	lambda_body = Cons(Make_SCMT(2), lambda_body)
+	lambda_body = Cons(Make_Symbol("x"), lambda_body)
+	lambda_body = Cons(Make_Symbol("+"), lambda_body)
+	lambda_expr := SCMT_Nil
+	lambda_expr = Cons(lambda_body, lambda_expr)
+	lambda_expr = Cons(lambda_args, lambda_expr)
+	lambda_expr = Cons(Make_Symbol("lambda"), lambda_expr)
+	full_expr := SCMT_Nil
+	full_expr = Cons(Make_SCMT(58835), full_expr)
+	full_expr = Cons(lambda_expr, full_expr)
+	lambda_result := full_expr.Eval(env)
+	if reflect.TypeOf(lambda_result) != reflect.TypeOf(&SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(lambda_result))
+	}
+	if lambda_result.String() != "58837" {
+		t.Error(lambda_result)
+	}
+
+	// TODO: map
 }
 
 func Test_Proc(t *testing.T) {
