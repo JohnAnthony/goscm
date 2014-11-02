@@ -403,6 +403,20 @@ func Test_EnvSimple(t *testing.T) {
 	// Test with these expressions:
 	// (define square (lambda (x) (* x x)))
 	// (map square (quote (2 3 4 5 6))) => (4 9 16 25 36)
+	squ_lambda_body := SCMT_Nil
+	squ_lambda_body = Cons(Make_Symbol("x"), squ_lambda_body)
+	squ_lambda_body = Cons(Make_Symbol("x"), squ_lambda_body)
+	squ_lambda_body = Cons(Make_Symbol("*"), squ_lambda_body)
+	squ_lambda := SCMT_Nil
+	squ_lambda = Cons(squ_lambda_body, squ_lambda)
+	squ_lambda = Cons(Cons(Make_Symbol("x"), SCMT_Nil), squ_lambda)
+	squ_lambda = Cons(Make_Symbol("lambda"), squ_lambda)
+	squ_define := SCMT_Nil
+	squ_define = Cons(squ_lambda, squ_define)
+	squ_define = Cons(Make_Symbol("square"), squ_define)
+	squ_define = Cons(Make_Symbol("define"), squ_define)
+	squ_define.Eval(env)
+
 	map_expr := SCMT_Nil
 	map_expr = Cons(Make_SCMT(6), map_expr)
 	map_expr = Cons(Make_SCMT(5), map_expr)
@@ -418,7 +432,7 @@ func Test_EnvSimple(t *testing.T) {
 	if reflect.TypeOf(map_result) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(map_result))
 	}
-	if lambda_result.String() != "(4 9 16 25 36)" {
+	if map_result.String() != "(4 9 16 25 36)" {
 		t.Error(map_result)
 	}
 }
