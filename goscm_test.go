@@ -435,6 +435,28 @@ func Test_EnvSimple(t *testing.T) {
 	if map_result.String() != "(4 9 16 25 36)" {
 		t.Error(map_result)
 	}
+	
+	// Test apply with this expression
+	// (apply + (quote (1 2 3 4 5 6))) => 21
+	apply_expr := SCMT_Nil
+	apply_expr = Cons(Make_SCMT(6), apply_expr)
+	apply_expr = Cons(Make_SCMT(5), apply_expr)
+	apply_expr = Cons(Make_SCMT(4), apply_expr)
+	apply_expr = Cons(Make_SCMT(3), apply_expr)
+	apply_expr = Cons(Make_SCMT(2), apply_expr)
+	apply_expr = Cons(Make_SCMT(1), apply_expr)
+	apply_expr = Cons(apply_expr, SCMT_Nil)
+	apply_expr = Cons(Make_Symbol("quote"), apply_expr)
+	apply_expr = Cons(apply_expr, SCMT_Nil)
+	apply_expr = Cons(Make_Symbol("+"), apply_expr)
+	apply_expr = Cons(Make_Symbol("apply"), apply_expr)
+	apply_result := apply_expr.Eval(env)
+	if reflect.TypeOf(apply_result) != reflect.TypeOf(&SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(apply_result))
+	}
+	if apply_result.String() != "21" {
+		t.Error(apply_result)
+	}
 }
 
 func Test_Proc(t *testing.T) {
