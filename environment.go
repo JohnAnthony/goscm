@@ -62,6 +62,7 @@ func EnvSimple() *SCMT_Env {
 	env.BindForeign("cdr", scm_cdr)
 	env.BindForeign("cons", scm_cons)
 	env.BindForeign("map", scm_map)
+	env.BindForeign("apply", scm_apply)
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("define", scm_define)
 	env.BindSpecial("begin", scm_begin)
@@ -126,6 +127,12 @@ func scm_map(args *SCMT_Pair, env *SCMT_Env) SCMT {
 		ret = Cons(f.Apply(arg, env), ret)
 	}
 	return Reverse(ret)
+}
+
+func scm_apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
+	f := Car(args).(SCMT_Func)
+	target := Car(Cdr(args).(*SCMT_Pair)).(*SCMT_Pair)
+	return f.Apply(target, env)
 }
 
 func scm_quote(args *SCMT_Pair, env *SCMT_Env) SCMT {
