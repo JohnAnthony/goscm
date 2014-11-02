@@ -400,7 +400,27 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(lambda_result)
 	}
 
-	// TODO: map
+	// Test with these expressions:
+	// (define square (lambda (x) (* x x)))
+	// (map square (quote (2 3 4 5 6))) => (4 9 16 25 36)
+	map_expr := SCMT_Nil
+	map_expr = Cons(Make_SCMT(6), map_expr)
+	map_expr = Cons(Make_SCMT(5), map_expr)
+	map_expr = Cons(Make_SCMT(4), map_expr)
+	map_expr = Cons(Make_SCMT(3), map_expr)
+	map_expr = Cons(Make_SCMT(2), map_expr)
+	map_expr = Cons(map_expr, SCMT_Nil)
+	map_expr = Cons(Make_Symbol("quote"), map_expr)
+	map_expr = Cons(map_expr, SCMT_Nil)
+	map_expr = Cons(Make_Symbol("square"), map_expr)
+	map_expr = Cons(Make_Symbol("map"), map_expr)
+	map_result := map_expr.Eval(env)
+	if reflect.TypeOf(map_result) != reflect.TypeOf(&SCMT_Pair{}) {
+		t.Error(reflect.TypeOf(map_result))
+	}
+	if lambda_result.String() != "(4 9 16 25 36)" {
+		t.Error(map_result)
+	}
 }
 
 func Test_Proc(t *testing.T) {
