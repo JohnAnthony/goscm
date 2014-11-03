@@ -6,8 +6,8 @@ import (
 	"github.com/JohnAnthony/goscm"
 )
 
-func Test_EnvSimple(t *testing.T) {
-	env := EnvSimple()
+func Test_Env(t *testing.T) {
+	env := Env()
 
 	// Test define
 	goscm.Make_List(

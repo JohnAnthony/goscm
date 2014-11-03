@@ -5,7 +5,7 @@ import (
 	"github.com/JohnAnthony/goscm"
 )
 
-func EnvSimple() *goscm.SCMT_Env {
+func Env() *goscm.SCMT_Env {
 	env := goscm.EnvEmpty(nil)
 	env.BindForeign("+", scm_add)
 	env.BindForeign("-", scm_subtract)
