@@ -152,11 +152,12 @@ func Test_Foreign(t *testing.T) {
 }
 
 func Test_Foreign_List(t *testing.T) {
-	list := SCMT_Nil
-	list = Cons(Make_SCMT(11), list)
-	list = Cons(Make_SCMT(3), list)
-	list = Cons(Make_SCMT(190), list)
-	list = Cons(Make_Symbol("+"), list)
+	list := Make_List(
+		Make_Symbol("+"),
+		Make_SCMT(190),
+		Make_SCMT(3),
+		Make_SCMT(11),
+	)
 
 	env := EnvEmpty(nil)
 	env.BindForeign("+", func (args *SCMT_Pair, env *SCMT_Env) SCMT {
@@ -182,13 +183,14 @@ func Test_Special(t *testing.T) {
 		return args
 	})
 
-	list := SCMT_Nil
-	list = Cons(Make_Symbol("E"), list)
-	list = Cons(Make_Symbol("D"), list)
-	list = Cons(Make_Symbol("C"), list)
-	list = Cons(Make_Symbol("B"), list)
-	list = Cons(Make_Symbol("A"), list)
-	list = Cons(Make_Symbol("quote"), list)
+	list := Make_List(
+		Make_Symbol("quote"),
+		Make_Symbol("a"),
+		Make_Symbol("b"),
+		Make_Symbol("c"),
+		Make_Symbol("d"),
+		Make_Symbol("e"),
+	)
 	
 	ret := list.Eval(env)
 	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Pair{}) {
@@ -215,23 +217,15 @@ func Test_Proc(t *testing.T) {
 	env.BindForeign("*", scm_multiply)
 
 	// args = (n)
-	args := SCMT_Nil
-	args = Cons(Make_Symbol("n"), args)
-
-	// body = ((* i j))
-	// Note the nesting, because begin is implied in the body
-	body_inner := SCMT_Nil
-	body_inner = Cons(Make_Symbol("n"), body_inner)
-	body_inner = Cons(Make_Symbol("n"), body_inner)
-	body_inner = Cons(Make_Symbol("*"), body_inner)
-	body := SCMT_Nil
-	body = Cons(body_inner, body)
-	
+	// body = ((* n n))
+	args := Make_List(Make_Symbol("n"))
+	body := Make_List(Make_List(
+		Make_Symbol("*"),
+		Make_Symbol("n"),
+		Make_Symbol("n"),
+	))
 	proc := Make_Proc(args, body, env)
-	
-	expr := SCMT_Nil
-	expr = Cons(Make_SCMT(123), expr)
-	expr = Cons(proc, expr)
+	expr := Make_List(proc, Make_SCMT(123))
 
 	result := expr.Eval(env)
 	if reflect.TypeOf(result) != reflect.TypeOf(&SCMT_Integer{}) {
