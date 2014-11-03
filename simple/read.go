@@ -30,6 +30,10 @@ func Read(r io.Reader) goscm.SCMT {
 			if err != nil {
 				break
 			}
+			if c == ')' {
+				b.UnreadByte()
+				break
+			}
 			if c == ' ' {
 				break
 			}
@@ -52,6 +56,10 @@ func Read(r io.Reader) goscm.SCMT {
 		ret := ""
 		for {
 			if err != nil {
+				break
+			}
+			if c == ')' {
+				b.UnreadByte()
 				break
 			}
 			if c == ' ' {
