@@ -33,6 +33,6 @@ func Make_SCMT(in interface {}) SCMT {
 
 func REPL(in *bufio.Reader, read func(*bufio.Reader) SCMT, env *SCMT_Env) {
 	for {
-		fmt.Println(read(in).Eval(env).String())
+		fmt.Println(":: " + read(in).Eval(env).String())
 	}
 }
