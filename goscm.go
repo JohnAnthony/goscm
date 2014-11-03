@@ -1,6 +1,10 @@
 package goscm
 
-import "reflect"
+import (
+	"reflect"
+	"bufio"
+	"fmt"
+)
 
 type SCMT interface {
 	Eval(*SCMT_Env) SCMT
@@ -24,5 +28,12 @@ func Make_SCMT(in interface {}) SCMT {
 	default:
 		// TODO: We probably need to put an error here
 		return nil
+	}
+}
+
+func REPL(in *bufio.Reader, read func(*bufio.Reader) SCMT, env *SCMT_Env) {
+	fmt.Println("DERP")
+	for {
+		fmt.Println(read(in).Eval(env).String())
 	}
 }
