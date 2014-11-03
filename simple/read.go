@@ -16,7 +16,7 @@ func Read(b *bufio.Reader) goscm.SCMT {
 		if err != nil {
 			break
 		}
-		if c != ' ' {
+		if !is_whitespace(c) {
 			break
 		}
 	}
