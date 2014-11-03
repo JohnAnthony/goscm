@@ -294,3 +294,13 @@ func Test_Env(t *testing.T) {
 		t.Error(apply_result)
 	}
 }
+
+func Test_Read(t *testing.T) {
+	symbol := Read("a")
+	if reflect.TypeOf(symbol) != reflect.TypeOf(&goscm.SCMT_Symbol{}) {
+		t.Error(reflect.TypeOf(symbol))
+	}
+	if symbol.String() != "A" {
+		t.Error(symbol)
+	}
+}
