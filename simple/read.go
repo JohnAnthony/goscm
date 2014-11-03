@@ -43,7 +43,7 @@ func Read(b *bufio.Reader) goscm.SCMT {
 				b.UnreadByte()
 				break
 			}
-			if c == ' ' {
+			if is_whitespace(c) {
 				break
 			}
 			ret = string(append([]byte(ret), c))
@@ -71,7 +71,7 @@ func Read(b *bufio.Reader) goscm.SCMT {
 				b.UnreadByte()
 				break
 			}
-			if c == ' ' {
+			if is_whitespace(c) {
 				break
 			}
 			ret = string(append([]byte(ret), c))
@@ -79,4 +79,8 @@ func Read(b *bufio.Reader) goscm.SCMT {
 		}
 		return goscm.Make_Symbol(ret)
 	}
+}
+
+func is_whitespace(c byte) bool {
+	return c == ' ' || c == '\n' || c == '\t'
 }
