@@ -4,6 +4,7 @@ import (
 	"testing"
 	"reflect"
 	"strings"
+	"bufio"
 	"github.com/JohnAnthony/goscm"
 )
 
@@ -297,7 +298,7 @@ func Test_Env(t *testing.T) {
 }
 
 func Test_Read(t *testing.T) {
-	symbol := Read(strings.NewReader("anaconda"))
+	symbol := Read(bufio.NewReader(strings.NewReader("anaconda")))
 	if reflect.TypeOf(symbol) != reflect.TypeOf(&goscm.SCMT_Symbol{}) {
 		t.Error(reflect.TypeOf(symbol))
 	}
@@ -305,7 +306,7 @@ func Test_Read(t *testing.T) {
 		t.Error(symbol)
 	}
 
-	int := Read(strings.NewReader("1337"))
+	int := Read(bufio.NewReader(strings.NewReader("1337")))
 	if reflect.TypeOf(int) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(int))
 	}
@@ -313,7 +314,7 @@ func Test_Read(t *testing.T) {
 		t.Error(int)
 	}
 
-	str := Read(strings.NewReader("\"Hello, world!\""))
+	str := Read(bufio.NewReader(strings.NewReader("\"Hello, world!\"")))
 	if reflect.TypeOf(str) != reflect.TypeOf(&goscm.SCMT_String{}) {
 		t.Error(reflect.TypeOf(str))
 	}
@@ -321,7 +322,7 @@ func Test_Read(t *testing.T) {
 		t.Error(str)
 	}
 	
-	list := Read(strings.NewReader("(+ 111 222 333)"))
+	list := Read(bufio.NewReader(strings.NewReader("(+ 111 222 333)")))
 	if reflect.TypeOf(list) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(list))
 	}

@@ -2,13 +2,11 @@ package simple
 
 import (
 	"github.com/JohnAnthony/goscm"
-	"io"
 	"bufio"
 	"strconv"
 )
 
-func Read(r io.Reader) goscm.SCMT {
-	b := bufio.NewReader(r)
+func Read(b *bufio.Reader) goscm.SCMT {
 	var c byte
 	var err error
 
@@ -24,6 +22,17 @@ func Read(r io.Reader) goscm.SCMT {
 	}
 	
 	switch {
+	case c == '(': // A list
+		list := goscm.SCMT_Nil
+		for {
+			c, err = b.ReadByte()
+			if c == ')' {
+				break
+			}
+			b.UnreadByte()
+			list = goscm.Cons(Read(b), list)
+		}
+		return goscm.Reverse(list)
 	case c >= '0' && c <= '9': // An integer
 		ret := ""
 		for {
