@@ -297,11 +297,19 @@ func Test_Env(t *testing.T) {
 }
 
 func Test_Read(t *testing.T) {
-	symbol := Read(strings.NewReader("a"))
+	symbol := Read(strings.NewReader("anaconda"))
 	if reflect.TypeOf(symbol) != reflect.TypeOf(&goscm.SCMT_Symbol{}) {
 		t.Error(reflect.TypeOf(symbol))
 	}
-	if symbol.String() != "A" {
+	if symbol.String() != "ANACONDA" {
 		t.Error(symbol)
+	}
+
+	int := Read(strings.NewReader("1337"))
+	if reflect.TypeOf(int) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(int))
+	}
+	if int.String() != "1337" {
+		t.Error(int)
 	}
 }
