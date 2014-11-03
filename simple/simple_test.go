@@ -3,6 +3,7 @@ package simple
 import (
 	"testing"
 	"reflect"
+	"strings"
 	"github.com/JohnAnthony/goscm"
 )
 
@@ -296,7 +297,7 @@ func Test_Env(t *testing.T) {
 }
 
 func Test_Read(t *testing.T) {
-	symbol := Read("a")
+	symbol := Read(strings.NewReader("a"))
 	if reflect.TypeOf(symbol) != reflect.TypeOf(&goscm.SCMT_Symbol{}) {
 		t.Error(reflect.TypeOf(symbol))
 	}
