@@ -32,7 +32,6 @@ func Make_SCMT(in interface {}) SCMT {
 }
 
 func REPL(in *bufio.Reader, read func(*bufio.Reader) SCMT, env *SCMT_Env) {
-	fmt.Println("DERP")
 	for {
 		fmt.Println(read(in).Eval(env).String())
 	}
