@@ -94,7 +94,7 @@ func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
 
 func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
 	env.Add(args.Car.(*goscm.SCMT_Symbol), args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env))
-	return goscm.SCMT_Nil 
+	return args.Car.(*goscm.SCMT_Symbol) 
 }
 
 func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
