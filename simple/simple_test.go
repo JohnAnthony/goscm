@@ -9,54 +9,58 @@ import (
 func Test_EnvSimple(t *testing.T) {
 	env := EnvSimple()
 
-	define_expr := goscm.SCMT_Nil
-	define_expr = goscm.Cons(goscm.Make_SCMT(1234), define_expr)
-	define_expr = goscm.Cons(goscm.Make_Symbol("a"), define_expr)
-	define_expr = goscm.Cons(goscm.Make_Symbol("define"), define_expr)
-	define_expr.Eval(env)
+	// Test define
+	goscm.Make_List(
+		goscm.Make_Symbol("define"),
+		goscm.Make_Symbol("a"),
+		goscm.Make_SCMT(1234),
+	).Eval(env)
 	a_result := goscm.Make_Symbol("a").Eval(env)
 	if reflect.TypeOf(a_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
-		t.Error()
+		t.Error(reflect.TypeOf(a_result))
 	}
 	if a_result.String() != "1234" {
-		t.Error()
+		t.Error(a_result)
 	}
 	
-	add_expr := goscm.SCMT_Nil
-	add_expr = goscm.Cons(goscm.Make_SCMT(1000), add_expr)
-	add_expr = goscm.Cons(goscm.Make_SCMT(222), add_expr)
-	add_expr = goscm.Cons(goscm.Make_Symbol("a"), add_expr)
-	add_expr = goscm.Cons(goscm.Make_SCMT(321), add_expr)
-	add_expr = goscm.Cons(goscm.Make_Symbol("+"), add_expr)
-	add_result := add_expr.Eval(env)
+	// Test +
+	add_result := goscm.Make_List(
+		goscm.Make_Symbol("+"),
+		goscm.Make_SCMT(321),
+		goscm.Make_Symbol("a"),
+		goscm.Make_SCMT(222),
+		goscm.Make_SCMT(1000),
+	).Eval(env)
 	if reflect.TypeOf(add_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
-		t.Error()
+		t.Error(reflect.TypeOf(add_result))
 	}
 	if add_result.String() != "2777" {
-		t.Error()
+		t.Error(add_result)
 	}
 	
-	sub_expr := goscm.SCMT_Nil
-	sub_expr = goscm.Cons(goscm.Make_SCMT(90), sub_expr)
-	sub_expr = goscm.Cons(goscm.Make_SCMT(9), sub_expr)
-	sub_expr = goscm.Cons(goscm.Make_SCMT(100), sub_expr)
-	sub_expr = goscm.Cons(goscm.Make_Symbol("-"), sub_expr)
-	sub_result := sub_expr.Eval(env)
+	// Test -
+	sub_result := goscm.Make_List(
+		goscm.Make_Symbol("-"),
+		goscm.Make_SCMT(100),
+		goscm.Make_SCMT(9),
+		goscm.Make_SCMT(90),
+	).Eval(env)
 	if reflect.TypeOf(sub_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
-		t.Error()
+		t.Error(reflect.TypeOf(sub_result))
 	}
 	if sub_result.String() != "1" {
-		t.Error()
+		t.Error(sub_result)
 	}
 
-	mult_expr := goscm.SCMT_Nil
-	mult_expr = goscm.Cons(goscm.Make_SCMT(5), mult_expr)
-	mult_expr = goscm.Cons(goscm.Make_SCMT(4), mult_expr)
-	mult_expr = goscm.Cons(goscm.Make_SCMT(3), mult_expr)
-	mult_expr = goscm.Cons(goscm.Make_SCMT(2), mult_expr)
-	mult_expr = goscm.Cons(goscm.Make_SCMT(1), mult_expr)
-	mult_expr = goscm.Cons(goscm.Make_Symbol("*"), mult_expr)
-	mult_result := mult_expr.Eval(env)
+	// Test *
+	mult_result := goscm.Make_List(
+		goscm.Make_Symbol("*"),
+		goscm.Make_SCMT(1),
+		goscm.Make_SCMT(2),
+		goscm.Make_SCMT(3),
+		goscm.Make_SCMT(4),
+		goscm.Make_SCMT(5),
+	).Eval(env)
 	if reflect.TypeOf(mult_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(mult_result))
 	}
@@ -64,12 +68,13 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(mult_result)
 	}
 	
-	div_expr := goscm.SCMT_Nil
-	div_expr = goscm.Cons(goscm.Make_SCMT(2), div_expr)
-	div_expr = goscm.Cons(goscm.Make_SCMT(3), div_expr)
-	div_expr = goscm.Cons(goscm.Make_SCMT(66), div_expr)
-	div_expr = goscm.Cons(goscm.Make_Symbol("/"), div_expr)
-	div_result := div_expr.Eval(env)
+	// Test /
+	div_result := goscm.Make_List(
+		goscm.Make_Symbol("/"),
+		goscm.Make_SCMT(66),
+		goscm.Make_SCMT(3),
+		goscm.Make_SCMT(2),
+	).Eval(env)
 	if reflect.TypeOf(div_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(div_result))
 	}
@@ -77,14 +82,18 @@ func Test_EnvSimple(t *testing.T) {
 		t.Error(div_result)
 	}
 	
-	// Building this list: (car (cons "FOO" "BAR"))
-	car_expr := goscm.SCMT_Nil
-	car_expr = goscm.Cons(goscm.Make_SCMT("BAR"), car_expr)
-	car_expr = goscm.Cons(goscm.Make_SCMT("FOO"), car_expr)
-	car_expr = goscm.Cons(goscm.Make_Symbol("cons"), car_expr)
-	car_expr = goscm.Cons(car_expr, goscm.SCMT_Nil)
-	car_expr = goscm.Cons(goscm.Make_Symbol("car"), car_expr)
-	car_result := car_expr.Eval(env)
+	// Test cons
+	// TODO
+	
+	// Test car
+	car_result := goscm.Make_List(
+		goscm.Make_Symbol("car"),
+		goscm.Make_List(
+			goscm.Make_Symbol("cons"),
+			goscm.Make_SCMT("FOO"),
+			goscm.Make_SCMT("BAR"),
+		),
+	).Eval(env)
 	if reflect.TypeOf(car_result) != reflect.TypeOf(&goscm.SCMT_String{}) {
 		t.Error(reflect.TypeOf(car_result))
 	}
