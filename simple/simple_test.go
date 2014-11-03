@@ -320,4 +320,12 @@ func Test_Read(t *testing.T) {
 	if str.String() != "\"Hello, world!\"" {
 		t.Error(str)
 	}
+	
+	list := Read(strings.NewReader("(+ 111 222 333)"))
+	if reflect.TypeOf(list) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		t.Error(reflect.TypeOf(list))
+	}
+	if list.String() != "(+ 111 222 333)" {
+		t.Error(list)
+	}
 }
