@@ -70,6 +70,21 @@ func Test_Pair(t *testing.T) {
 	if list.String() != "(1 2 3 4 5 6 7 8 9)" {
 		t.Error()
 	}
+	
+	// Test Make_List
+	list2 := Make_List(
+		Make_SCMT(55),
+		Make_SCMT(66),
+		Make_SCMT(77),
+		Make_SCMT(88),
+		Make_SCMT(99),
+	)
+	if reflect.TypeOf(list2) != reflect.TypeOf(&SCMT_Pair{}) {
+		t.Error(reflect.TypeOf(list2))
+	}
+	if list2.String() != "(55 66 77 88 99)" {
+		t.Error(list2)
+	}
 }
 
 func Test_Nil(t *testing.T) {

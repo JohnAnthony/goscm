@@ -45,6 +45,14 @@ func (pair *SCMT_Pair) String() string {
 
 // Some standard scheme pair functions provided for use in Go
 
+func Make_List(args ...SCMT) *SCMT_Pair {
+	list := SCMT_Nil
+	for i := len(args) - 1; i >= 0; i-- {
+		list = Cons(args[i], list)
+	}
+	return list
+}
+
 func (pair *SCMT_Pair) IsNil() bool {
 	return pair == SCMT_Nil
 }
