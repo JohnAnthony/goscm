@@ -312,4 +312,12 @@ func Test_Read(t *testing.T) {
 	if int.String() != "1337" {
 		t.Error(int)
 	}
+
+	str := Read(strings.NewReader("\"Hello, world!\""))
+	if reflect.TypeOf(str) != reflect.TypeOf(&goscm.SCMT_String{}) {
+		t.Error(reflect.TypeOf(str))
+	}
+	if str.String() != "\"Hello, world!\"" {
+		t.Error(str)
+	}
 }

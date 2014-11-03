@@ -38,6 +38,16 @@ func Read(r io.Reader) goscm.SCMT {
 		}
 		retn, _ := strconv.Atoi(ret)
 		return goscm.Make_SCMT(retn)
+	case c == '"': // A string
+		ret := ""
+		for {
+			c, err = b.ReadByte()
+			if c == '"' {
+				break
+			}
+			ret = string(append([]byte(ret), c))
+		}
+		return goscm.Make_SCMT(ret)
 	default: // A symbol
 		ret := ""
 		for {
