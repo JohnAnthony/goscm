@@ -54,6 +54,10 @@ func Read(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 				b.UnreadByte()
 				break
 			}
+			if c == ';' {
+				read_comment(b)
+				continue
+			}
 			if is_whitespace(c) {
 				break
 			}
@@ -81,6 +85,10 @@ func Read(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 			if c == ')' {
 				b.UnreadByte()
 				break
+			}
+			if c == ';' {
+				read_comment(b)
+				continue
 			}
 			if is_whitespace(c) {
 				break
