@@ -335,6 +335,26 @@ func Test_Env(t *testing.T) {
 	if apply_result.String() != "21" {
 		t.Error(apply_result)
 	}
+	
+	// Test set!
+	// (define x 10)
+	// (set! x 33)
+	// x => 33
+	set_def_expr, _ := ReadStr("(define macamaga 10)")
+	set_def_expr.Eval(env)
+	set_set_expr, _ := ReadStr("(set! macamaga 33)")
+	set_set_expr.Eval(env)
+	set_result_expr, _ := ReadStr("macamaga")
+	set_result, err := set_result_expr.Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(set_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(set_result))
+	}
+	if set_result.String() != "33" {
+		t.Error(set_result)
+	}
 }
 
 func Test_Read(t *testing.T) {

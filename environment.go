@@ -30,6 +30,17 @@ func (env *SCMT_Env) Find(symb *SCMT_Symbol) (SCMT, error) {
 	return env.parent.Find(symb)
 }
 
+func (env *SCMT_Env) Set(symb *SCMT_Symbol, val SCMT) error {
+	ret := env.table[symb.Value]
+	if ret != nil {
+		env.table[symb.Value] = val
+	}
+	if env.parent == nil {
+		return errors.New("Unbound variable: " + symb.String())
+	}
+	return env.parent.Set(symb, val)
+}
+
 func (env *SCMT_Env) BindForeign(name string, f func (*SCMT_Pair, *SCMT_Env) (SCMT, error)) {
 	env.Add(Make_Symbol(name), Make_Foreign(f))
 }

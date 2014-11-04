@@ -21,6 +21,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindSpecial("begin", scm_begin)
 	env.BindSpecial("let", scm_let)
 	env.BindSpecial("lambda", scm_lambda)
+	env.BindSpecial("set!", scm_set_bang)
 	return env
 }
 
@@ -141,4 +142,8 @@ func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 
 func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return goscm.Make_Proc(args.Car.(*goscm.SCMT_Pair), args.Cdr.(*goscm.SCMT_Pair), env), nil
+}
+
+func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	return goscm.SCMT_Nil, env.Set(args.Car.(*goscm.SCMT_Symbol), args.Cdr.(*goscm.SCMT_Pair).Car)
 }
