@@ -122,7 +122,10 @@ func Test_Environment(t *testing.T) {
 	}
 	
 	env.Add(Make_Symbol("derp"), Make_SCMT(9987654))
-	ret := env.Find(Make_Symbol("DeRp"))
+	ret, err := env.Find(Make_Symbol("DeRp"))
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
@@ -142,7 +145,10 @@ func Test_Foreign(t *testing.T) {
 		t.Error()
 	}
 
-	sq := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)), EnvEmpty(nil))
+	sq, err := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)), EnvEmpty(nil))
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(sq) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
@@ -168,7 +174,10 @@ func Test_Foreign_List(t *testing.T) {
 		return Make_SCMT(ret)
 	})
 
-	ret := list.Eval(env)
+	ret, err := list.Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error()
 	}
@@ -192,7 +201,10 @@ func Test_Special(t *testing.T) {
 		Make_Symbol("e"),
 	)
 	
-	ret := list.Eval(env)
+	ret, err := list.Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
@@ -227,7 +239,10 @@ func Test_Proc(t *testing.T) {
 	proc := Make_Proc(args, body, env)
 	expr := Make_List(proc, Make_SCMT(123))
 
-	result := expr.Eval(env)
+	result, err := expr.Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(result) != reflect.TypeOf(&SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(result))
 	}

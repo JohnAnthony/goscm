@@ -12,6 +12,6 @@ func (in *SCMT_Integer) String() string {
 	return strconv.Itoa(in.Value)
 }
 
-func (in *SCMT_Integer) Eval(*SCMT_Env) SCMT {
-	return in
+func (in *SCMT_Integer) Eval(*SCMT_Env) (SCMT, error) {
+	return in, nil
 }

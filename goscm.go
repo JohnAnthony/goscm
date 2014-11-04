@@ -7,12 +7,12 @@ import (
 )
 
 type SCMT interface {
-	Eval(*SCMT_Env) SCMT
+	Eval(*SCMT_Env) (SCMT, error)
 	String() string
 }
 
 type SCMT_Func interface {
-	Apply(*SCMT_Pair, *SCMT_Env) SCMT
+	Apply(*SCMT_Pair, *SCMT_Env) (SCMT, error)
 }
 
 func Make_SCMT(in interface {}) SCMT {
@@ -38,9 +38,14 @@ func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_En
 			break
 		}
 		if err != nil {
-			fmt.Println("ERROR: " + err.Error())
+			fmt.Println("READ ERROR: " + err.Error())
 			continue
 		}
-		fmt.Println("=> " + r.Eval(env).String())
+		e, err := r.Eval(env)
+		if err != nil {
+			fmt.Println("EVAL ERROR: " + err.Error())
+			continue
+		}
+		fmt.Println("=> " + e.String())
 	}
 }

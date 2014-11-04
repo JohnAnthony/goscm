@@ -6,21 +6,27 @@ type SCMT_Proc struct {
 	env *SCMT_Env
 }
 
-func (p *SCMT_Proc) Eval(*SCMT_Env) SCMT {
-	return p
+func (p *SCMT_Proc) Eval(*SCMT_Env) (SCMT, error) {
+	return p, nil
 }
 
 func (*SCMT_Proc) String() string {
 	return "#<procedure>"
 }
 
-func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
+func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
+	var err error
 	argenv := EnvEmpty(p.env)
 
 	arg := args
 	symb := p.args
 	for arg != SCMT_Nil && symb != SCMT_Nil {
-		argenv.Add(symb.Car.(*SCMT_Symbol), arg.Car.Eval(env))
+		val, err := arg.Car.Eval(env)
+		if err != nil {
+			return SCMT_Nil, err
+		}
+
+		argenv.Add(symb.Car.(*SCMT_Symbol), val)
 		arg = arg.Cdr.(*SCMT_Pair)
 		symb = symb.Cdr.(*SCMT_Pair)
 		
@@ -31,10 +37,13 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
 
 	var result SCMT
 	for expr := p.body; expr != SCMT_Nil; expr = expr.Cdr.(*SCMT_Pair) {
-		result = expr.Car.Eval(argenv)
+		result, err = expr.Car.Eval(argenv)
+		if err != nil {
+			return SCMT_Nil, err
+		}
 	}
 
-	return result
+	return result, nil
 }
 
 func Make_Proc(args *SCMT_Pair, body *SCMT_Pair, env *SCMT_Env) *SCMT_Proc {

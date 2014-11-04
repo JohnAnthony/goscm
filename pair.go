@@ -2,6 +2,7 @@ package goscm
 
 import (
 	"reflect"
+	"errors"
 )
 
 type SCMT_Pair struct {
@@ -11,12 +12,14 @@ type SCMT_Pair struct {
 
 var SCMT_Nil = &SCMT_Pair {}
 
-func (pair *SCMT_Pair) Eval(env *SCMT_Env) SCMT {
+func (pair *SCMT_Pair) Eval(env *SCMT_Env) (SCMT, error) {
 	if pair.IsNil() {
-		// TODO: Handle this as an error!
-		return nil
+		return SCMT_Nil, errors.New("Cannot eval empty list")
 	}
-	proc := pair.Car.Eval(env)
+	proc, err := pair.Car.Eval(env)
+	if err != nil {
+		return SCMT_Nil, err
+	}
 	args := pair.Cdr.(*SCMT_Pair)
 	return proc.(SCMT_Func).Apply(args, env)
 }
