@@ -30,11 +30,11 @@ func (env *SCMT_Env) Find(symb *SCMT_Symbol) (SCMT, error) {
 	return env.parent.Find(symb)
 }
 
-func (env *SCMT_Env) BindForeign(name string, f func (*SCMT_Pair, *SCMT_Env) SCMT) {
+func (env *SCMT_Env) BindForeign(name string, f func (*SCMT_Pair, *SCMT_Env) (SCMT, error)) {
 	env.Add(Make_Symbol(name), Make_Foreign(f))
 }
 
-func (env *SCMT_Env) BindSpecial(name string, f func (*SCMT_Pair, *SCMT_Env) SCMT) {
+func (env *SCMT_Env) BindSpecial(name string, f func (*SCMT_Pair, *SCMT_Env) (SCMT, error)) {
 	env.Add(Make_Symbol(name), Make_Special(f))
 }
 

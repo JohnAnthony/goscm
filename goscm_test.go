@@ -135,9 +135,9 @@ func Test_Environment(t *testing.T) {
 }
 
 func Test_Foreign(t *testing.T) {
-	f := func (list *SCMT_Pair, env *SCMT_Env) SCMT {
+	f := func (list *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 		n := list.Car.(*SCMT_Integer).Value
-		return Make_SCMT(n * n)
+		return Make_SCMT(n * n), nil
 	}
 
 	scm_f := Make_Foreign(f)
@@ -166,12 +166,12 @@ func Test_Foreign_List(t *testing.T) {
 	)
 
 	env := EnvEmpty(nil)
-	env.BindForeign("+", func (args *SCMT_Pair, env *SCMT_Env) SCMT {
+	env.BindForeign("+", func (args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 		ret := 0
 		for ; !args.IsNil(); args = args.Cdr.(*SCMT_Pair) {
 			ret += args.Car.(*SCMT_Integer).Value
 		}
-		return Make_SCMT(ret)
+		return Make_SCMT(ret), nil
 	})
 
 	ret, err := list.Eval(env)
@@ -188,8 +188,8 @@ func Test_Foreign_List(t *testing.T) {
 
 func Test_Special(t *testing.T) {
 	env := EnvEmpty(nil)
-	env.BindSpecial("quote", func (args *SCMT_Pair, env *SCMT_Env) SCMT {
-		return args
+	env.BindSpecial("quote", func (args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
+		return args, nil
 	})
 
 	list := Make_List(
@@ -219,12 +219,12 @@ func Test_Proc(t *testing.T) {
 	env := EnvEmpty(nil)
 	
 	// We have to also provide a multiplication primitive
-	scm_multiply := func (args *SCMT_Pair, env *SCMT_Env) SCMT {
+	scm_multiply := func (args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 		ret := 1
 		for ; !args.IsNil(); args = args.Cdr.(*SCMT_Pair) {
 			ret *= args.Car.(*SCMT_Integer).Value
 		}
-		return Make_SCMT(ret)
+		return Make_SCMT(ret), nil
 	}
 	env.BindForeign("*", scm_multiply)
 
