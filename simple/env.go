@@ -27,97 +27,118 @@ func Env() *goscm.SCMT_Env {
 // WARNING! These procedures do no input validation, so feeding them incorrect
 // input will have strange effects!
 
-func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
+func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	ret := 0
 	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret += args.Car.(*goscm.SCMT_Integer).Value
 	}
-	return goscm.Make_SCMT(ret)
+	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
+func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	ret := 1
 	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret *= args.Car.(*goscm.SCMT_Integer).Value
 	}
-	return goscm.Make_SCMT(ret)
+	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
+func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	ret := args.Car.(*goscm.SCMT_Integer).Value
 	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret -= args.Car.(*goscm.SCMT_Integer).Value
 	}
-	return goscm.Make_SCMT(ret)
+	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
+func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	ret := args.Car.(*goscm.SCMT_Integer).Value
 	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret /= args.Car.(*goscm.SCMT_Integer).Value
 	}
-	return goscm.Make_SCMT(ret)
+	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
-	return args.Car.(*goscm.SCMT_Pair).Car
+func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	return args.Car.(*goscm.SCMT_Pair).Car, nil
 }
 
-func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
-	return args.Car.(*goscm.SCMT_Pair).Cdr
+func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	return args.Car.(*goscm.SCMT_Pair).Cdr, nil
 }
 
-func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
-	return goscm.Cons(args.Car, args.Cdr.(*goscm.SCMT_Pair).Car)
+func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	return goscm.Cons(args.Car, args.Cdr.(*goscm.SCMT_Pair).Car), nil
 }
 
-func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
+func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	ret := goscm.SCMT_Nil
-	f := args.Car.Eval(env).(goscm.SCMT_Func)
+	f, err := args.Car.Eval(env)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+
 	target := args.Cdr.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Pair)
 	for l := target; l != goscm.SCMT_Nil; l = l.Cdr.(*goscm.SCMT_Pair) {
 		arg := goscm.Cons(l.Car, goscm.SCMT_Nil)
-		ret = goscm.Cons(f.Apply(arg, env), ret)
+		applied, err := f.(goscm.SCMT_Func).Apply(arg, env)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+		ret = goscm.Cons(applied, ret)
 	}
-	return goscm.Reverse(ret)
+	return goscm.Reverse(ret), nil
 }
 
-func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
+func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	f := args.Car.(goscm.SCMT_Func)
 	target := args.Cdr.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Pair)
 	return f.Apply(target, env)
 }
 
-func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
-	return args.Car
+func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	return args.Car, nil
 }
 
-func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
-	env.Add(args.Car.(*goscm.SCMT_Symbol), args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env))
-	return args.Car.(*goscm.SCMT_Symbol) 
-}
-
-func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
-	var result goscm.SCMT
-	for result = goscm.SCMT_Nil; args != goscm.SCMT_Nil; args = args.Cdr.(*goscm.SCMT_Pair) {
-		result = args.Car.Eval(env)
+func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	tobind, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+	if err != nil {
+		return goscm.SCMT_Nil, err
 	}
-	return result
+
+	env.Add(args.Car.(*goscm.SCMT_Symbol), tobind)
+	return args.Car.(*goscm.SCMT_Symbol), nil
 }
 
-func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
+func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	var result goscm.SCMT
+	var err error
+
+	for result = goscm.SCMT_Nil; args != goscm.SCMT_Nil; args = args.Cdr.(*goscm.SCMT_Pair) {
+		result, err = args.Car.Eval(env)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+	}
+	return result, nil
+}
+
+func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	body := args.Cdr.(*goscm.SCMT_Pair)
 	newenv := goscm.EnvEmpty(env)
 	
 	for vars := args.Car.(*goscm.SCMT_Pair); vars != goscm.SCMT_Nil; vars = vars.Cdr.(*goscm.SCMT_Pair) {
 		symb := vars.Car.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Symbol)
-		val := vars.Car.(*goscm.SCMT_Pair).Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+		val, err := vars.Car.(*goscm.SCMT_Pair).Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
 		newenv.Add(symb, val)
 	}
 
 	return scm_begin(body, newenv)
 }
 
-func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) goscm.SCMT {
-	return goscm.Make_Proc(args.Car.(*goscm.SCMT_Pair), args.Cdr.(*goscm.SCMT_Pair), env)
+func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	return goscm.Make_Proc(args.Car.(*goscm.SCMT_Pair), args.Cdr.(*goscm.SCMT_Pair), env), nil
 }
