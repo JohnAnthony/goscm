@@ -145,5 +145,10 @@ func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 }
 
 func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	return goscm.SCMT_Nil, env.Set(args.Car.(*goscm.SCMT_Symbol), args.Cdr.(*goscm.SCMT_Pair).Car)
+	symb := args.Car.(*goscm.SCMT_Symbol)
+	val, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	return symb, env.Set(symb, val)
 }

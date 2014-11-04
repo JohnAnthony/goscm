@@ -34,6 +34,7 @@ func (env *SCMT_Env) Set(symb *SCMT_Symbol, val SCMT) error {
 	ret := env.table[symb.Value]
 	if ret != nil {
 		env.table[symb.Value] = val
+		return nil
 	}
 	if env.parent == nil {
 		return errors.New("Unbound variable: " + symb.String())
