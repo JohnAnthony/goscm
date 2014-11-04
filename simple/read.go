@@ -6,15 +6,19 @@ import (
 	"strconv"
 )
 
-func Read(b *bufio.Reader) goscm.SCMT {
+func Read(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 	var c byte
 	var err error
 
 	// Chomp preceeding whitespace
 	for {
 		c, err = b.ReadByte()
-		if err != nil {
+		if  err != nil {
 			break
+		}
+		if c == ';' {
+			read_comment(b)
+			continue
 		}
 		if !is_whitespace(c) {
 			break
@@ -30,9 +34,10 @@ func Read(b *bufio.Reader) goscm.SCMT {
 				break
 			}
 			b.UnreadByte()
-			list = goscm.Cons(Read(b), list)
+			recurse, _ := Read(b)
+			list = goscm.Cons(recurse, list)
 		}
-		return goscm.Reverse(list)
+		return goscm.Reverse(list), b
 	case c >= '0' && c <= '9': // An integer
 		ret := ""
 		for {
@@ -50,7 +55,7 @@ func Read(b *bufio.Reader) goscm.SCMT {
 			c, err = b.ReadByte()
 		}
 		retn, _ := strconv.Atoi(ret)
-		return goscm.Make_SCMT(retn)
+		return goscm.Make_SCMT(retn), b
 	case c == '"': // A string
 		ret := ""
 		for {
@@ -60,7 +65,7 @@ func Read(b *bufio.Reader) goscm.SCMT {
 			}
 			ret = string(append([]byte(ret), c))
 		}
-		return goscm.Make_SCMT(ret)
+		return goscm.Make_SCMT(ret), b
 	default: // A symbol
 		ret := ""
 		for {
@@ -77,10 +82,24 @@ func Read(b *bufio.Reader) goscm.SCMT {
 			ret = string(append([]byte(ret), c))
 			c, err = b.ReadByte()
 		}
-		return goscm.Make_Symbol(ret)
+		return goscm.Make_Symbol(ret), b
 	}
 }
 
 func is_whitespace(c byte) bool {
 	return c == ' ' || c == '\n' || c == '\t'
+}
+
+func read_comment(b *bufio.Reader) {
+	for {
+		c, err := b.ReadByte()
+		switch {
+		case c == '\n':
+			fallthrough
+		case err != nil:
+			return
+		default:
+			continue
+		}
+	}
 }
