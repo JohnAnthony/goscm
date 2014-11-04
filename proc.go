@@ -20,7 +20,7 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) SCMT {
 	arg := args
 	symb := p.args
 	for arg != SCMT_Nil && symb != SCMT_Nil {
-		argenv.Add(symb.Car.(*SCMT_Symbol), arg.Car)
+		argenv.Add(symb.Car.(*SCMT_Symbol), arg.Car.Eval(env))
 		arg = arg.Cdr.(*SCMT_Pair)
 		symb = symb.Cdr.(*SCMT_Pair)
 		
