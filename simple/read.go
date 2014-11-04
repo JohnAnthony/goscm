@@ -77,26 +77,8 @@ func Read(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 		}
 		return goscm.Make_SCMT(ret), b
 	default: // A symbol
-		ret := ""
-		for {
-			if err != nil {
-				break
-			}
-			if c == ')' {
-				b.UnreadByte()
-				break
-			}
-			if c == ';' {
-				read_comment(b)
-				continue
-			}
-			if is_whitespace(c) {
-				break
-			}
-			ret = string(append([]byte(ret), c))
-			c, err = b.ReadByte()
-		}
-		return goscm.Make_Symbol(ret), b
+		b.UnreadByte()
+		return read_symbol(b)
 	}
 }
 
@@ -116,4 +98,27 @@ func read_comment(b *bufio.Reader) {
 			continue
 		}
 	}
+}
+
+func read_symbol(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
+	ret := ""
+	for {
+		c, err := b.ReadByte()
+		if err != nil {
+			break
+		}
+		if c == ')' {
+			b.UnreadByte()
+			break
+		}
+		if c == ';' {
+			read_comment(b)
+			continue
+		}
+		if is_whitespace(c) {
+			break
+		}
+		ret = string(append([]byte(ret), c))
+	}
+	return goscm.Make_Symbol(ret), b
 }
