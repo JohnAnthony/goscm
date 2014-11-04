@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"strings"
 	"strconv"
+	"errors"
 )
 
 func ReadStr(str string) (goscm.SCMT, error) {
@@ -26,6 +27,8 @@ func Read(b *bufio.Reader) (goscm.SCMT, error) {
 	case c == '(': 
 		// A list
 		return read_list(b)
+	case c == ')':
+		return goscm.SCMT_Nil, errors.New("Mismatched parenthesis")
 	case c >= '0' && c <= '9':
 		// An integer
 		b.UnreadByte()
