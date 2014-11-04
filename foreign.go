@@ -15,7 +15,10 @@ func (*SCMT_Foreign) String() string {
 func (fo *SCMT_Foreign) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 	newargs := SCMT_Nil
 	for ; !args.IsNil(); args = args.Cdr.(*SCMT_Pair) {
-		val, _ := args.Car.Eval(env)
+		val, err := args.Car.Eval(env)
+		if err != nil {
+			return SCMT_Nil, err
+		}
 		newargs = Cons(val, newargs)
 	}
 	newargs = Reverse(newargs)

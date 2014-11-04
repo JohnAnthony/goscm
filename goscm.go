@@ -38,12 +38,12 @@ func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_En
 			break
 		}
 		if err != nil {
-			fmt.Println("READ ERROR: " + err.Error())
+			fmt.Println("(READ ERROR) " + err.Error())
 			continue
 		}
 		e, err := r.Eval(env)
 		if err != nil {
-			fmt.Println("EVAL ERROR: " + err.Error())
+			fmt.Println("(EVAL ERROR) " + err.Error())
 			continue
 		}
 		fmt.Println("=> " + e.String())

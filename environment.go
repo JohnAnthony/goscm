@@ -25,7 +25,7 @@ func (env *SCMT_Env) Find(symb *SCMT_Symbol) (SCMT, error) {
 		return ret, nil
 	}
 	if env.parent == nil {
-		return nil, errors.New("Symbol not found in environment: " + symb.String())
+		return nil, errors.New("Unbound variable: " + symb.String())
 	}
 	return env.parent.Find(symb)
 }
