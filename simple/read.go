@@ -7,12 +7,12 @@ import (
 	"strconv"
 )
 
-func ReadStr(str string) goscm.SCMT {
-	ret, _ := Read(bufio.NewReader(strings.NewReader(str)))
-	return ret
+func ReadStr(str string) (goscm.SCMT, error) {
+	ret, err := Read(bufio.NewReader(strings.NewReader(str)))
+	return ret, err
 }
 
-func Read(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
+func Read(b *bufio.Reader) (goscm.SCMT, error) {
 	chomp_meaningless(b)
 	c, _ := b.ReadByte()
 	
@@ -52,10 +52,13 @@ func read_comment(b *bufio.Reader) {
 	}
 }
 
-func read_symbol(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
+func read_symbol(b *bufio.Reader) (goscm.SCMT, error) {
 	ret := ""
+	var c byte
+	var err error
+
 	for {
-		c, err := b.ReadByte()
+		c, err = b.ReadByte()
 		if err != nil {
 			break
 		}
@@ -72,13 +75,16 @@ func read_symbol(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 		}
 		ret = string(append([]byte(ret), c))
 	}
-	return goscm.Make_Symbol(ret), b
+	return goscm.Make_Symbol(ret), err
 }
 
-func read_string(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
+func read_string(b *bufio.Reader) (goscm.SCMT, error) {
 	ret := ""
+	var c byte
+	var err error
+
 	for {
-		c, err := b.ReadByte()
+		c, err = b.ReadByte()
 		if err != nil {
 			break
 		}
@@ -87,13 +93,16 @@ func read_string(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 		}
 		ret = string(append([]byte(ret), c))
 	}
-	return goscm.Make_SCMT(ret), b
+	return goscm.Make_SCMT(ret), err
 }
 
-func read_integer(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
+func read_integer(b *bufio.Reader) (goscm.SCMT, error) {
 	ret := ""
+	var c byte
+	var err error
+	
 	for {
-		c, err := b.ReadByte()
+		c, err = b.ReadByte()
 		if err != nil {
 			break
 		}
@@ -111,13 +120,16 @@ func read_integer(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 		ret = string(append([]byte(ret), c))
 	}
 	retn, _ := strconv.Atoi(ret)
-	return goscm.Make_SCMT(retn), b
+	return goscm.Make_SCMT(retn), err
 }
 
-func read_list(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
+func read_list(b *bufio.Reader) (goscm.SCMT, error) {
 	list := goscm.SCMT_Nil
+	var c byte
+	var err error
+
 	for {
-		c, _ := b.ReadByte()
+		c, err = b.ReadByte()
 		if c == ')' {
 			break
 		}
@@ -125,7 +137,7 @@ func read_list(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 		recurse, _ := Read(b)
 		list = goscm.Cons(recurse, list)
 	}
-	return goscm.Reverse(list), b
+	return goscm.Reverse(list), err
 }
 
 func chomp_meaningless(b *bufio.Reader) {

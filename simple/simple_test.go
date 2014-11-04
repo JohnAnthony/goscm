@@ -296,7 +296,10 @@ func Test_Env(t *testing.T) {
 }
 
 func Test_Read(t *testing.T) {
-	symbol := ReadStr("anaconda")
+	symbol, serr := ReadStr("anaconda")
+	if serr != nil && serr.Error() != "EOF" {
+		t.Error(serr)
+	}
 	if reflect.TypeOf(symbol) != reflect.TypeOf(&goscm.SCMT_Symbol{}) {
 		t.Error(reflect.TypeOf(symbol))
 	}
@@ -304,7 +307,10 @@ func Test_Read(t *testing.T) {
 		t.Error(symbol)
 	}
 
-	int := ReadStr("1337")
+	int, ierr := ReadStr("1337")
+	if ierr != nil && ierr.Error() != "EOF" {
+		t.Error(ierr)
+	}
 	if reflect.TypeOf(int) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(int))
 	}
@@ -312,7 +318,10 @@ func Test_Read(t *testing.T) {
 		t.Error(int)
 	}
 
-	str := ReadStr("\"Hello, world!\"")
+	str, sterr := ReadStr("\"Hello, world!\"")
+	if sterr != nil {
+		t.Error(sterr)
+	}
 	if reflect.TypeOf(str) != reflect.TypeOf(&goscm.SCMT_String{}) {
 		t.Error(reflect.TypeOf(str))
 	}
@@ -320,7 +329,10 @@ func Test_Read(t *testing.T) {
 		t.Error(str)
 	}
 	
-	list := ReadStr("(+ 111 222 333)")
+	list, lerr := ReadStr("(+ 111 222 333)")
+	if lerr != nil {
+		t.Error(lerr)
+	}
 	if reflect.TypeOf(list) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(list))
 	}

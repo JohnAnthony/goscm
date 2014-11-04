@@ -8,6 +8,5 @@ import (
 )
 
 func main() {
-	in := bufio.NewReader(os.Stdin)
-	goscm.REPL(in, simple.Read, simple.Env())
+	goscm.REPL(bufio.NewReader(os.Stdin), simple.Read, simple.Env())
 }
