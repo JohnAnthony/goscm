@@ -14,7 +14,10 @@ func ReadStr(str string) (goscm.SCMT, error) {
 
 func Read(b *bufio.Reader) (goscm.SCMT, error) {
 	chomp_meaningless(b)
-	c, _ := b.ReadByte()
+	c, err := b.ReadByte()
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
 	
 	switch {
 	case c == '(': 

@@ -31,13 +31,14 @@ func Make_SCMT(in interface {}) SCMT {
 	}
 }
 
-func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, *bufio.Reader, error), env *SCMT_Env) {
+func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) {
 	for {
-		r, _, err := read(in)
+		r, err := read(in)
 		if err != nil {
 			fmt.Println(err)
 			break
 		}
+		fmt.Println("READ: " + r.String())
 		fmt.Println(":: " + r.Eval(env).String())
 	}
 }
