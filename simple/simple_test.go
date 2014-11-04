@@ -15,7 +15,10 @@ func Test_Env(t *testing.T) {
 		goscm.Make_Symbol("a"),
 		goscm.Make_SCMT(1234),
 	).Eval(env)
-	a_result := goscm.Make_Symbol("a").Eval(env)
+	a_result, err := goscm.Make_Symbol("a").Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(a_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(a_result))
 	}
@@ -24,13 +27,16 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test +
-	add_result := goscm.Make_List(
+	add_result, err := goscm.Make_List(
 		goscm.Make_Symbol("+"),
 		goscm.Make_SCMT(321),
 		goscm.Make_Symbol("a"),
 		goscm.Make_SCMT(222),
 		goscm.Make_SCMT(1000),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(add_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(add_result))
 	}
@@ -39,12 +45,15 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test -
-	sub_result := goscm.Make_List(
+	sub_result, err := goscm.Make_List(
 		goscm.Make_Symbol("-"),
 		goscm.Make_SCMT(100),
 		goscm.Make_SCMT(9),
 		goscm.Make_SCMT(90),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(sub_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(sub_result))
 	}
@@ -53,7 +62,7 @@ func Test_Env(t *testing.T) {
 	}
 
 	// Test *
-	mult_result := goscm.Make_List(
+	mult_result, err := goscm.Make_List(
 		goscm.Make_Symbol("*"),
 		goscm.Make_SCMT(1),
 		goscm.Make_SCMT(2),
@@ -61,6 +70,9 @@ func Test_Env(t *testing.T) {
 		goscm.Make_SCMT(4),
 		goscm.Make_SCMT(5),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(mult_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(mult_result))
 	}
@@ -69,12 +81,15 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test /
-	div_result := goscm.Make_List(
+	div_result, err := goscm.Make_List(
 		goscm.Make_Symbol("/"),
 		goscm.Make_SCMT(66),
 		goscm.Make_SCMT(3),
 		goscm.Make_SCMT(2),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(div_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(div_result))
 	}
@@ -83,11 +98,14 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test cons
-	cons_result := goscm.Make_List(
+	cons_result, err := goscm.Make_List(
 		goscm.Make_Symbol("cons"),
 		goscm.Make_SCMT(2),
 		goscm.Make_SCMT(5),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(cons_result) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(cons_result))
 	}
@@ -96,7 +114,7 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test car
-	car_result := goscm.Make_List(
+	car_result, err := goscm.Make_List(
 		goscm.Make_Symbol("car"),
 		goscm.Make_List(
 			goscm.Make_Symbol("cons"),
@@ -104,6 +122,9 @@ func Test_Env(t *testing.T) {
 			goscm.Make_SCMT("BAR"),
 		),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(car_result) != reflect.TypeOf(&goscm.SCMT_String{}) {
 		t.Error(reflect.TypeOf(car_result))
 	}
@@ -112,7 +133,7 @@ func Test_Env(t *testing.T) {
 	}
 
 	// Test cdr
-	cdr_result := goscm.Make_List(
+	cdr_result, err := goscm.Make_List(
 		goscm.Make_Symbol("cdr"),
 		goscm.Make_List(
 			goscm.Make_Symbol("cons"),
@@ -120,6 +141,9 @@ func Test_Env(t *testing.T) {
 			goscm.Make_SCMT("BAR"),
 		),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(cdr_result) != reflect.TypeOf(&goscm.SCMT_String{}) {
 		t.Error(reflect.TypeOf(cdr_result))
 	}
@@ -128,7 +152,7 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test quote
-	quote_result := goscm.Make_List(
+	quote_result, err := goscm.Make_List(
 		goscm.Make_Symbol("quote"),
 		goscm.Make_List(
 			goscm.Make_Symbol("roar"),
@@ -145,6 +169,9 @@ func Test_Env(t *testing.T) {
 			goscm.Make_SCMT(9),
 		),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(quote_result) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(quote_result))
 	}
@@ -156,7 +183,7 @@ func Test_Env(t *testing.T) {
 	// (begin
 	//  (define x 10)
 	//  (* x 3)) => 30
-	begin_result := goscm.Make_List(
+	begin_result, err := goscm.Make_List(
 		goscm.Make_Symbol("begin"),
 		goscm.Make_List(
 			goscm.Make_Symbol("define"),
@@ -169,6 +196,9 @@ func Test_Env(t *testing.T) {
 			goscm.Make_SCMT(3),
 		),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(begin_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(begin_result))
 	}
@@ -181,7 +211,7 @@ func Test_Env(t *testing.T) {
 	//       (b 12))
 	//   (* a b))
 	// Note: This should clobber the top-level environment's symbol "A"
-	let_result := goscm.Make_List(
+	let_result, err := goscm.Make_List(
 		goscm.Make_Symbol("let"),
 		goscm.Make_List(
 			goscm.Make_List(
@@ -199,6 +229,9 @@ func Test_Env(t *testing.T) {
 			goscm.Make_Symbol("b"),
 		),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(let_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(let_result))
 	}
@@ -208,7 +241,7 @@ func Test_Env(t *testing.T) {
 
 	// Test lambda
 	// ((lambda (x) (+ x 2)) 58835) => 58837
-	lambda_result := goscm.Make_List(
+	lambda_result, err := goscm.Make_List(
 		goscm.Make_List(
 			goscm.Make_Symbol("lambda"),
 			goscm.Make_List(
@@ -222,6 +255,9 @@ func Test_Env(t *testing.T) {
 		),
 		goscm.Make_SCMT(58835),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(lambda_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(lambda_result))
 	}
@@ -248,7 +284,7 @@ func Test_Env(t *testing.T) {
 		),
 	).Eval(env)
 
-	map_result := goscm.Make_List(
+	map_result, err := goscm.Make_List(
 		goscm.Make_Symbol("map"),
 		goscm.Make_Symbol("square"),
 		goscm.Make_List(
@@ -262,6 +298,9 @@ func Test_Env(t *testing.T) {
 			),
 		),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 
 	if reflect.TypeOf(map_result) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(map_result))
@@ -272,7 +311,7 @@ func Test_Env(t *testing.T) {
 	
 	// Test apply
 	// (apply + (quote (1 2 3 4 5 6))) => 21
-	apply_result := goscm.Make_List(
+	apply_result, err := goscm.Make_List(
 		goscm.Make_Symbol("apply"),
 		goscm.Make_Symbol("+"),
 		goscm.Make_List(
@@ -287,6 +326,9 @@ func Test_Env(t *testing.T) {
 			),
 		),
 	).Eval(env)
+	if err != nil {
+		t.Error(err)
+	}
 	if reflect.TypeOf(apply_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(apply_result))
 	}
