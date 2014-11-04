@@ -3,8 +3,14 @@ package simple
 import (
 	"github.com/JohnAnthony/goscm"
 	"bufio"
+	"strings"
 	"strconv"
 )
+
+func ReadStr(str string) goscm.SCMT {
+	ret, _ := Read(bufio.NewReader(strings.NewReader(str)))
+	return ret
+}
 
 func Read(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 	var c byte
