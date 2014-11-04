@@ -13,23 +13,8 @@ func ReadStr(str string) goscm.SCMT {
 }
 
 func Read(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
-	var c byte
-	var err error
-
-	// Chomp preceeding whitespace
-	for {
-		c, err = b.ReadByte()
-		if  err != nil {
-			break
-		}
-		if c == ';' {
-			read_comment(b)
-			continue
-		}
-		if !is_whitespace(c) {
-			break
-		}
-	}
+	chomp_meaningless(b)
+	c, _ := b.ReadByte()
 	
 	switch {
 	case c == '(': 
@@ -141,4 +126,21 @@ func read_list(b *bufio.Reader) (goscm.SCMT, *bufio.Reader) {
 		list = goscm.Cons(recurse, list)
 	}
 	return goscm.Reverse(list), b
+}
+
+func chomp_meaningless(b *bufio.Reader) {
+	for {
+		c, err := b.ReadByte()
+		if  err != nil {
+			break
+		}
+		if c == ';' {
+			read_comment(b)
+			continue
+		}
+		if !is_whitespace(c) {
+			break
+		}
+	}
+	b.UnreadByte()
 }
