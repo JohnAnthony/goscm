@@ -13,7 +13,10 @@ func ReadStr(str string) (goscm.SCMT, error) {
 }
 
 func Read(b *bufio.Reader) (goscm.SCMT, error) {
-	chomp_meaningless(b)
+	err := chomp_meaningless(b)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
 	c, err := b.ReadByte()
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -143,9 +146,12 @@ func read_list(b *bufio.Reader) (goscm.SCMT, error) {
 	return goscm.Reverse(list), err
 }
 
-func chomp_meaningless(b *bufio.Reader) {
+func chomp_meaningless(b *bufio.Reader) error {
+	var c byte
+	var err error
+	
 	for {
-		c, err := b.ReadByte()
+		c, err = b.ReadByte()
 		if  err != nil {
 			break
 		}
@@ -158,4 +164,5 @@ func chomp_meaningless(b *bufio.Reader) {
 		}
 	}
 	b.UnreadByte()
+	return err
 }

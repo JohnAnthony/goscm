@@ -34,11 +34,13 @@ func Make_SCMT(in interface {}) SCMT {
 func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) {
 	for {
 		r, err := read(in)
-		if err != nil {
-			fmt.Println(err)
+		if err != nil && err.Error() == "EOF" {
 			break
 		}
-		fmt.Println("READ: " + r.String())
-		fmt.Println(":: " + r.Eval(env).String())
+		if err != nil {
+			fmt.Println("ERROR: " + err.Error())
+			continue
+		}
+		fmt.Println("=> " + r.Eval(env).String())
 	}
 }
