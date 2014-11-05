@@ -36,6 +36,9 @@ func Read(b *bufio.Reader) (goscm.SCMT, error) {
 	case c == '"':
 		// A string
 		return read_string(b)
+	case c == '#':
+		// Something special, but for simple just a bool
+		return read_bool(b)
 	default:
 		// A symbol
 		b.UnreadByte()
@@ -147,6 +150,20 @@ func read_list(b *bufio.Reader) (goscm.SCMT, error) {
 		list = goscm.Cons(recurse, list)
 	}
 	return goscm.Reverse(list), err
+}
+func read_bool(b *bufio.Reader) (goscm.SCMT, error) {
+	c, err := b.ReadByte()
+	
+	switch {
+	case err != nil:
+		return goscm.SCMT_Nil, err
+	case c == 'f':
+		return goscm.Make_SCMT(false), nil
+	case c == 't':
+		return goscm.Make_SCMT(true), nil
+	default:
+		return goscm.SCMT_Nil, errors.New("Error reading bool")
+	}
 }
 
 func chomp_meaningless(b *bufio.Reader) error {

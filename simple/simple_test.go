@@ -401,4 +401,26 @@ func Test_Read(t *testing.T) {
 	if list.String() != "(+ 111 222 333)" {
 		t.Error(list)
 	}
+	
+	btrue, err := ReadStr("#t")
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(btrue) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(btrue))
+	}
+	if btrue.String() != "#t" {
+		t.Error(btrue)
+	}
+
+	bfalse, err := ReadStr("#f")
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(bfalse) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(bfalse))
+	}
+	if bfalse.String() != "#f" {
+		t.Error(bfalse)
+	}
 }
