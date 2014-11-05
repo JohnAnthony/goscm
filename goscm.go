@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"bufio"
 	"fmt"
+	"strings"
 )
 
 type SCMT interface {
@@ -50,4 +51,13 @@ func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_En
 		}
 		fmt.Println("=> " + e.String())
 	}
+}
+
+func EvalStr(str string, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) (SCMT, error) {
+	b := bufio.NewReader(strings.NewReader(str))
+	r, err := read(b)
+	if err != nil {
+		return SCMT_Nil, err
+	}
+	return r.Eval(env)
 }
