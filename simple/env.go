@@ -18,6 +18,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindForeign("cons", scm_cons)
 	env.BindForeign("map", scm_map)
 	env.BindForeign("apply", scm_apply)
+	env.BindForeign("=", scm_numeq)
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("define", scm_define)
 	env.BindSpecial("begin", scm_begin)
@@ -170,4 +171,36 @@ func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 		return goscm.SCMT_Nil, err
 	}
 	return symb, env.Set(symb, val)
+}
+
+func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	if args == goscm.SCMT_Nil {
+		return goscm.Make_SCMT(true), nil
+	}
+
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		return goscm.SCMT_Nil, errors.New("Wrong argument type")
+	}
+	base := args.Car.(*goscm.SCMT_Integer).Value
+
+	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		return goscm.SCMT_Nil, errors.New("Wrong argument type")
+	}
+	args = args.Cdr.(*goscm.SCMT_Pair)
+	
+	for args != goscm.SCMT_Nil {
+		if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+			return goscm.SCMT_Nil, errors.New("Wrong argument type")
+		}
+		if args.Car.(*goscm.SCMT_Integer).Value != base {
+			return goscm.Make_SCMT(false), nil
+		}
+
+		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+			return goscm.SCMT_Nil, errors.New("Wrong argument type")
+		}
+		args = args.Cdr.(*goscm.SCMT_Pair)
+	}
+	
+	return goscm.Make_SCMT(true), nil
 }
