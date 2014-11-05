@@ -436,6 +436,34 @@ func Test_Env(t *testing.T) {
 	if iff.String() != "600" {
 		t.Error(iff)
 	}
+	
+	// Check fib works just because we can
+	// (define (fib n)
+	//   (if (= n 2)
+	//       1
+	//       (if (= n 1)
+	//           1
+	//           (+ (fib (- n 1)) (fib (- n 2))))))
+	// (fib 10) => 
+	_, err = goscm.EvalStr(`(define (fib n)
+	   (if (= n 2)
+	       1
+	       (if (= n 1)
+	           1
+	           (+ (fib (- n 1)) (fib (- n 2))))))`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	fib, err := goscm.EvalStr("(fib 10)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(fib) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(fib))
+	}
+	if fib.String() != "55" {
+		t.Error(fib)
+	}
 }
 
 func Test_Read(t *testing.T) {
