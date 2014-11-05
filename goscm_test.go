@@ -255,7 +255,7 @@ func Test_Bool(t *testing.T) {
 	// Test true
 	btrue := Make_SCMT(true)
 	if reflect.TypeOf(btrue) != reflect.TypeOf(&SCMT_Bool{}) {
-		t.Error(btrue)
+		t.Error(reflect.TypeOf(btrue).String())
 	}
 	if btrue.(*SCMT_Bool).Value != true {
 		t.Error(btrue)
@@ -267,7 +267,7 @@ func Test_Bool(t *testing.T) {
 	// Test false
 	bfalse := Make_SCMT(false)
 	if reflect.TypeOf(bfalse) != reflect.TypeOf(&SCMT_Bool{}) {
-		t.Error(bfalse)
+		t.Error(reflect.TypeOf(bfalse).String())
 	}
 	if bfalse.(*SCMT_Bool).Value != false {
 		t.Error(bfalse)
