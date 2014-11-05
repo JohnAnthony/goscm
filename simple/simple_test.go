@@ -383,7 +383,7 @@ func Test_Env(t *testing.T) {
 	
 	// Test the numerical equality operator for success
 	// (= 182736 182736) => #t
-	numeqt, err := goscm.EvalStr("(= 182736 182736)", Read, env)
+	numeqt, err := goscm.EvalStr("(= 182736 182736 182736)", Read, env)
 	if err != nil {
 		t.Error(err)
 	}
@@ -403,7 +403,7 @@ func Test_Env(t *testing.T) {
 	if reflect.TypeOf(numeqf) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
 		t.Error(reflect.TypeOf(numeqf))
 	}
-	if numeqf.String() != "#t" {
+	if numeqf.String() != "#f" {
 		t.Error(numeqf)
 	}
 }
