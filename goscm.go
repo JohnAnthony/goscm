@@ -56,7 +56,7 @@ func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_En
 func EvalStr(str string, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) (SCMT, error) {
 	b := bufio.NewReader(strings.NewReader(str))
 	r, err := read(b)
-	if err != nil {
+	if err != nil && err.Error() != "EOF" {
 		return SCMT_Nil, err
 	}
 	return r.Eval(env)
