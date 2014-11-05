@@ -25,6 +25,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindSpecial("let", scm_let)
 	env.BindSpecial("lambda", scm_lambda)
 	env.BindSpecial("set!", scm_set_bang)
+	env.BindSpecial("if", scm_if)
 	return env
 }
 
@@ -203,4 +204,26 @@ func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	}
 	
 	return goscm.Make_SCMT(true), nil
+}
+
+func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	predicate, err := args.Car.Eval(env)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	
+	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		return goscm.SCMT_Nil, errors.New("Wrong argument type")
+	}
+	
+	if reflect.TypeOf(predicate) == reflect.TypeOf(&goscm.SCMT_Bool{}) &&
+		predicate.(*goscm.SCMT_Bool).Value == false {
+
+		if reflect.TypeOf(args.Cdr.(*goscm.SCMT_Pair).Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+			return goscm.SCMT_Nil, errors.New("Wrong argument type")
+		}
+		return args.Cdr.(*goscm.SCMT_Pair).Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+	}
+	
+	return args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
 }
