@@ -340,12 +340,15 @@ func Test_Env(t *testing.T) {
 	// (define x 10)
 	// (set! x 33)
 	// x => 33
-	set_def_expr, _ := ReadStr("(define macamaga 10)")
-	set_def_expr.Eval(env)
-	set_set_expr, _ := ReadStr("(set! macamaga 33)")
-	set_set_expr.Eval(env)
-	set_result_expr, _ := ReadStr("macamaga")
-	set_result, err := set_result_expr.Eval(env)
+	_, err = goscm.EvalStr("(define macamaga 10)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = goscm.EvalStr("(set! macamaga 33)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	set_result, err := goscm.EvalStr("macamaga", Read, env)
 	if err != nil {
 		t.Error(err)
 	}
