@@ -363,6 +363,7 @@ func Test_Env(t *testing.T) {
 	// (define (square-plus-cube n m)
     //   (+ (* n n)
 	//      (* m m m)))
+	// (square-plus-cube 11 17) => 5034
 	_ , err = goscm.EvalStr(`(define (square-plus-cube n m)
                                 (+ (* n n)
                                    (* m m m)))`, Read, env)
@@ -378,6 +379,32 @@ func Test_Env(t *testing.T) {
 	}
 	if altdefine.String() != "5034" {
 		t.Error(altdefine)
+	}
+	
+	// Test the numerical equality operator for success
+	// (= 182736 182736) => #t
+	numeqt, err := goscm.EvalStr("(= 182736 182736)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(numeqt) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(numeqt))
+	}
+	if numeqt.String() != "#t" {
+		t.Error(numeqt)
+	}
+	
+	// Test the numerical equality operator for success
+	// (= 11 12) => #f
+	numeqf, err := goscm.EvalStr("(= 11 12)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(numeqf) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(numeqf))
+	}
+	if numeqf.String() != "#t" {
+		t.Error(numeqf)
 	}
 }
 
