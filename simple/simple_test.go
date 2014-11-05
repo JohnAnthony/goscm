@@ -355,6 +355,27 @@ func Test_Env(t *testing.T) {
 	if set_result.String() != "33" {
 		t.Error(set_result)
 	}
+	
+	// Test the alternative function definition syntax
+	// (define (square-plus-cube n m)
+    //   (+ (* n n)
+	//      (* m m m)))
+	_ , err = goscm.EvalStr(`(define (square-plus-cube n m)
+                                (+ (* n n)
+                                   (* m m m)))`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	altdefine, err := goscm.EvalStr("(square-plus-cube 11 17)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(altdefine) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(altdefine))
+	}
+	if altdefine.String() != "5034" {
+		t.Error(altdefine)
+	}
 }
 
 func Test_Read(t *testing.T) {
