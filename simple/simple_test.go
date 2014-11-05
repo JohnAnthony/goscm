@@ -406,6 +406,36 @@ func Test_Env(t *testing.T) {
 	if numeqf.String() != "#f" {
 		t.Error(numeqf)
 	}
+	
+	// Test if special form for truth side
+	// (if (= 10 10)
+    //   (+ 2 3)
+	//   (* 20 30)) => 5
+	ift, err := goscm.EvalStr("(if (= 10 10) (+ 2 3) (* 20 30))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(ift) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(ift))
+	}
+	if ift.String() != "5" {
+		t.Error(ift)
+	}
+
+	// Test if special form for false side
+	// (if (= 10 11)
+    //   (+ 2 3)
+	//   (* 20 30)) => 600
+	iff, err := goscm.EvalStr("(if (= 10 11) (+ 2 3) (* 20 30))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(iff) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(iff))
+	}
+	if iff.String() != "600" {
+		t.Error(iff)
+	}
 }
 
 func Test_Read(t *testing.T) {
