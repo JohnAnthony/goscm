@@ -3,6 +3,8 @@ package simple
 
 import (
 	"github.com/JohnAnthony/goscm"
+	"reflect"
+	"errors"
 )
 
 func Env() *goscm.SCMT_Env {
@@ -102,13 +104,30 @@ func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	tobind, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
-	if err != nil {
-		return goscm.SCMT_Nil, err
+	symb := args.Car
+	switch reflect.TypeOf(symb) {
+	case reflect.TypeOf(&goscm.SCMT_Symbol{}):
+		tobind, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+		env.Add(symb.(*goscm.SCMT_Symbol), tobind)
+		return symb, nil
+	case reflect.TypeOf(&goscm.SCMT_Pair{}):
+		name := symb.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Symbol)
+		proc_args := symb.(*goscm.SCMT_Pair).Cdr
+		proc_body := args.Cdr
+		proc_tail := goscm.Cons(proc_args, proc_body)
+		proc, err := scm_lambda(proc_tail, env)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+		env.Add(name, proc)
+		return name, nil
+	default:
+		return goscm.SCMT_Nil,
+		  errors.New("Attempting to define type: " + reflect.TypeOf(symb).String())
 	}
-
-	env.Add(args.Car.(*goscm.SCMT_Symbol), tobind)
-	return args.Car.(*goscm.SCMT_Symbol), nil
 }
 
 func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
