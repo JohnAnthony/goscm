@@ -158,6 +158,20 @@ func read_list(b *bufio.Reader) (goscm.SCMT, error) {
 		if err != nil {
 			return goscm.SCMT_Nil, err
 		}
+
+		err = chomp_meaningless(b)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+
+		c, err = b.ReadByte()
+		if c != ')' {
+			return goscm.SCMT_Nil, errors.New("Dot in list appears in wrong place")
+		}
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+
 		return cdr, nil
 	}
 
