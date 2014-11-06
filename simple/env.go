@@ -114,46 +114,46 @@ func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 }
 
 func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// No argument number checking
 	target, err := goscm.Cast_Pair(args.Car)
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
 	
 	if args.Cdr != goscm.SCMT_Nil {
-		return goscm.SCMT_Nil, errors.New("Too many arguments")
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
 
 	return target.Car, nil
 }
 
 func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// No argument number checking
 	target, err := goscm.Cast_Pair(args.Car)
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
 	
 	if args.Cdr != goscm.SCMT_Nil {
-		return goscm.SCMT_Nil, errors.New("Too many arguments")
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
 
 	return target.Cdr, nil
 }
 
 func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// No argument number checking
 	first := args.Car
 
 	second_cell, err := goscm.Cast_Pair(args.Cdr)
 	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	if second_cell == goscm.SCMT_Nil {
 		return goscm.SCMT_Nil, errors.New("Not enough arguments")
 	}
 
 	second := second_cell.Car
 
 	if second_cell.Cdr != goscm.SCMT_Nil {
-		return goscm.SCMT_Nil, errors.New("Too many arguments")
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
 
 	return goscm.Cons(first, second), nil
@@ -189,7 +189,7 @@ func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, errors.New("Not enough arguments")
 	}
 	if len(argss) > 3 {
-		return goscm.SCMT_Nil, errors.New("Too many arguments")
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
 
 	f, ok := argss[0].(goscm.SCMT_Func)
