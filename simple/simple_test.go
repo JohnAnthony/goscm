@@ -468,7 +468,7 @@ func Test_Env(t *testing.T) {
 
 func Test_Read(t *testing.T) {
 	symbol, serr := ReadStr("anaconda")
-	if serr != nil && serr.Error() != "EOF" {
+	if serr != nil {
 		t.Error(serr)
 	}
 	if reflect.TypeOf(symbol) != reflect.TypeOf(&goscm.SCMT_Symbol{}) {
@@ -479,7 +479,7 @@ func Test_Read(t *testing.T) {
 	}
 
 	int, ierr := ReadStr("1337")
-	if ierr != nil && ierr.Error() != "EOF" {
+	if ierr != nil {
 		t.Error(ierr)
 	}
 	if reflect.TypeOf(int) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
