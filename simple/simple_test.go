@@ -477,6 +477,19 @@ func Test_Env(t *testing.T) {
 	if quotesyn.String() != "(4 9 16 25 36)" {
 		t.Error(quotesyn)
 	}
+	
+	// Check reading with a dot in the notation
+	dotcdr, err := goscm.EvalStr("(cdr '(123 . 456))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(dotcdr) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(dotcdr))
+	}
+	if dotcdr.String() != "456" {
+		t.Error(dotcdr)
+	}
+	
 }
 
 func Test_Read(t *testing.T) {
