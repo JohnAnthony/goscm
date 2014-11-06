@@ -120,7 +120,7 @@ func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	}
 	
 	if args.Cdr != goscm.SCMT_Nil {
-		return goscm.SCMT_Nil, errors.New("Too few arguments")
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 
 	return target.Car, nil
@@ -133,7 +133,7 @@ func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	}
 	
 	if args.Cdr != goscm.SCMT_Nil {
-		return goscm.SCMT_Nil, errors.New("Too few arguments")
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 
 	return target.Cdr, nil
@@ -147,13 +147,13 @@ func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, err
 	}
 	if second_cell == goscm.SCMT_Nil {
-		return goscm.SCMT_Nil, errors.New("Not enough arguments")
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
 
 	second := second_cell.Car
 
 	if second_cell.Cdr != goscm.SCMT_Nil {
-		return goscm.SCMT_Nil, errors.New("Too few arguments")
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 
 	return goscm.Cons(first, second), nil
@@ -186,10 +186,10 @@ func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, err
 	}
 	if len(argss) < 2 {
-		return goscm.SCMT_Nil, errors.New("Not enough arguments")
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
 	if len(argss) > 3 {
-		return goscm.SCMT_Nil, errors.New("Too few arguments")
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 
 	f, ok := argss[0].(goscm.SCMT_Func)
@@ -205,8 +205,12 @@ func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
-	// No argument number checking
+	if args == SCMT_Nil {
+		return goscm.SCMT_Nil, errors.Error("Too few arguments")
+	}
+	if args.Cdr != SCMT_Nil {
+		return goscm.SCMT_Nil, errors.Error("Too many arguments")
+	}
 	return args.Car, nil
 }
 
