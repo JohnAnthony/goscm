@@ -29,9 +29,6 @@ func Env() *goscm.SCMT_Env {
 	return env
 }
 
-// WARNING! These procedures do no input validation, so feeding them incorrect
-// input will have strange effects!
-
 func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
