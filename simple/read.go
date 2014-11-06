@@ -149,21 +149,32 @@ func read_integer(b *bufio.Reader) (goscm.SCMT, error) {
 }
 
 func read_list(b *bufio.Reader) (goscm.SCMT, error) {
-	list := goscm.SCMT_Nil
-	var c byte
-	var err error
-
-	for {
-		c, err = b.ReadByte()
-		if c == ')' {
-			break
-		}
-		b.UnreadByte()
-		recurse, _ := Read(b)
-		list = goscm.Cons(recurse, list)
+	c, err := b.ReadByte()
+	if c == ')' {
+		return goscm.SCMT_Nil, nil
 	}
-	return goscm.Reverse(list), err
+	if c == '.' {
+		cdr, err := Read(b)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+		return cdr, nil
+	}
+
+	b.UnreadByte()
+	elem, err := Read(b)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	
+	tail, err := read_list(b)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	
+	return goscm.Cons(elem, tail), nil
 }
+
 func read_bool(b *bufio.Reader) (goscm.SCMT, error) {
 	c, err := b.ReadByte()
 	
