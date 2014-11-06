@@ -46,7 +46,14 @@ func (pair *SCMT_Pair) String() string {
 	return ret + ")"
 }
 
-// Some standard scheme pair functions provided for use in Go
+func Cast_Pair(scm SCMT) (*SCMT_Pair, error) {
+	if reflect.TypeOf(scm) != reflect.TypeOf(&SCMT_Pair{}) {
+		return SCMT_Nil, errors.New("Cast failed: Pair")
+	}
+	return scm.(*SCMT_Pair), nil
+}
+
+// Helpers
 
 func Make_List(args ...SCMT) *SCMT_Pair {
 	list := SCMT_Nil

@@ -39,8 +39,12 @@ func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	}
 
 	ret := 0
-	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
+	for !args.IsNil() {
 		ret += args.Car.(*goscm.SCMT_Integer).Value
+		args, err = goscm.Cast_Pair(args.Cdr)
+		if err != nil {
+			return args, err
+		}
 	}
 	return goscm.Make_SCMT(ret), nil
 }
@@ -52,8 +56,12 @@ func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 	}
 
 	ret := 1
-	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
+	for !args.IsNil() {
 		ret *= args.Car.(*goscm.SCMT_Integer).Value
+		args, err = goscm.Cast_Pair(args.Cdr)
+		if err != nil {
+			return args, err
+		}
 	}
 	return goscm.Make_SCMT(ret), nil
 }
