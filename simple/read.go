@@ -10,6 +10,9 @@ import (
 
 func ReadStr(str string) (goscm.SCMT, error) {
 	ret, err := Read(bufio.NewReader(strings.NewReader(str)))
+	if err != nil && err.Error() == "EOF" {
+		err = nil
+	}
 	return ret, err
 }
 

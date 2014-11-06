@@ -33,6 +33,8 @@ func Env() *goscm.SCMT_Env {
 // input will have strange effects!
 
 func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+
 	ret := 0
 	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret += args.Car.(*goscm.SCMT_Integer).Value
@@ -41,6 +43,8 @@ func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+
 	ret := 1
 	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret *= args.Car.(*goscm.SCMT_Integer).Value
@@ -49,6 +53,8 @@ func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+
 	ret := args.Car.(*goscm.SCMT_Integer).Value
 	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret -= args.Car.(*goscm.SCMT_Integer).Value
@@ -57,6 +63,8 @@ func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+
 	ret := args.Car.(*goscm.SCMT_Integer).Value
 	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
 		ret /= args.Car.(*goscm.SCMT_Integer).Value
