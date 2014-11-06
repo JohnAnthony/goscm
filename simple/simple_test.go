@@ -464,6 +464,19 @@ func Test_Env(t *testing.T) {
 	if fib.String() != "55" {
 		t.Error(fib)
 	}
+	
+	// Check quote syntax
+	// (map square '(2 3 4 5 6)) => (4 9 16 25 36
+	quotesyn, err := goscm.EvalStr("(map square '(2 3 4 5 6))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(quotesyn) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		t.Error(reflect.TypeOf(quotesyn))
+	}
+	if quotesyn.String() != "(4 9 16 25 36)" {
+		t.Error(quotesyn)
+	}
 }
 
 func Test_Read(t *testing.T) {

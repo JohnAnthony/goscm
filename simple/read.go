@@ -31,7 +31,17 @@ func Read(b *bufio.Reader) (goscm.SCMT, error) {
 		// A list
 		return read_list(b)
 	case c == ')':
+		// Unbalanced list
 		return goscm.SCMT_Nil, errors.New("Mismatched parenthesis")
+	case c == '\'':
+		// A piece of quoted syntax
+		subexpr, err := Read(b)
+		if err != nil {
+			return goscm.SCMT_Nil, err
+		}
+		return goscm.Make_List(
+			goscm.Make_Symbol("quote"),
+			subexpr), nil
 	case c >= '0' && c <= '9':
 		// An integer
 		b.UnreadByte()
