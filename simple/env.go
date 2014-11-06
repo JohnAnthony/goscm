@@ -114,6 +114,7 @@ func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 }
 
 func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// No argument number checking
 	target, err := goscm.Cast_Pair(args.Car)
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -127,6 +128,7 @@ func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// No argument number checking
 	target, err := goscm.Cast_Pair(args.Car)
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -140,6 +142,7 @@ func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// No argument number checking
 	first := args.Car
 
 	second_cell, err := goscm.Cast_Pair(args.Cdr)
@@ -157,6 +160,8 @@ func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
+	// No argument number checking
 	ret := goscm.SCMT_Nil
 	f, err := args.Car.Eval(env)
 	if err != nil {
@@ -176,16 +181,38 @@ func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	f := args.Car.(goscm.SCMT_Func)
-	target := args.Cdr.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Pair)
+	argss, err := args.ToSlice()
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	if len(argss) < 2 {
+		return goscm.SCMT_Nil, errors.New("Not enough arguments")
+	}
+	if len(argss) > 3 {
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
+	}
+
+	f, ok := argss[0].(goscm.SCMT_Func)
+	if !ok {
+		return goscm.SCMT_Nil, errors.New("Attempt to apply non-function type")
+	}
+
+	if reflect.TypeOf(argss[1]) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		return goscm.SCMT_Nil, errors.New("Non-list to apply to")
+	}
+	target := argss[1].(*goscm.SCMT_Pair)
 	return f.Apply(target, env)
 }
 
 func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
+	// No argument number checking
 	return args.Car, nil
 }
 
 func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
+	// No argument number checking
 	symb := args.Car
 	switch reflect.TypeOf(symb) {
 	case reflect.TypeOf(&goscm.SCMT_Symbol{}):
@@ -213,6 +240,7 @@ func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 }
 
 func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
 	var result goscm.SCMT
 	var err error
 
@@ -226,6 +254,7 @@ func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
 	body := args.Cdr.(*goscm.SCMT_Pair)
 	newenv := goscm.EnvEmpty(env)
 	
@@ -242,10 +271,14 @@ func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
+	// No argument number checking
 	return goscm.Make_Proc(args.Car.(*goscm.SCMT_Pair), args.Cdr.(*goscm.SCMT_Pair), env), nil
 }
 
 func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
+	// No argument number checking
 	symb := args.Car.(*goscm.SCMT_Symbol)
 	val, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
 	if err != nil {
@@ -255,6 +288,7 @@ func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
 		return goscm.NilAndErr(err)
@@ -286,6 +320,8 @@ func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// Unsafe
+	// No argument number checking
 	predicate, err := args.Car.Eval(env)
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -306,3 +342,14 @@ func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	
 	return args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
 }
+
+// TODO: cond
+// TODO: <=
+// TODO: >=
+// TODO: < 
+// TODO: > 
+// TODO: and
+// TODO: or
+// TODO: not
+// TODO: read
+// TODO: eval
