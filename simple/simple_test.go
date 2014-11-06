@@ -547,6 +547,7 @@ func Test_Read(t *testing.T) {
 	
 	// Check quote syntax
 	// (map square '(2 3 4 5 6)) => (4 9 16 25 36
+	goscm.EvalStr("(define (square x) (* x x))", Read, env)
 	quotesyn, err := goscm.EvalStr("(map square '(2 3 4 5 6))", Read, env)
 	if err != nil {
 		t.Error(err)
