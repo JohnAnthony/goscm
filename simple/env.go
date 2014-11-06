@@ -33,7 +33,10 @@ func Env() *goscm.SCMT_Env {
 // input will have strange effects!
 
 func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	if err != nil {
+		return goscm.NilAndErr(err)
+	}
 
 	ret := 0
 	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
@@ -43,7 +46,10 @@ func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	if err != nil {
+		return goscm.NilAndErr(err)
+	}
 
 	ret := 1
 	for ; !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
@@ -53,7 +59,10 @@ func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	if err != nil {
+		return goscm.NilAndErr(err)
+	}
 
 	ret := args.Car.(*goscm.SCMT_Integer).Value
 	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
@@ -63,7 +72,10 @@ func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	if err != nil {
+		return goscm.NilAndErr(err)
+	}
 
 	ret := args.Car.(*goscm.SCMT_Integer).Value
 	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
@@ -183,7 +195,10 @@ func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	if err != nil {
+		return goscm.NilAndErr(err)
+	}
 
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
