@@ -111,6 +111,10 @@ func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 }
 
 func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	if args == goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
+	}
+
 	target, err := goscm.Cast_Pair(args.Car)
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -124,6 +128,10 @@ func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	if args == goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
+	}
+
 	target, err := goscm.Cast_Pair(args.Car)
 	if err != nil {
 		return goscm.SCMT_Nil, err
