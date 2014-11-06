@@ -192,7 +192,7 @@ func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	base := args.Car.(*goscm.SCMT_Integer).Value
 
 	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-		return goscm.SCMT_Nil, errors.New("Wrong argument type")
+		return goscm.WrongType()
 	}
 	args = args.Cdr.(*goscm.SCMT_Pair)
 	
@@ -202,7 +202,7 @@ func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		}
 
 		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-			return goscm.SCMT_Nil, errors.New("Wrong argument type")
+			return goscm.WrongType()
 		}
 		args = args.Cdr.(*goscm.SCMT_Pair)
 	}
@@ -217,14 +217,14 @@ func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	}
 	
 	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-		return goscm.SCMT_Nil, errors.New("Wrong argument type")
+		return goscm.WrongType()
 	}
 	
 	if reflect.TypeOf(predicate) == reflect.TypeOf(&goscm.SCMT_Bool{}) &&
 		predicate.(*goscm.SCMT_Bool).Value == false {
 
 		if reflect.TypeOf(args.Cdr.(*goscm.SCMT_Pair).Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-			return goscm.SCMT_Nil, errors.New("Wrong argument type")
+			return goscm.WrongType()
 		}
 		return args.Cdr.(*goscm.SCMT_Pair).Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
 	}
