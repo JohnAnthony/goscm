@@ -63,6 +63,20 @@ func Make_List(args ...SCMT) *SCMT_Pair {
 	return list
 }
 
+func (p *SCMT_Pair) ToSlice() ([]SCMT, error) {
+	var s []SCMT
+	var err error
+
+	for p != SCMT_Nil {
+		s = append(s, p.Car)
+		p, err = Cast_Pair(p.Cdr)
+		if err != nil {
+			return s, errors.New("Non-nil terminated list")
+		}
+	}
+	return s, nil
+}
+
 func (pair *SCMT_Pair) IsNil() bool {
 	return pair == SCMT_Nil
 }
