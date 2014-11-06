@@ -183,13 +183,12 @@ func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
 
-	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
-		return goscm.SCMT_Nil, errors.New("Wrong argument type")
-	}
 	base := args.Car.(*goscm.SCMT_Integer).Value
 
 	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
@@ -198,9 +197,6 @@ func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	args = args.Cdr.(*goscm.SCMT_Pair)
 	
 	for args != goscm.SCMT_Nil {
-		if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
-			return goscm.SCMT_Nil, errors.New("Wrong argument type")
-		}
 		if args.Car.(*goscm.SCMT_Integer).Value != base {
 			return goscm.Make_SCMT(false), nil
 		}
