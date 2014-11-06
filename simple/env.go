@@ -58,6 +58,7 @@ func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 	ret := 1
 	for !args.IsNil() {
 		ret *= args.Car.(*goscm.SCMT_Integer).Value
+
 		args, err = goscm.Cast_Pair(args.Cdr)
 		if err != nil {
 			return args, err
@@ -73,8 +74,18 @@ func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 	}
 
 	ret := args.Car.(*goscm.SCMT_Integer).Value
-	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
+
+	args, err = goscm.Cast_Pair(args.Cdr)
+	if err != nil {
+		return args, err
+	}
+
+	for !args.IsNil() {
 		ret -= args.Car.(*goscm.SCMT_Integer).Value
+		args, err = goscm.Cast_Pair(args.Cdr)
+		if err != nil {
+			return args, err
+		}
 	}
 	return goscm.Make_SCMT(ret), nil
 }
@@ -86,22 +97,63 @@ func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 	}
 
 	ret := args.Car.(*goscm.SCMT_Integer).Value
-	for args = args.Cdr.(*goscm.SCMT_Pair); !args.IsNil(); args = args.Cdr.(*goscm.SCMT_Pair) {
+
+	args, err = goscm.Cast_Pair(args.Cdr)
+	if err != nil {
+		return args, err
+	}
+
+	for !args.IsNil() {
 		ret /= args.Car.(*goscm.SCMT_Integer).Value
+		args, err = goscm.Cast_Pair(args.Cdr)
+		if err != nil {
+			return args, err
+		}
 	}
 	return goscm.Make_SCMT(ret), nil
 }
 
 func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	return args.Car.(*goscm.SCMT_Pair).Car, nil
+	target, err := goscm.Cast_Pair(args.Car)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	
+	if args.Cdr != goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
+	}
+
+	return target.Car, nil
 }
 
 func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	return args.Car.(*goscm.SCMT_Pair).Cdr, nil
+	target, err := goscm.Cast_Pair(args.Car)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+	
+	if args.Cdr != goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
+	}
+
+	return target.Cdr, nil
 }
 
 func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	return goscm.Cons(args.Car, args.Cdr.(*goscm.SCMT_Pair).Car), nil
+	first := args.Car
+
+	second_cell, err := goscm.Cast_Pair(args.Cdr)
+	if err != nil {
+		return goscm.SCMT_Nil, errors.New("Not enough arguments")
+	}
+
+	second := second_cell.Car
+
+	if second_cell.Cdr != goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
+	}
+
+	return goscm.Cons(first, second), nil
 }
 
 func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
