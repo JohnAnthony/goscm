@@ -210,11 +210,11 @@ func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	if args == SCMT_Nil {
-		return goscm.SCMT_Nil, errors.Error("Too few arguments")
+	if args == goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
-	if args.Cdr != SCMT_Nil {
-		return goscm.SCMT_Nil, errors.Error("Too many arguments")
+	if args.Cdr != goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 	return args.Car, nil
 }
@@ -360,5 +360,3 @@ func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 // TODO: and
 // TODO: or
 // TODO: not
-// TODO: read
-// TODO: eval
