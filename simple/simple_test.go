@@ -464,32 +464,6 @@ func Test_Env(t *testing.T) {
 	if fib.String() != "55" {
 		t.Error(fib)
 	}
-	
-	// Check quote syntax
-	// (map square '(2 3 4 5 6)) => (4 9 16 25 36
-	quotesyn, err := goscm.EvalStr("(map square '(2 3 4 5 6))", Read, env)
-	if err != nil {
-		t.Error(err)
-	}
-	if reflect.TypeOf(quotesyn) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-		t.Error(reflect.TypeOf(quotesyn))
-	}
-	if quotesyn.String() != "(4 9 16 25 36)" {
-		t.Error(quotesyn)
-	}
-	
-	// Check reading with a dot in the notation
-	dotcdr, err := goscm.EvalStr("(cdr '(123 . 456))", Read, env)
-	if err != nil {
-		t.Error(err)
-	}
-	if reflect.TypeOf(dotcdr) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
-		t.Error(reflect.TypeOf(dotcdr))
-	}
-	if dotcdr.String() != "456" {
-		t.Error(dotcdr)
-	}
-	
 }
 
 func Test_Read(t *testing.T) {
@@ -557,5 +531,30 @@ func Test_Read(t *testing.T) {
 	}
 	if bfalse.String() != "#f" {
 		t.Error(bfalse)
+	}
+	
+	// Check reading with a dot in the notation
+	dotcdr, err := goscm.EvalStr("(cdr '(123 . 456))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(dotcdr) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		t.Error(reflect.TypeOf(dotcdr))
+	}
+	if dotcdr.String() != "456" {
+		t.Error(dotcdr)
+	}
+	
+	// Check quote syntax
+	// (map square '(2 3 4 5 6)) => (4 9 16 25 36
+	quotesyn, err := goscm.EvalStr("(map square '(2 3 4 5 6))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(quotesyn) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		t.Error(reflect.TypeOf(quotesyn))
+	}
+	if quotesyn.String() != "(4 9 16 25 36)" {
+		t.Error(quotesyn)
 	}
 }
