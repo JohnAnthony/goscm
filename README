@@ -1,5 +1,20 @@
-GoSCM: A scheme interpreter written in Go, designed to be a great extension
-language
+GOSCM is a Scheme interpreter toolkit for Go; it provides a completely empty
+environment, a simple extendable environment out-of-the-box (current WIP) and
+will provide an R5RS environment in the near future.
+
+The goal of the project is to provide scheme interpreter features piecemeal, so
+that you can mix-and-match the features that you want for extending you
+program. R5RS too heavy but you want vectors? Just import the simple package and
+either roll your own vectors.
+
+Usage / Examples
+===
+
+The "simple" [ackage in this project provides a complete, working and scheme
+envitonment with all the basics you would expect. It is designed to provide an
+example of how to create your own scheme from scratch using the tools
+provided. The R5RS package is designed to show how to extend the simple package
+with all of the features required to meet R5RS.
 
 A note on terminology:
 ===
