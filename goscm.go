@@ -24,8 +24,6 @@ func Make_SCMT(in interface {}) SCMT {
 	switch reflect.TypeOf(in).Kind() {
 	case reflect.Int:
 		return &SCMT_Integer { Value: in.(int) }
-	case reflect.String:
-		return &SCMT_String { Value: in.(string) }
 	case reflect.Bool:
 		return &SCMT_Bool { Value: in.(bool) }
 	default:

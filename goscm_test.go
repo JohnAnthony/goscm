@@ -19,27 +19,13 @@ func Test_Integer(t *testing.T) {
 	}
 }
 
-func Test_String(t *testing.T) {
-	// A test with the string "foobar!"
-	str := Make_SCMT("foobar!")
-	if reflect.TypeOf(str) != reflect.TypeOf(&SCMT_String{}) {
-		t.Error()
-	}
-	if str.(*SCMT_String).Value != "foobar!" {
-		t.Error()
-	}
-	if str.String() != "\"foobar!\"" {
-		t.Error()
-	}
-}
-
 func Test_Pair(t *testing.T) {
-	// A test with the singleton ("Foobarrrr!")
-	sing := Cons(Make_SCMT("Foobarrrr!"), Make_SCMT(nil))
+	// A test with the singleton (556677)
+	sing := Cons(Make_SCMT(556677), Make_SCMT(nil))
 	if reflect.TypeOf(sing) != reflect.TypeOf(&SCMT_Pair{}) {
 		t.Error()
 	}
-	if sing.String() != "(\"Foobarrrr!\")" {
+	if sing.String() != "(556677)" {
 		t.Error()
 	}
 	

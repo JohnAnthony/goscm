@@ -118,17 +118,17 @@ func Test_Env(t *testing.T) {
 		goscm.Make_Symbol("car"),
 		goscm.Make_List(
 			goscm.Make_Symbol("cons"),
-			goscm.Make_SCMT("FOO"),
-			goscm.Make_SCMT("BAR"),
+			goscm.Make_SCMT(333),
+			goscm.Make_SCMT(444),
 		),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(car_result) != reflect.TypeOf(&goscm.SCMT_String{}) {
+	if reflect.TypeOf(car_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(car_result))
 	}
-	if car_result.String() != "\"FOO\"" {
+	if car_result.String() != "333" {
 		t.Error(car_result)
 	}
 
@@ -137,17 +137,17 @@ func Test_Env(t *testing.T) {
 		goscm.Make_Symbol("cdr"),
 		goscm.Make_List(
 			goscm.Make_Symbol("cons"),
-			goscm.Make_SCMT("FOO"),
-			goscm.Make_SCMT("BAR"),
+			goscm.Make_SCMT(555),
+			goscm.Make_SCMT(666),
 		),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(cdr_result) != reflect.TypeOf(&goscm.SCMT_String{}) {
+	if reflect.TypeOf(cdr_result) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
 		t.Error(reflect.TypeOf(cdr_result))
 	}
-	if cdr_result.String() != "\"BAR\"" {
+	if cdr_result.String() != "666" {
 		t.Error(cdr_result)
 	}
 	
@@ -514,17 +514,6 @@ func Test_Read(t *testing.T) {
 		t.Error(int)
 	}
 
-	str, sterr := ReadStr("\"Hello, world!\"")
-	if sterr != nil {
-		t.Error(sterr)
-	}
-	if reflect.TypeOf(str) != reflect.TypeOf(&goscm.SCMT_String{}) {
-		t.Error(reflect.TypeOf(str))
-	}
-	if str.String() != "\"Hello, world!\"" {
-		t.Error(str)
-	}
-	
 	list, lerr := ReadStr("(+ 111 222 333)")
 	if lerr != nil {
 		t.Error(lerr)
