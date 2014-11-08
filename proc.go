@@ -1,5 +1,7 @@
 package goscm
 
+import "errors"
+
 type SCMT_Proc struct {
 	args *SCMT_Pair
 	body *SCMT_Pair
@@ -20,7 +22,18 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 
 	arg := args
 	symb := p.args
-	for arg != SCMT_Nil && symb != SCMT_Nil {
+	for {
+		if arg == SCMT_Nil && symb == SCMT_Nil {
+			break
+		}
+		if arg == SCMT_Nil {
+			// We ran out of symbols to attach to
+			return SCMT_Nil, errors.New("Too few arguments")
+		}
+		if symb == SCMT_Nil {
+			return SCMT_Nil, errors.New("Too many arguments")
+		}
+
 		val, err := arg.Car.Eval(env)
 		if err != nil {
 			return SCMT_Nil, err
@@ -30,9 +43,6 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 		arg = arg.Cdr.(*SCMT_Pair)
 		symb = symb.Cdr.(*SCMT_Pair)
 		
-		if arg == SCMT_Nil && symb == SCMT_Nil {
-			break
-		}
 	}
 
 	var result SCMT
