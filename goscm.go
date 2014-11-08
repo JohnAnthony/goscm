@@ -84,7 +84,7 @@ func MapEval(list *SCMT_Pair, env *SCMT_Env) (*SCMT_Pair, error) {
 }
 
 func IsTrue(s SCMT) bool {
-	if reflect.TypeOf(s) == reflect.TypeOf(SCMT_Bool) {
+	if reflect.TypeOf(s) == reflect.TypeOf(&SCMT_Bool{}) {
 		return s.(*SCMT_Bool).Value
 	}
 	return true
