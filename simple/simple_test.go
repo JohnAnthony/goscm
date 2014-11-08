@@ -555,6 +555,30 @@ func Test_Env(t *testing.T) {
 	if notb.String() != "(#f #t #f #f)" {
 		t.Error(notb)
 	}
+
+	// Test for < of a long string in which it is true
+	ltt, err := goscm.EvalStr("(< 2 100 101 200 203 1000)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(ltt) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(ltt))
+	}
+	if ltt.String() != "#t" {
+		t.Error(ltt)
+	}
+
+	// Test for < of a long string in which it is false
+	ltf, err := goscm.EvalStr("(< 2 100 101 1 203 1000)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(ltf) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(ltf))
+	}
+	if ltf.String() != "#f" {
+		t.Error(ltf)
+	}
 }
 
 func Test_Read(t *testing.T) {
