@@ -1,6 +1,9 @@
 package goscm
 
-import "errors"
+import (
+	"errors"
+	"reflect"
+)
 
 type SCMT_Proc struct {
 	args *SCMT_Pair
@@ -24,27 +27,30 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 	symb := p.args
 	for {
 		if arg == SCMT_Nil && symb == SCMT_Nil {
+			// A natural end to our zipping lists
 			break
-		}
-		if arg == SCMT_Nil {
+		} else if arg == SCMT_Nil {
 			// We ran out of symbols to attach to
 			return SCMT_Nil, errors.New("Too few arguments")
-		}
-		if symb == SCMT_Nil {
+		} else if symb == SCMT_Nil {
+			// We ran out of arguments to attach
 			return SCMT_Nil, errors.New("Too many arguments")
 		}
-
+		
 		val, err := arg.Car.Eval(env)
 		if err != nil {
 			return SCMT_Nil, err
 		}
-
+		
+		if reflect.TypeOf(symb.Car) != reflect.TypeOf(&SCMT_Symbol{}) {
+			return SCMT_Nil, errors.New("Non-symbol in argument list (!)")
+		}
 		argenv.Add(symb.Car.(*SCMT_Symbol), val)
+		
 		arg = arg.Cdr.(*SCMT_Pair)
 		symb = symb.Cdr.(*SCMT_Pair)
-		
 	}
-
+	
 	var result SCMT
 	for expr := p.body; expr != SCMT_Nil; expr = expr.Cdr.(*SCMT_Pair) {
 		result, err = expr.Car.Eval(argenv)
@@ -52,7 +58,7 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 			return SCMT_Nil, err
 		}
 	}
-
+	
 	return result, nil
 }
 
