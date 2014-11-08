@@ -545,14 +545,14 @@ func Test_Env(t *testing.T) {
 	}
 
 	// 'not' should return #f when passed an integer or anything but #t
-	notb, err := goscm.EvalStr("(not 22364)", Read, env)
+	notb, err := goscm.EvalStr("(map not '(2364 #f #t 4))", Read, env)
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(notb) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+	if reflect.TypeOf(notb) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
 		t.Error(reflect.TypeOf(notb))
 	}
-	if notb.String() != "#f" {
+	if notb.String() != "(#f #t #f #f)" {
 		t.Error(notb)
 	}
 }
