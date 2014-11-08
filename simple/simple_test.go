@@ -556,7 +556,7 @@ func Test_Env(t *testing.T) {
 		t.Error(notb)
 	}
 
-	// Test for < of a long string in which it is true
+	// Test for < of a long list in which it is true
 	ltt, err := goscm.EvalStr("(< 2 100 101 200 203 1000)", Read, env)
 	if err != nil {
 		t.Error(err)
@@ -568,7 +568,7 @@ func Test_Env(t *testing.T) {
 		t.Error(ltt)
 	}
 
-	// Test for < of a long string in which it is false
+	// Test for < of a long list in which it is false
 	ltf, err := goscm.EvalStr("(< 2 100 101 1 203 1000)", Read, env)
 	if err != nil {
 		t.Error(err)
