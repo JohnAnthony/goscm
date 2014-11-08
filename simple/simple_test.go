@@ -579,6 +579,30 @@ func Test_Env(t *testing.T) {
 	if ltf.String() != "#f" {
 		t.Error(ltf)
 	}
+
+	// Test for > of a long list in which it is true
+	gtt, err := goscm.EvalStr("(> 1000 202 201 200 50 5 1)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(gtt) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(gtt))
+	}
+	if gtt.String() != "#t" {
+		t.Error(gtt)
+	}
+
+	// Test for > of a long list in which it is false
+	gtf, err := goscm.EvalStr("(> 10000 5000 5001 20 30 0 44)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(gtf) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(gtf))
+	}
+	if gtf.String() != "#f" {
+		t.Error(gtf)
+	}
 }
 
 func Test_Read(t *testing.T) {
