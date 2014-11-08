@@ -17,7 +17,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindForeign("<", scm_lt)
 	env.BindForeign(">", scm_gt)
 	env.BindSpecial("and", scm_and)
-//	env.BindSpecial("or", scm_or)
+	env.BindSpecial("or", scm_or)
 	env.BindForeign("car", scm_car)
 	env.BindForeign("cdr", scm_cdr)
 	env.BindForeign("cons", scm_cons)
@@ -439,6 +439,27 @@ func scm_and(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	}
 
 	return scm_and(args.Cdr.(*goscm.SCMT_Pair), env)
+}
+
+func scm_or(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	if args == goscm.SCMT_Nil {
+		return goscm.Make_SCMT(false), nil
+	}
+
+	result, err := args.Car.Eval(env)
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+
+	if goscm.IsTrue(result) {
+		return goscm.Make_SCMT(true), nil
+	}
+
+	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
+	}
+
+	return scm_or(args.Cdr.(*goscm.SCMT_Pair), env)
 }
 
 func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
