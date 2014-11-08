@@ -15,6 +15,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindForeign("/", scm_divide)
 	env.BindForeign("=", scm_numeq)
 	env.BindForeign("<", scm_lt)
+	env.BindForeign(">", scm_gt)
 	env.BindForeign("car", scm_car)
 	env.BindForeign("cdr", scm_cdr)
 	env.BindForeign("cons", scm_cons)
@@ -386,6 +387,37 @@ func scm_lt(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return goscm.Make_SCMT(true), nil
 }
 
+func scm_gt(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	if args == goscm.SCMT_Nil {
+		return goscm.Make_SCMT(true), nil
+	}
+	if args.Cdr == goscm.SCMT_Nil {
+		return goscm.Make_SCMT(true), nil
+	}
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		return goscm.SCMT_Nil, errors.New("Expected integer argument")
+	}
+
+	for args.Cdr != goscm.SCMT_Nil {
+		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+			return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
+		}
+		
+		next := args.Cdr.(*goscm.SCMT_Pair).Car
+		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+			return goscm.SCMT_Nil, errors.New("Expected integer argument")
+		}
+
+		if args.Car.(*goscm.SCMT_Integer).Value <= next.(*goscm.SCMT_Integer).Value {
+			return goscm.Make_SCMT(false), nil
+		}
+
+		args = args.Cdr.(*goscm.SCMT_Pair)
+	}
+
+	return goscm.Make_SCMT(true), nil
+}
+
 func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	// Unsafe
 	// No argument number checking
@@ -425,7 +457,5 @@ func scm_not(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 // TODO: cond
 // TODO: <=
 // TODO: >=
-// TODO: < 
-// TODO: > 
 // TODO: and
 // TODO: or
