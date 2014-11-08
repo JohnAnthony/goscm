@@ -611,6 +611,57 @@ func Test_Env(t *testing.T) {
 	if gtf.String() != "#f" {
 		t.Error(gtf)
 	}
+
+	// Test for 'and' when it should succeed
+	andt, err := goscm.EvalStr("(and #t #t #t #t #t #t #t #t #t #t)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(andt) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(andt))
+	}
+	if andt.String() != "#t" {
+		t.Error(andt)
+	}
+
+	// Test for 'and' when it should fail
+	// TODO: Ensure that eval only happens if previous cases are true
+	andf, err := goscm.EvalStr("(and #t #t #t #t #t #t #t #f #t #t)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(andf) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(andf))
+	}
+	if andf.String() != "#f" {
+		t.Error(andf)
+	}
+
+	// Test for 'or' when it should succeed
+	// TODO test that eval is only happening when it should
+	ort, err := goscm.EvalStr("(or #f #f #f #f #f #f #t #f #f)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(ort) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(ort))
+	}
+	if ort.String() != "#t" {
+		t.Error(ort)
+	}
+
+	// Test for 'or' when it should fail
+	// TODO test that eval is only happening when it should
+	orf, err := goscm.EvalStr("(or #f #f #f #f #f #f #f #f #f)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(orf) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(orf))
+	}
+	if orf.String() != "#f" {
+		t.Error(orf)
+	}
 }
 
 func Test_Read(t *testing.T) {
