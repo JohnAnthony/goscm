@@ -249,16 +249,20 @@ func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 }
 
 func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
 	var result goscm.SCMT
-	var err error
 
-	for result = goscm.SCMT_Nil; args != goscm.SCMT_Nil; args = args.Cdr.(*goscm.SCMT_Pair) {
-		result, err = args.Car.Eval(env)
+	argss, err := args.ToSlice()
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+
+	for i := 0; i < len(argss); i++ {
+		result, err = argss[i].Eval(env)
 		if err != nil {
 			return goscm.SCMT_Nil, err
 		}
 	}
+
 	return result, nil
 }
 
