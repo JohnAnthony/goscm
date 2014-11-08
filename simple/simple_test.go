@@ -662,6 +662,27 @@ func Test_Env(t *testing.T) {
 	if orf.String() != "#f" {
 		t.Error(orf)
 	}
+
+	// Test for '>=' when it should pass
+	get, err := goscm.EvalStr(`(and (>= 10 10 10 10 9 9 9 9 8 8 7 7)
+                                    (>= 11 11)
+                                    (>= 9 8))`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if get.String() != "#t" {
+		t.Error(get)
+	}
+
+	// Test for '>=' when it should fail
+	gef, err := goscm.EvalStr(`(or (>= 10 10 10 10 9 9 9 9 10 8 7)
+                                   (>= 11 12))`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if gef.String() != "#t" {
+		t.Error(gef)
+	}
 }
 
 func Test_Read(t *testing.T) {
