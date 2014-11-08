@@ -559,7 +559,7 @@ func Test_Env(t *testing.T) {
 	// Test for < of a long list in which it is true
 	ltt, err := goscm.EvalStr(`(and (< 2 100 101 200 203 1000)
                                     (< 3 5)
-                                    (< 10 9 11 12))`, Read, env)
+                                    (< 8 9 11 12))`, Read, env)
 	if err != nil {
 		t.Error(err)
 	}
