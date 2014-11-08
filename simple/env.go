@@ -19,6 +19,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindForeign("map", scm_map)
 	env.BindForeign("apply", scm_apply)
 	env.BindForeign("=", scm_numeq)
+	env.BindForeign("not", scm_not)
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("define", scm_define)
 	env.BindSpecial("begin", scm_begin)
@@ -366,6 +367,18 @@ func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
 }
 
+func scm_not(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	if args.Cdr != goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
+	}
+	
+	if reflect.TypeOf(args.Car) == reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		return goscm.Make_SCMT(!args.Car.(*goscm.SCMT_Bool).Value), nil
+	}
+
+	return goscm.Make_SCMT(false), nil
+}
+
 // TODO: cond
 // TODO: <=
 // TODO: >=
@@ -373,4 +386,3 @@ func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 // TODO: > 
 // TODO: and
 // TODO: or
-// TODO: not

@@ -531,6 +531,30 @@ func Test_Env(t *testing.T) {
 	if dotlam2.String() != "((3 . 4) (3 . 5) (3 . 6))" {
 		t.Error(dotlam2)
 	}
+
+	// 'not' should return #t when passed #f
+	nota, err := goscm.EvalStr("(not #f)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(nota) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(nota))
+	}
+	if nota.String() != "#t" {
+		t.Error(nota)
+	}
+
+	// 'not' should return #f when passed an integer or anything but #t
+	notb, err := goscm.EvalStr("(not 22364)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(notb) != reflect.TypeOf(&goscm.SCMT_Bool{}) {
+		t.Error(reflect.TypeOf(notb))
+	}
+	if notb.String() != "#f" {
+		t.Error(notb)
+	}
 }
 
 func Test_Read(t *testing.T) {
