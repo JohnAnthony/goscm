@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
+	"errors"
 )
 
 type SCMT interface {
@@ -58,4 +59,26 @@ func EvalStr(str string, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) 
 		return SCMT_Nil, err
 	}
 	return r.Eval(env)
+}
+
+func MapEval(list *SCMT_Pair, env *SCMT_Env) (*SCMT_Pair, error) {
+	if list == SCMT_Nil {
+		return SCMT_Nil, nil
+	}
+
+	new, err := list.Car.Eval(env)
+	if err != nil {
+		return SCMT_Nil, nil
+	}
+
+	if reflect.TypeOf(list.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+		return SCMT_Nil, errors.New("List is not nil-terminated")
+	}
+
+	tail, err := MapEval(list.Cdr.(*SCMT_Pair), env)
+	if err != nil {
+		return SCMT_Nil, nil
+	}
+
+	return Cons(new, tail), nil
 }

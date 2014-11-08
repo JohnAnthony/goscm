@@ -235,6 +235,8 @@ func Test_Proc(t *testing.T) {
 	if result.String() != "15129" {
 		t.Error(result)
 	}
+
+	// Using non-symbols in building a procedure should cause an error
 }
 
 func Test_Bool(t *testing.T) {

@@ -20,35 +20,37 @@ func (*SCMT_Proc) String() string {
 }
 
 func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
-	var err error
-	argenv := EnvEmpty(p.env)
+	var symb_lst SCMT
 
-	arg := args
-	symb := p.args
+	argenv := EnvEmpty(p.env)
+	arg_lst, err := MapEval(args, env)
+	if err != nil {
+		return SCMT_Nil, err
+	}
+
+	symb_lst = p.args
 	for {
-		if arg == SCMT_Nil && symb == SCMT_Nil {
+		if arg_lst == SCMT_Nil && symb_lst == SCMT_Nil {
 			// A natural end to our zipping lists
 			break
-		} else if arg == SCMT_Nil {
+		} else if arg_lst == SCMT_Nil {
 			// We ran out of symbols to attach to
 			return SCMT_Nil, errors.New("Too few arguments")
-		} else if symb == SCMT_Nil {
+		} else if symb_lst == SCMT_Nil {
 			// We ran out of arguments to attach
 			return SCMT_Nil, errors.New("Too many arguments")
 		}
-		
-		val, err := arg.Car.Eval(env)
-		if err != nil {
-			return SCMT_Nil, err
+
+		// This handles the end case of a dotted argument list aka a variadic
+		// function
+		if reflect.TypeOf(symb_lst) == reflect.TypeOf(&SCMT_Symbol{}) {
+			argenv.Add(symb_lst.(*SCMT_Symbol), arg_lst)
+			break
 		}
 		
-		if reflect.TypeOf(symb.Car) != reflect.TypeOf(&SCMT_Symbol{}) {
-			return SCMT_Nil, errors.New("Non-symbol in argument list (!)")
-		}
-		argenv.Add(symb.Car.(*SCMT_Symbol), val)
-		
-		arg = arg.Cdr.(*SCMT_Pair)
-		symb = symb.Cdr.(*SCMT_Pair)
+		argenv.Add(symb_lst.(*SCMT_Pair).Car.(*SCMT_Symbol), arg_lst.Car)
+		arg_lst = arg_lst.Cdr.(*SCMT_Pair)
+		symb_lst = symb_lst.(*SCMT_Pair).Cdr
 	}
 	
 	var result SCMT
@@ -63,6 +65,8 @@ func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 }
 
 func Make_Proc(args *SCMT_Pair, body *SCMT_Pair, env *SCMT_Env) *SCMT_Proc {
+	// TODO: Check that we're not being given junk input i.e. this needs to be a
+	// list of symbols, optionally with cdr symbol for variadic functions
 	return &SCMT_Proc {
 		args: args,
 		body: body,
