@@ -489,6 +489,48 @@ func Test_Env(t *testing.T) {
 	if quotesyn.String() != "(4 9 16 25 36)" {
 		t.Error(quotesyn)
 	}
+	
+	// Check that dotted function arguments work
+	// (define (pairup a . rest)
+	//   (map (lambda (b) (cons a b)) rest))
+	// (pairup 3 4 5 6) => ((3 . 4) (3 . 5) (3 . 6))
+	_, err = goscm.EvalStr(`(define (pairup a . rest)
+                              (map (lambda (b) (cons a b)) rest))`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	dotlam, err := goscm.EvalStr("(pairup 3 4 5 6)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(dotlam) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		t.Error(reflect.TypeOf(dotlam))
+	}
+	if dotlam.String() != "((3 . 4) (3 . 5) (3 . 6))" {
+		t.Error(dotlam)
+	}
+
+	// The same as above but with different syntax
+	// (define pairup2
+	//   (lambda (a . rest)
+	//     (map (lambda (b) (cons a b)) rest)))
+	// (pairup2 3 4 5 6) => ((3 . 4) (3 . 5) (3 . 6))
+	_, err = goscm.EvalStr(`(define pairup2
+                              (lambda (a . rest)
+                                (map (lambda (b) (cons a b)) rest)))`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	dotlam2, err := goscm.EvalStr("(pairup2 3 4 5 6)", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.TypeOf(dotlam2) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		t.Error(reflect.TypeOf(dotlam2))
+	}
+	if dotlam2.String() != "((3 . 4) (3 . 5) (3 . 6))" {
+		t.Error(dotlam2)
+	}
 }
 
 func Test_Read(t *testing.T) {
