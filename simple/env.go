@@ -166,24 +166,43 @@ func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
-	// No argument number checking
-	ret := goscm.SCMT_Nil
-	f, err := args.Car.Eval(env)
+	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
 
-	target := args.Cdr.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Pair)
-	for l := target; l != goscm.SCMT_Nil; l = l.Cdr.(*goscm.SCMT_Pair) {
-		arg := goscm.Cons(l.Car, goscm.SCMT_Nil)
-		applied, err := f.(goscm.SCMT_Func).Apply(arg, env)
+	if len(argss) < 2 {
+		return goscm.SCMT_Nil, errors.New("Too few arguments")
+	}
+	if len(argss) > 2 {
+		return goscm.SCMT_Nil, errors.New("Too many arguments")
+	}
+
+	proc, ok := argss[0].(goscm.SCMT_Func)
+	if !ok {
+		return goscm.SCMT_Nil, errors.New("Non-function in first position")
+	}
+
+	if reflect.TypeOf(argss[1]) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		return goscm.SCMT_Nil, errors.New("Expected pair")
+	}
+
+	tail, err := argss[1].(*goscm.SCMT_Pair).ToSlice()
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+
+
+	ret := goscm.SCMT_Nil
+	for i := len(tail) - 1; i >= 0; i-- {
+		result, err := proc.Apply(goscm.Make_List(tail[i]), env)
 		if err != nil {
 			return goscm.SCMT_Nil, err
 		}
-		ret = goscm.Cons(applied, ret)
+		ret = goscm.Cons(result, ret)
 	}
-	return goscm.Reverse(ret), nil
+	
+	return ret, nil
 }
 
 func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
