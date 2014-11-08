@@ -330,34 +330,27 @@ func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
-	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
-	if err != nil {
-		return goscm.NilAndErr(err)
-	}
-
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
 
-	base := args.Car.(*goscm.SCMT_Integer).Value
-
-	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-		return goscm.WrongType()
+	argss, err := args.ToSlice()
+	if err != nil {
+		return goscm.SCMT_Nil, err
 	}
-	args = args.Cdr.(*goscm.SCMT_Pair)
-	
-	for args != goscm.SCMT_Nil {
-		if args.Car.(*goscm.SCMT_Integer).Value != base {
+
+	base := argss[0].(*goscm.SCMT_Integer).Value
+
+	for i := 1; i < len(argss); i++ {
+		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+			return goscm.SCMT_Nil, errors.New("Expected integer argument")
+		}
+
+		if argss[i].(*goscm.SCMT_Integer).Value != base {
 			return goscm.Make_SCMT(false), nil
 		}
-
-		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-			return goscm.WrongType()
-		}
-		args = args.Cdr.(*goscm.SCMT_Pair)
 	}
-	
+
 	return goscm.Make_SCMT(true), nil
 }
 
