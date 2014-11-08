@@ -192,7 +192,6 @@ func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, err
 	}
 
-
 	ret := goscm.SCMT_Nil
 	for i := len(tail) - 1; i >= 0; i-- {
 		result, err := proc.Apply(goscm.Make_List(tail[i]), env)
