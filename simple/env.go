@@ -282,7 +282,17 @@ func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	// Unsafe
 	// No argument number checking
-	return goscm.Make_Proc(args.Car.(*goscm.SCMT_Pair), args.Cdr.(*goscm.SCMT_Pair), env), nil
+	proc, err := goscm.Make_Proc(
+		args.Car.(*goscm.SCMT_Pair),
+		args.Cdr.(*goscm.SCMT_Pair),
+		env,
+	)
+
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+
+	return proc, nil
 }
 
 func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {

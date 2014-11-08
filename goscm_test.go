@@ -222,7 +222,10 @@ func Test_Proc(t *testing.T) {
 		Make_Symbol("n"),
 		Make_Symbol("n"),
 	))
-	proc := Make_Proc(args, body, env)
+	proc, err := Make_Proc(args, body, env)
+	if err != nil {
+		t.Error(err)
+	}
 	expr := Make_List(proc, Make_SCMT(123))
 
 	result, err := expr.Eval(env)
@@ -235,8 +238,7 @@ func Test_Proc(t *testing.T) {
 	if result.String() != "15129" {
 		t.Error(result)
 	}
-
-	// Using non-symbols in building a procedure should cause an error
+		
 }
 
 func Test_Bool(t *testing.T) {
