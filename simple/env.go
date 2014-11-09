@@ -39,7 +39,7 @@ func Env() *goscm.SCMT_Env {
 func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
-		return goscm.NilAndErr(err)
+		return goscm.SCMT_Nil, err
 	}
 
 	ret := 0
@@ -56,7 +56,7 @@ func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
-		return goscm.NilAndErr(err)
+		return goscm.SCMT_Nil, err
 	}
 
 	ret := 1
@@ -74,7 +74,7 @@ func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
-		return goscm.NilAndErr(err)
+		return goscm.SCMT_Nil, err
 	}
 
 	ret := args.Car.(*goscm.SCMT_Integer).Value
@@ -97,7 +97,7 @@ func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
-		return goscm.NilAndErr(err)
+		return goscm.SCMT_Nil, err
 	}
 
 	ret := args.Car.(*goscm.SCMT_Integer).Value
@@ -535,14 +535,14 @@ func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	}
 	
 	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-		return goscm.WrongType()
+		return goscm.SCMT_Nil, errors.New("Wrong type")
 	}
 	
 	if reflect.TypeOf(predicate) == reflect.TypeOf(&goscm.SCMT_Bool{}) &&
 		predicate.(*goscm.SCMT_Bool).Value == false {
 
 		if reflect.TypeOf(args.Cdr.(*goscm.SCMT_Pair).Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
-			return goscm.WrongType()
+			return goscm.SCMT_Nil, errors.New("Wrong type")
 		}
 		return args.Cdr.(*goscm.SCMT_Pair).Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
 	}

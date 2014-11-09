@@ -18,11 +18,3 @@ func EnsureAll(pair *SCMT_Pair, t reflect.Type) error {
 
 	return nil
 }
-
-func WrongType() (SCMT, error) {
-	return SCMT_Nil, errors.New("Wrong type")
-}
-
-func NilAndErr(e error) (SCMT, error) {
-	return SCMT_Nil, e
-}
