@@ -3,6 +3,7 @@ SimpleEnv procedure: null?
 SimpleEnv procedure: integer?
 SimpleEnv procedure: list?
 SimpleEnv procedure: boolean?
+SimpleEnv procedure: zero?
 
 Make SCMT_Integer a bignum underneath
 
