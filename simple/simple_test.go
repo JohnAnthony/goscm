@@ -703,6 +703,15 @@ func Test_Env(t *testing.T) {
 	if lef.String() != "#f" {
 		t.Error(lef)
 	}
+	
+	// Test for 'reverse'
+	rev, err := goscm.EvalStr(`(reverse '(1 2 3 (+ 88 22) 4 6))`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if rev.String() != "(6 4 (+ 88 22) 3 2 1)" {
+		t.Error(rev)
+	}
 }
 
 func Test_Read(t *testing.T) {
