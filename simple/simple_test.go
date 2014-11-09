@@ -680,7 +680,7 @@ func Test_Env(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if gef.String() != "#t" {
+	if gef.String() != "#f" {
 		t.Error(gef)
 	}
 		
@@ -700,7 +700,7 @@ func Test_Env(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if lef.String() != "#t" {
+	if lef.String() != "#f" {
 		t.Error(lef)
 	}
 }
