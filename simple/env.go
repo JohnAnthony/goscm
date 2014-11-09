@@ -53,24 +53,23 @@ func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
+	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
 
 	ret := 1
-	for !args.IsNil() {
-		ret *= args.Car.(*goscm.SCMT_Integer).Value
-
-		args, err = goscm.Cast_Pair(args.Cdr)
-		if err != nil {
-			return args, err
+	for i := 0; i < len(argss); i++ {
+		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+			return goscm.SCMT_Nil, errors.New("Expected integer type")
 		}
+		ret *= argss[i].(*goscm.SCMT_Integer).Value
 	}
 	return goscm.Make_SCMT(ret), nil
 }
 
 func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// TODO: Rework
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -94,6 +93,7 @@ func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 }
 
 func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	// TODO: Rework
 	err := goscm.EnsureAll(args, reflect.TypeOf(&goscm.SCMT_Integer{}))
 	if err != nil {
 		return goscm.SCMT_Nil, err
