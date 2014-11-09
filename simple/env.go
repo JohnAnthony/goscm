@@ -27,6 +27,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindForeign("apply", scm_apply)
 	env.BindForeign("not", scm_not)
 	env.BindForeign("reverse", scm_reverse)
+	env.BindForeign("list", scm_list)
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("define", scm_define)
 	env.BindSpecial("begin", scm_begin)
@@ -585,5 +586,8 @@ func scm_reverse(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error)
 	return ret, nil
 }
 
+func scm_list(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	return args, nil
+}
+
 // TODO: cond
-// TODO: list
