@@ -246,8 +246,6 @@ func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
-	// No argument number checking
 	symb := args.Car
 	switch reflect.TypeOf(symb) {
 	case reflect.TypeOf(&goscm.SCMT_Symbol{}):
@@ -293,7 +291,6 @@ func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
 	body := args.Cdr.(*goscm.SCMT_Pair)
 	newenv := goscm.EnvEmpty(env)
 	
@@ -310,8 +307,6 @@ func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
-	// No argument number checking
 	proc, err := goscm.Make_Proc(
 		args.Car.(*goscm.SCMT_Pair),
 		args.Cdr.(*goscm.SCMT_Pair),
@@ -326,8 +321,6 @@ func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 }
 
 func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
-	// No argument number checking
 	symb := args.Car.(*goscm.SCMT_Symbol)
 	val, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
 	if err != nil {
@@ -528,8 +521,6 @@ func scm_or(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	// Unsafe
-	// No argument number checking
 	predicate, err := args.Car.Eval(env)
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -589,5 +580,3 @@ func scm_reverse(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error)
 func scm_list(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return args, nil
 }
-
-// TODO: cond

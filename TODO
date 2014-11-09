@@ -1,0 +1,17 @@
+SimpleEnv procedure: cond
+SimpleEnv procedure: null?
+SimpleEnv procedure: integer?
+SimpleEnv procedure: list?
+SimpleEnv procedure: boolean?
+
+Make SCMT_Integer a bignum underneath
+
+Rework SimpleEnv scm_if
+Rework SimpleEnv scm_lambda
+Rework SimpleEnv scm_let
+Rework SimpleEnv scm_define
+
+Add extras package
+Add to extras package: scm_when
+Add to extras package: scm_unless
+Add to extras package: scm_random
