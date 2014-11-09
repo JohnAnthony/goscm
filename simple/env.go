@@ -563,3 +563,4 @@ func scm_not(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 }
 
 // TODO: cond
+// TODO: list
