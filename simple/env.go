@@ -26,6 +26,7 @@ func Env() *goscm.SCMT_Env {
 	env.BindForeign("map", scm_map)
 	env.BindForeign("apply", scm_apply)
 	env.BindForeign("not", scm_not)
+	env.BindForeign("reverse", scm_reverse)
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("define", scm_define)
 	env.BindSpecial("begin", scm_begin)
@@ -561,6 +562,28 @@ func scm_not(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return goscm.Make_SCMT(false), nil
 }
 
+func scm_reverse(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+	if args == goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Expected exactly one argument")
+	}
+	if args.Cdr != goscm.SCMT_Nil {
+		return goscm.SCMT_Nil, errors.New("Expected exactly one argument")
+	}
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		return goscm.SCMT_Nil, errors.New("Expected list type")
+	}
+
+	list, err := args.Car.(*goscm.SCMT_Pair).ToSlice()
+	if err != nil {
+		return goscm.SCMT_Nil, err
+	}
+
+	ret := goscm.SCMT_Nil
+	for i := 0; i < len(list); i++ {
+		ret = goscm.Cons(list[i], ret)
+	}
+	return ret, nil
+}
+
 // TODO: cond
 // TODO: list
-// TODO: reverse
