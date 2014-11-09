@@ -16,6 +16,38 @@ example of how to create your own scheme from scratch using the tools
 provided. The R5RS package is designed to show how to extend the simple package
 with all of the features required to meet R5RS.
 
+The "Simple" Environment functions
+===
+
+Although nothing is set in stone, the simple environment provides the following
+functions and special forms:
+
+*
++
+-
+/
+<
+<=
+=
+>
+>=
+and
+apply
+begin
+car
+cdr
+cond
+cons
+define
+if
+lambda
+let
+map
+not
+or
+quote
+set!
+
 A note on terminology:
 ===
 
