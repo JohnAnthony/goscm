@@ -3,7 +3,6 @@ SimpleEnv procedure: null?
 SimpleEnv procedure: integer?
 SimpleEnv procedure: list?
 SimpleEnv procedure: boolean?
-SimpleEnv procedure: zero?
 
 Make SCMT_Integer a bignum underneath
 
@@ -13,6 +12,7 @@ Rework SimpleEnv scm_let
 Rework SimpleEnv scm_define
 
 Add extras package
+Add to extras package: zero?
 Add to extras package: scm_when
 Add to extras package: scm_unless
 Add to extras package: scm_random
