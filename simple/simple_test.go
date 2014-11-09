@@ -712,6 +712,15 @@ func Test_Env(t *testing.T) {
 	if rev.String() != "(6 4 (+ 88 22) 3 2 1)" {
 		t.Error(rev)
 	}
+	
+	// Test for 'list'
+	list_func, err := goscm.EvalStr(`(list 2 3 4 'a 3 5 67)`, Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if list_func.String() != "(2 3 4 A 3 5 67)" {
+		t.Error(list_func)
+	}
 }
 
 func Test_Read(t *testing.T) {
