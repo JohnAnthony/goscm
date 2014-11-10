@@ -12,7 +12,9 @@ Rework SimpleEnv scm_let
 Rework SimpleEnv scm_define
 
 Add extras package
+Add to extras package: when
+Add to extras package: unless
+Add to extras package: random
+
+Add r5rs package
 Add to extras package: zero?
-Add to extras package: scm_when
-Add to extras package: scm_unless
-Add to extras package: scm_random
