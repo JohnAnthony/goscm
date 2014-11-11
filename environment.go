@@ -1,6 +1,9 @@
 package goscm
 
-import "errors"
+import (
+	"errors"
+	"reflect"
+)
 
 type SCMT_Env struct {
 	table map[string]SCMT
@@ -28,6 +31,41 @@ func (env *SCMT_Env) Find(symb *SCMT_Symbol) (SCMT, error) {
 		return nil, errors.New("Unbound variable: " + symb.String())
 	}
 	return env.parent.Find(symb)
+}
+
+func (env *SCMT_Env) AddArgs(symbs *SCMT_Pair, vals *SCMT_Pair) error {
+	for {
+		if symbs == SCMT_Nil && vals == SCMT_Nil {
+			// Natural end
+			return nil
+		}
+
+		if symbs == SCMT_Nil {
+			return errors.New("Too many arguments")
+		}
+
+		if vals == SCMT_Nil {
+			return errors.New("Too few arguments")
+		}
+		
+		if reflect.TypeOf(symbs.Car) != reflect.TypeOf(&SCMT_Symbol{}) {
+			return errors.New("Non-symbol passed as identifier")
+		}
+
+		env.Add(symbs.Car.(*SCMT_Symbol), vals.Car)
+		
+		if reflect.TypeOf(symbs.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+			env.Add(symbs.Cdr.(*SCMT_Symbol), vals.Cdr)
+			return nil
+		}
+		
+		if reflect.TypeOf(vals.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+			return errors.New("Dotted argument list")
+		}
+		
+		symbs = symbs.Cdr.(*SCMT_Pair)
+		vals = vals.Cdr.(*SCMT_Pair)
+	}
 }
 
 func (env *SCMT_Env) Set(symb *SCMT_Symbol, val SCMT) error {

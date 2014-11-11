@@ -20,48 +20,30 @@ func (*SCMT_Proc) String() string {
 }
 
 func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
-	var symb_lst SCMT
-
-	argenv := EnvEmpty(p.env)
-	arg_lst, err := MapEval(args, env)
-	if err != nil {
-		return SCMT_Nil, err
-	}
-
-	symb_lst = p.args
+//TCO_TOP:
 	for {
-		if arg_lst == SCMT_Nil && symb_lst == SCMT_Nil {
-			// A natural end to our zipping lists
-			break
-		} else if arg_lst == SCMT_Nil {
-			// We ran out of symbols to attach to
-			return SCMT_Nil, errors.New("Too few arguments")
-		} else if symb_lst == SCMT_Nil {
-			// We ran out of arguments to attach
-			return SCMT_Nil, errors.New("Too many arguments")
-		}
-
-		// This handles the end case of a dotted argument list aka a variadic
-		// function
-		if reflect.TypeOf(symb_lst) == reflect.TypeOf(&SCMT_Symbol{}) {
-			argenv.Add(symb_lst.(*SCMT_Symbol), arg_lst)
-			break
-		}
-		
-		argenv.Add(symb_lst.(*SCMT_Pair).Car.(*SCMT_Symbol), arg_lst.Car)
-		arg_lst = arg_lst.Cdr.(*SCMT_Pair)
-		symb_lst = symb_lst.(*SCMT_Pair).Cdr
-	}
-	
-	var result SCMT
-	for expr := p.body; expr != SCMT_Nil; expr = expr.Cdr.(*SCMT_Pair) {
-		result, err = expr.Car.Eval(argenv)
+		newenv := EnvEmpty(env)
+		newenv.AddArgs(p.args, args)
+		body, err := p.body.ToSlice()
 		if err != nil {
 			return SCMT_Nil, err
 		}
+
+		for i := 0; i < len(body); i++ {
+			body[i], err = body[i].Eval(newenv)
+			if err != nil {
+				return SCMT_Nil, err
+			}
+
+			if i == len(body) - 1 { // The last value, return its result
+				return body[i], nil
+			}
+		}
+
+		break // Should never get here, but if we do we want to get out and error
 	}
 	
-	return result, nil
+	return SCMT_Nil, errors.New("Execution flow got somewhere it shouldn't")
 }
 
 func Make_Proc(args *SCMT_Pair, body *SCMT_Pair, env *SCMT_Env) (*SCMT_Proc, error) {
