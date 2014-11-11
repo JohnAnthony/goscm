@@ -22,6 +22,7 @@ func (*SCMT_Proc) String() string {
 func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 //TCO_TOP:
 	for {
+		args, err := MapEval(args, env)
 		newenv := EnvEmpty(env)
 		newenv.AddArgs(p.args, args)
 		body, err := p.body.ToSlice()
