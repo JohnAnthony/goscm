@@ -721,6 +721,19 @@ func Test_Env(t *testing.T) {
 	if list_func.String() != "(2 3 4 A 3 5 67)" {
 		t.Error(list_func)
 	}
+	
+	// Test for recursive function application
+	_, err = goscm.EvalStr("(define (my-square x) (* x x)))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	my_square, err := goscm.EvalStr("(square (square 10))", Read, env)
+	if err != nil {
+		t.Error(err)
+	}
+	if my_square.String() != "10000" {
+		t.Error(my_square)
+	}
 }
 
 func Test_Read(t *testing.T) {
