@@ -241,28 +241,3 @@ func Test_Proc(t *testing.T) {
 		
 }
 
-func Test_Bool(t *testing.T) {
-	// Test true
-	btrue := Make_SCMT(true)
-	if reflect.TypeOf(btrue) != reflect.TypeOf(&Boolean{}) {
-		t.Error(reflect.TypeOf(btrue).String())
-	}
-	if btrue.(*Boolean).Value != true {
-		t.Error(btrue)
-	}
-	if btrue.String() != "#t" {
-		t.Error(btrue)
-	}
-	
-	// Test false
-	bfalse := Make_SCMT(false)
-	if reflect.TypeOf(bfalse) != reflect.TypeOf(&Boolean{}) {
-		t.Error(reflect.TypeOf(bfalse).String())
-	}
-	if bfalse.(*Boolean).Value != false {
-		t.Error(bfalse)
-	}
-	if bfalse.String() != "#f" {
-		t.Error(bfalse)
-	}
-}
