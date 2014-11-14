@@ -5,20 +5,6 @@ import (
 	"reflect"
 )
 
-func Test_Integer(t *testing.T) {
-	// A test with the integer 31337
-	in := Make_SCMT(31337)
-	if reflect.TypeOf(in) != reflect.TypeOf(&PlainInt{}) {
-		t.Error()
-	}
-	if in.(*PlainInt).Value != 31337 {
-		t.Error()
-	}
-	if in.String() != "31337" {
-		t.Error()
-	}
-}
-
 func Test_Symbol(t *testing.T) {
 	s := Make_Symbol("Foo-bar")
 
