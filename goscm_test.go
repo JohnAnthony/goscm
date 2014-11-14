@@ -97,29 +97,6 @@ func Test_Symbol(t *testing.T) {
 	}
 }
 
-func Test_Foreign(t *testing.T) {
-	f := func (list *Pair, env *Environ) (SCMT, error) {
-		n := list.Car.(*PlainInt).Value
-		return Make_SCMT(n * n), nil
-	}
-
-	scm_f := Make_Foreign(f)
-	if scm_f.String() != "#<foreign function>" {
-		t.Error()
-	}
-
-	sq, err := scm_f.Apply(Cons(Make_SCMT(13), Make_SCMT(nil)), EnvEmpty(nil))
-	if err != nil {
-		t.Error(err)
-	}
-	if reflect.TypeOf(sq) != reflect.TypeOf(&PlainInt{}) {
-		t.Error()
-	}
-	if sq.String() != "169" {
-		t.Error()
-	}
-}
-
 func Test_Foreign_List(t *testing.T) {
 	list := Make_List(
 		Make_Symbol("+"),
