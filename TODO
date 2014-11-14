@@ -9,4 +9,3 @@ PreFunc interface and make Special a part of it
 Tests for Proc as proc_test.go
 Macro type for natively-defined PreFuncs as macro.go
 Tests for Macro as macro_test.go
-Tests for Boolean as boolean_test.go
