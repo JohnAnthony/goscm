@@ -23,7 +23,7 @@ type PreFunc interface {
 
 func Make_SCMT(in interface {}) SCMT {
 	if in == nil {
-		return SCMT_Nil
+		return SCM_Nil
 	}
 
 	switch reflect.TypeOf(in).Kind() {
@@ -60,28 +60,28 @@ func EvalStr(str string, read func(*bufio.Reader) (SCMT, error), env *Environ) (
 	b := bufio.NewReader(strings.NewReader(str))
 	r, err := read(b)
 	if err != nil && err.Error() != "EOF" {
-		return SCMT_Nil, err
+		return SCM_Nil, err
 	}
 	return r.Eval(env)
 }
 
 func MapEval(list *Pair, env *Environ) (*Pair, error) {
-	if list == SCMT_Nil {
-		return SCMT_Nil, nil
+	if list == SCM_Nil {
+		return SCM_Nil, nil
 	}
 
 	new, err := list.Car.Eval(env)
 	if err != nil {
-		return SCMT_Nil, nil
+		return SCM_Nil, nil
 	}
 
 	if reflect.TypeOf(list.Cdr) != reflect.TypeOf(&Pair{}) {
-		return SCMT_Nil, errors.New("List is not nil-terminated")
+		return SCM_Nil, errors.New("List is not nil-terminated")
 	}
 
 	tail, err := MapEval(list.Cdr.(*Pair), env)
 	if err != nil {
-		return SCMT_Nil, nil
+		return SCM_Nil, nil
 	}
 
 	return Cons(new, tail), nil

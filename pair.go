@@ -10,15 +10,15 @@ type Pair struct {
 	Cdr SCMT
 }
 
-var SCMT_Nil = &Pair {}
+var SCM_Nil = &Pair {}
 
 func (pair *Pair) Eval(env *Environ) (SCMT, error) {
 	if pair.IsNil() {
-		return SCMT_Nil, errors.New("Cannot eval empty list")
+		return SCM_Nil, errors.New("Cannot eval empty list")
 	}
 	proc, err := pair.Car.Eval(env)
 	if err != nil {
-		return SCMT_Nil, err
+		return SCM_Nil, err
 	}
 	args := pair.Cdr.(*Pair)
 	return proc.(Func).Apply(args, env)
@@ -48,7 +48,7 @@ func (pair *Pair) String() string {
 
 func Cast_Pair(scm SCMT) (*Pair, error) {
 	if reflect.TypeOf(scm) != reflect.TypeOf(&Pair{}) {
-		return SCMT_Nil, errors.New("Cast failed: Pair")
+		return SCM_Nil, errors.New("Cast failed: Pair")
 	}
 	return scm.(*Pair), nil
 }
@@ -56,7 +56,7 @@ func Cast_Pair(scm SCMT) (*Pair, error) {
 // Helpers
 
 func Make_List(args ...SCMT) *Pair {
-	list := SCMT_Nil
+	list := SCM_Nil
 	for i := len(args) - 1; i >= 0; i-- {
 		list = Cons(args[i], list)
 	}
@@ -67,7 +67,7 @@ func (p *Pair) ToSlice() ([]SCMT, error) {
 	var s []SCMT
 	var err error
 
-	for p != SCMT_Nil {
+	for p != SCM_Nil {
 		s = append(s, p.Car)
 		p, err = Cast_Pair(p.Cdr)
 		if err != nil {
@@ -78,7 +78,7 @@ func (p *Pair) ToSlice() ([]SCMT, error) {
 }
 
 func (pair *Pair) IsNil() bool {
-	return pair == SCMT_Nil
+	return pair == SCM_Nil
 }
 
 func Cons(car SCMT, cdr SCMT) *Pair {
@@ -89,7 +89,7 @@ func Cons(car SCMT, cdr SCMT) *Pair {
 }
 
 func Reverse(pair *Pair) *Pair {
-	ret := SCMT_Nil
+	ret := SCM_Nil
 	for ; !pair.IsNil(); pair = pair.Cdr.(*Pair) {
 		ret = Cons(pair.Car, ret)
 	}

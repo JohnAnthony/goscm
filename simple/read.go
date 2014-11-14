@@ -19,11 +19,11 @@ func ReadStr(str string) (goscm.SCMT, error) {
 func Read(b *bufio.Reader) (goscm.SCMT, error) {
 	err := chomp_meaningless(b)
 	if err != nil {
-		return goscm.SCMT_Nil, err
+		return goscm.SCM_Nil, err
 	}
 	c, err := b.ReadByte()
 	if err != nil {
-		return goscm.SCMT_Nil, err
+		return goscm.SCM_Nil, err
 	}
 	
 	switch {
@@ -32,12 +32,12 @@ func Read(b *bufio.Reader) (goscm.SCMT, error) {
 		return read_list(b)
 	case c == ')':
 		// Unbalanced list
-		return goscm.SCMT_Nil, errors.New("Mismatched parenthesis")
+		return goscm.SCM_Nil, errors.New("Mismatched parenthesis")
 	case c == '\'':
 		// A piece of quoted syntax
 		subexpr, err := Read(b)
 		if err != nil {
-			return goscm.SCMT_Nil, err
+			return goscm.SCM_Nil, err
 		}
 		return goscm.Make_List(
 			goscm.Make_Symbol("quote"),
@@ -151,25 +151,25 @@ func read_integer(b *bufio.Reader) (goscm.SCMT, error) {
 func read_list(b *bufio.Reader) (goscm.SCMT, error) {
 	c, err := b.ReadByte()
 	if c == ')' {
-		return goscm.SCMT_Nil, nil
+		return goscm.SCM_Nil, nil
 	}
 	if c == '.' {
 		cdr, err := Read(b)
 		if err != nil {
-			return goscm.SCMT_Nil, err
+			return goscm.SCM_Nil, err
 		}
 
 		err = chomp_meaningless(b)
 		if err != nil {
-			return goscm.SCMT_Nil, err
+			return goscm.SCM_Nil, err
 		}
 
 		c, err = b.ReadByte()
 		if c != ')' {
-			return goscm.SCMT_Nil, errors.New("Dot in list appears in wrong place")
+			return goscm.SCM_Nil, errors.New("Dot in list appears in wrong place")
 		}
 		if err != nil {
-			return goscm.SCMT_Nil, err
+			return goscm.SCM_Nil, err
 		}
 
 		return cdr, nil
@@ -178,12 +178,12 @@ func read_list(b *bufio.Reader) (goscm.SCMT, error) {
 	b.UnreadByte()
 	elem, err := Read(b)
 	if err != nil {
-		return goscm.SCMT_Nil, err
+		return goscm.SCM_Nil, err
 	}
 	
 	tail, err := read_list(b)
 	if err != nil {
-		return goscm.SCMT_Nil, err
+		return goscm.SCM_Nil, err
 	}
 	
 	return goscm.Cons(elem, tail), nil
@@ -194,13 +194,13 @@ func read_bool(b *bufio.Reader) (goscm.SCMT, error) {
 	
 	switch {
 	case err != nil:
-		return goscm.SCMT_Nil, err
+		return goscm.SCM_Nil, err
 	case c == 'f':
 		return goscm.Make_SCMT(false), nil
 	case c == 't':
 		return goscm.Make_SCMT(true), nil
 	default:
-		return goscm.SCMT_Nil, errors.New("Error reading bool")
+		return goscm.SCM_Nil, errors.New("Error reading bool")
 	}
 }
 

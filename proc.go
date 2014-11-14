@@ -25,12 +25,12 @@ func (p *Proc) Apply(args *Pair, env *Environ) (SCMT, error) {
 TCO_TOP:
 	for {
 		args, err = MapEval(args, env)
-		if err != nil {	return SCMT_Nil, err }
+		if err != nil {	return SCM_Nil, err }
 
 		newenv := EnvEmpty(env)
 		newenv.AddArgs(p.args, args)
 		body, err := p.body.ToSlice()
-		if err != nil {	return SCMT_Nil, err }
+		if err != nil {	return SCM_Nil, err }
 
 		for i := 0; i < len(body); i++ {
 			
@@ -44,13 +44,13 @@ TCO_TOP:
 					}
 
 					tail_func, err := tail_pair.Car.(*Symbol).Eval(newenv)
-					if err != nil { return SCMT_Nil, err }
+					if err != nil { return SCM_Nil, err }
 					
 					if reflect.TypeOf(tail_func) == reflect.TypeOf(&SCMT_Special{}) {
 						if tail_func.(*SCMT_Special).Expand != nil {
 							// TODO: Check that body[i].Cdr is a *Pair
 							body[i], err = tail_func.(*SCMT_Special).Expand(body[i].(*Pair).Cdr.(*Pair), newenv)
-							if err != nil { return SCMT_Nil, err }
+							if err != nil { return SCM_Nil, err }
 							continue
 						}
 					}
@@ -67,7 +67,7 @@ TCO_TOP:
 
 			// This is not the last expression in the body, continue normally
 			body[i], err = body[i].Eval(newenv)
-			if err != nil { return SCMT_Nil, err }
+			if err != nil { return SCM_Nil, err }
 			
 			if i == len(body) - 1 {
 				return body[i], nil
@@ -77,11 +77,11 @@ TCO_TOP:
 		break // Should never get here, but if we do we want to get out and error
 	}
 	
-	return SCMT_Nil, errors.New("Execution flow got somewhere it shouldn't")
+	return SCM_Nil, errors.New("Execution flow got somewhere it shouldn't")
 }
 
 func Make_Proc(args *Pair, body *Pair, env *Environ) (*Proc, error) {
-	for a := args; a != SCMT_Nil; a = a.Cdr.(*Pair) {
+	for a := args; a != SCM_Nil; a = a.Cdr.(*Pair) {
 		if reflect.TypeOf(a.Cdr) == reflect.TypeOf(&Symbol{}) {
 			break
 		}

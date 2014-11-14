@@ -18,13 +18,13 @@ func (fo *Foreign) Apply(args *Pair, env *Environ) (SCMT, error) {
 	var ok bool
 	var ret *Pair
 
-	for ret = SCMT_Nil; args != SCMT_Nil; args, ok = args.Cdr.(*Pair) {
+	for ret = SCM_Nil; args != SCM_Nil; args, ok = args.Cdr.(*Pair) {
 		if !ok { // This is a dotted list
-			return SCMT_Nil, errors.New("Got a dotted list. How to handle?")
+			return SCM_Nil, errors.New("Got a dotted list. How to handle?")
 		}
 
 		val, err := args.Car.Eval(env)
-		if err != nil {	return SCMT_Nil, err }
+		if err != nil {	return SCM_Nil, err }
 
 		ret = Cons(val, ret)
 	}
