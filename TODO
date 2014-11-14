@@ -1,23 +1,14 @@
-SimpleEnv procedure: cond
-SimpleEnv procedure: null?
-SimpleEnv procedure: integer?
-SimpleEnv procedure: list?
-SimpleEnv procedure: boolean?
-
-Make SCMT_Integer a bignum underneath
-
-Rework SimpleEnv scm_if
-Rework SimpleEnv scm_lambda
-Rework SimpleEnv scm_let
-Rework SimpleEnv scm_define
-
-Add extras package
-Add to extras package: when
-Add to extras package: unless
-Add to extras package: random
-
-Add r5rs package
-Add to extras package: zero?
-
-Figure out how to test that TCO is being completed
-Change how Special Forms are evaluated to fit TCO (Macro step in pair evaluation)
+Tests for PlainInt as plainint_test.go
+Tests for Pair as pair_test.go
+Tests for Environ as environ_test.go
+Closure type for continuations
+Tests for Closure as contin_test.go
+Tests for Foreign as foreign_test.go
+Remove typesafety.go
+Tests for Symbol as symbol_test.go
+Tests for Special a special_test.go
+PreFunc interface and make Special a part of it
+Tests for Proc as proc_test.go
+Macro type for natively-defined PreFuncs as macro.go
+Tests for Macro as macro_test.go
+Tests for Boolean as boolean_test.go

@@ -1,58 +1,31 @@
-GOSCM is a Scheme interpreter toolkit for Go; it provides a completely empty
-environment, a simple extendable environment out-of-the-box (current WIP) and
-will provide an R5RS environment in the near future.
+GoSCM is an interpreter for Scheme which embeddable in Go as a core reason for
+existing. It's also more than that; it's a full toolkit for creating a scheme
+suitable for extending your program.
 
-The goal of the project is to provide scheme interpreter features piecemeal, so
-that you can mix-and-match the features that you want for extending you
-program. R5RS too heavy but you want vectors? Just import the simple package and
-either roll your own vectors.
+Data Types
+==
 
-Usage / Examples
-===
+All GoSCM types must be able to Eval() in an environment (whether they use that
+environment to return a value or not) and convert to a string with String(). The
+basic types and their purposes:
 
-The "simple" [ackage in this project provides a complete, working and scheme
-envitonment with all the basics you would expect. It is designed to provide an
-example of how to create your own scheme from scratch using the tools
-provided. The R5RS package is designed to show how to extend the simple package
-with all of the features required to meet R5RS.
+Boolean :- A wrapper for Go's bools
+PlainInt :- A wrapper for Go's ints
+Pair :- A cons cell, the building blocks of lists and other data structures
+Symbol :- A string-based case-insensitive identifier. Used for environment
+          lookups, amonst other things.
+Environ :- A wrapper around Go's hash maps. Chains with parents to create
+           expanding and contracting lookup tables for environmental bindings
+Contin :- An environment and list bundled up together and ready to evaluate.
+Proc :- A scheme procedure that can combine with a list of evaluated arguments
+Macro :- As above, but is evaluated before Procs and with unevaluated arguments
+Foreign :- A Go function that can be combines with an environment and list of
+           arguments to act like a scheme procedure.
+Special :- As above, but is evaluated before Foreigns and with unevaluated
+           arguments. Think of it as a foreign function macro.
 
-The "Simple" Environment functions
-===
+And the interfaces:
 
-Although nothing is set in stone, the simple environment provides the following
-functions and special forms:
-
-*
-+
--
-/
-<
-<=
-=
->
->=
-and
-apply
-begin
-car
-cdr
-cond
-cons
-define
-if
-lambda
-let
-map
-not
-or
-quote
-set!
-
-A note on terminology:
-===
-
-Despite the fact that "function" and "procedure" are often used interchangably,
-"foreign" is used in this project to mean Go functions that have been bound to
-scheme and procedure/proc are used to mean scheme procedures. Both are
-compatible with the interface "Function", which means we can apply them to a
-list of arguments.
+SCMT :- Requires only the ability to Eval() and be a String()
+Func :- Can be Applied() to a list of arguments
+PreFunc :- Can be Expanded(), re-arranging its arguments ready for Eval()
