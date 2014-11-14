@@ -15,3 +15,7 @@ func (in *PlainInt) String() string {
 func (in *PlainInt) Eval(*Environ) (SCMT, error) {
 	return in, nil
 }
+
+func Make_PlainInt(n int) *PlainInt {
+	return &PlainInt { Value: n }
+}

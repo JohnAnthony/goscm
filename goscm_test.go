@@ -97,29 +97,6 @@ func Test_Symbol(t *testing.T) {
 	}
 }
 
-func Test_Environment(t *testing.T) {
-	env := EnvEmpty(nil)
-
-	if reflect.TypeOf(env) != reflect.TypeOf(&Environ{}) {
-		t.Error()
-	}
-	if env.String() != "#<environment>" {
-		t.Error()
-	}
-	
-	env.Add(Make_Symbol("derp"), Make_SCMT(9987654))
-	ret, err := env.Find(Make_Symbol("DeRp"))
-	if err != nil {
-		t.Error(err)
-	}
-	if reflect.TypeOf(ret) != reflect.TypeOf(&PlainInt{}) {
-		t.Error()
-	}
-	if ret.String() != "9987654" {
-		t.Error()
-	}
-}
-
 func Test_Foreign(t *testing.T) {
 	f := func (list *Pair, env *Environ) (SCMT, error) {
 		n := list.Car.(*PlainInt).Value
