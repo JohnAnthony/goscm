@@ -1,8 +1,8 @@
 Tests for PlainInt as plainint_test.go
 Tests for Pair as pair_test.go
 Tests for Environ as environ_test.go
-Closure type for continuations
-Tests for Closure as contin_test.go
+Contin type for continuations
+Tests for Contin as contin_test.go
 Tests for Foreign as foreign_test.go
 Remove typesafety.go
 Tests for Symbol as symbol_test.go
