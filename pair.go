@@ -21,7 +21,7 @@ func (pair *Pair) Eval(env *Environ) (SCMT, error) {
 		return SCMT_Nil, err
 	}
 	args := pair.Cdr.(*Pair)
-	return proc.(SCMT_Func).Apply(args, env)
+	return proc.(Func).Apply(args, env)
 }
 
 func (pair *Pair) String() string {

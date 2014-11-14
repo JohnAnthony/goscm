@@ -185,7 +185,7 @@ func scm_map(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 
-	proc, ok := argss[0].(goscm.SCMT_Func)
+	proc, ok := argss[0].(goscm.Func)
 	if !ok {
 		return goscm.SCMT_Nil, errors.New("Non-function in first position")
 	}
@@ -223,7 +223,7 @@ func scm_apply(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 
-	f, ok := argss[0].(goscm.SCMT_Func)
+	f, ok := argss[0].(goscm.Func)
 	if !ok {
 		return goscm.SCMT_Nil, errors.New("Attempt to apply non-function type")
 	}

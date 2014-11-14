@@ -13,8 +13,12 @@ type SCMT interface {
 	String() string
 }
 
-type SCMT_Func interface {
+type Func interface {
 	Apply(*Pair, *Environ) (SCMT, error)
+}
+
+type PreFunc interface {
+	Expand(*Pair, *Environ) (SCMT, error)
 }
 
 func Make_SCMT(in interface {}) SCMT {
