@@ -2,22 +2,22 @@ package goscm
 
 import "strings"
 
-type SCMT_Symbol struct {
+type Symbol struct {
 	Value string
 }
 
-func (symb *SCMT_Symbol) Eval(env *SCMT_Env) (SCMT, error) {
+func (symb *Symbol) Eval(env *Environ) (SCMT, error) {
 	return env.Find(symb)
 }
 
-func (symb *SCMT_Symbol) String() string {
+func (symb *Symbol) String() string {
 	return symb.Value
 }
 
 // Helpers
 
-func Make_Symbol(s string) *SCMT_Symbol {
-	return &SCMT_Symbol {
+func Make_Symbol(s string) *Symbol {
+	return &Symbol {
 		Value: strings.ToUpper(s),
 	}
 }

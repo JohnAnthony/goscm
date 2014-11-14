@@ -20,5 +20,4 @@ Add r5rs package
 Add to extras package: zero?
 
 Figure out how to test that TCO is being completed
-Add TCO to SCMT_Pair eval
-Change how Special Forms are evaluated to fit TCO
+Change how Special Forms are evaluated to fit TCO (Macro step in pair evaluation)

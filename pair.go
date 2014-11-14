@@ -5,14 +5,14 @@ import (
 	"errors"
 )
 
-type SCMT_Pair struct {
+type Pair struct {
 	Car SCMT
 	Cdr SCMT
 }
 
-var SCMT_Nil = &SCMT_Pair {}
+var SCMT_Nil = &Pair {}
 
-func (pair *SCMT_Pair) Eval(env *SCMT_Env) (SCMT, error) {
+func (pair *Pair) Eval(env *Environ) (SCMT, error) {
 	if pair.IsNil() {
 		return SCMT_Nil, errors.New("Cannot eval empty list")
 	}
@@ -20,11 +20,11 @@ func (pair *SCMT_Pair) Eval(env *SCMT_Env) (SCMT, error) {
 	if err != nil {
 		return SCMT_Nil, err
 	}
-	args := pair.Cdr.(*SCMT_Pair)
+	args := pair.Cdr.(*Pair)
 	return proc.(SCMT_Func).Apply(args, env)
 }
 
-func (pair *SCMT_Pair) String() string {
+func (pair *Pair) String() string {
 	if pair.IsNil() { 
 		return "()"
 	}
@@ -32,30 +32,30 @@ func (pair *SCMT_Pair) String() string {
 	ret := "("
 	for {
 		ret += pair.Car.String()
-		if reflect.TypeOf(pair.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+		if reflect.TypeOf(pair.Cdr) != reflect.TypeOf(&Pair{}) {
 			ret = ret + " . " + pair.Cdr.String()
 			break
 		}
-		if pair.Cdr.(*SCMT_Pair).IsNil() {
+		if pair.Cdr.(*Pair).IsNil() {
 			break
 		} else {
 			ret += " "
 		}
-		pair = pair.Cdr.(*SCMT_Pair)
+		pair = pair.Cdr.(*Pair)
 	}
 	return ret + ")"
 }
 
-func Cast_Pair(scm SCMT) (*SCMT_Pair, error) {
-	if reflect.TypeOf(scm) != reflect.TypeOf(&SCMT_Pair{}) {
+func Cast_Pair(scm SCMT) (*Pair, error) {
+	if reflect.TypeOf(scm) != reflect.TypeOf(&Pair{}) {
 		return SCMT_Nil, errors.New("Cast failed: Pair")
 	}
-	return scm.(*SCMT_Pair), nil
+	return scm.(*Pair), nil
 }
 
 // Helpers
 
-func Make_List(args ...SCMT) *SCMT_Pair {
+func Make_List(args ...SCMT) *Pair {
 	list := SCMT_Nil
 	for i := len(args) - 1; i >= 0; i-- {
 		list = Cons(args[i], list)
@@ -63,7 +63,7 @@ func Make_List(args ...SCMT) *SCMT_Pair {
 	return list
 }
 
-func (p *SCMT_Pair) ToSlice() ([]SCMT, error) {
+func (p *Pair) ToSlice() ([]SCMT, error) {
 	var s []SCMT
 	var err error
 
@@ -77,20 +77,20 @@ func (p *SCMT_Pair) ToSlice() ([]SCMT, error) {
 	return s, nil
 }
 
-func (pair *SCMT_Pair) IsNil() bool {
+func (pair *Pair) IsNil() bool {
 	return pair == SCMT_Nil
 }
 
-func Cons(car SCMT, cdr SCMT) *SCMT_Pair {
-	return &SCMT_Pair {
+func Cons(car SCMT, cdr SCMT) *Pair {
+	return &Pair {
 		Car: car,
 		Cdr: cdr,
 	}
 }
 
-func Reverse(pair *SCMT_Pair) *SCMT_Pair {
+func Reverse(pair *Pair) *Pair {
 	ret := SCMT_Nil
-	for ; !pair.IsNil(); pair = pair.Cdr.(*SCMT_Pair) {
+	for ; !pair.IsNil(); pair = pair.Cdr.(*Pair) {
 		ret = Cons(pair.Car, ret)
 	}
 	return ret

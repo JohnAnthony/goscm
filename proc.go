@@ -5,21 +5,21 @@ import (
 	"reflect"
 )
 
-type SCMT_Proc struct {
-	args *SCMT_Pair
-	body *SCMT_Pair
-	env *SCMT_Env
+type Proc struct {
+	args *Pair
+	body *Pair
+	env *Environ
 }
 
-func (p *SCMT_Proc) Eval(*SCMT_Env) (SCMT, error) {
+func (p *Proc) Eval(*Environ) (SCMT, error) {
 	return p, nil
 }
 
-func (*SCMT_Proc) String() string {
+func (*Proc) String() string {
 	return "#<procedure>"
 }
 
-func (p *SCMT_Proc) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
+func (p *Proc) Apply(args *Pair, env *Environ) (SCMT, error) {
 	var err error
 
 TCO_TOP:
@@ -36,20 +36,20 @@ TCO_TOP:
 			
 			// This is the last call in the body. We might need to TCO
 			if i == len(body) - 1 {
-				for reflect.TypeOf(body[i]) == reflect.TypeOf(&SCMT_Pair{}) {
-					tail_pair := body[i].(*SCMT_Pair)
+				for reflect.TypeOf(body[i]) == reflect.TypeOf(&Pair{}) {
+					tail_pair := body[i].(*Pair)
 					
-					if reflect.TypeOf(tail_pair.Car) != reflect.TypeOf(&SCMT_Symbol{}) {
+					if reflect.TypeOf(tail_pair.Car) != reflect.TypeOf(&Symbol{}) {
 						break
 					}
 
-					tail_func, err := tail_pair.Car.(*SCMT_Symbol).Eval(newenv)
+					tail_func, err := tail_pair.Car.(*Symbol).Eval(newenv)
 					if err != nil { return SCMT_Nil, err }
 					
 					if reflect.TypeOf(tail_func) == reflect.TypeOf(&SCMT_Special{}) {
 						if tail_func.(*SCMT_Special).Expand != nil {
-							// TODO: Check that body[i].Cdr is a *SCMT_Pair
-							body[i], err = tail_func.(*SCMT_Special).Expand(body[i].(*SCMT_Pair).Cdr.(*SCMT_Pair), newenv)
+							// TODO: Check that body[i].Cdr is a *Pair
+							body[i], err = tail_func.(*SCMT_Special).Expand(body[i].(*Pair).Cdr.(*Pair), newenv)
 							if err != nil { return SCMT_Nil, err }
 							continue
 						}
@@ -57,7 +57,7 @@ TCO_TOP:
 
 					if tail_func == p {
 						env = newenv
-						args = body[i].(*SCMT_Pair).Cdr.(*SCMT_Pair)
+						args = body[i].(*Pair).Cdr.(*Pair)
 						continue TCO_TOP
 					}
 
@@ -80,17 +80,17 @@ TCO_TOP:
 	return SCMT_Nil, errors.New("Execution flow got somewhere it shouldn't")
 }
 
-func Make_Proc(args *SCMT_Pair, body *SCMT_Pair, env *SCMT_Env) (*SCMT_Proc, error) {
-	for a := args; a != SCMT_Nil; a = a.Cdr.(*SCMT_Pair) {
-		if reflect.TypeOf(a.Cdr) == reflect.TypeOf(&SCMT_Symbol{}) {
+func Make_Proc(args *Pair, body *Pair, env *Environ) (*Proc, error) {
+	for a := args; a != SCMT_Nil; a = a.Cdr.(*Pair) {
+		if reflect.TypeOf(a.Cdr) == reflect.TypeOf(&Symbol{}) {
 			break
 		}
-		if reflect.TypeOf(a.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+		if reflect.TypeOf(a.Cdr) != reflect.TypeOf(&Pair{}) {
 			return nil, errors.New("Non-symbol used to create procedure")
 		}
 	}
 
-	return &SCMT_Proc {
+	return &Proc {
 		args: args,
 		body: body,
 		env: env,

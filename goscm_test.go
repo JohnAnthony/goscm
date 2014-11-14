@@ -8,10 +8,10 @@ import (
 func Test_Integer(t *testing.T) {
 	// A test with the integer 31337
 	in := Make_SCMT(31337)
-	if reflect.TypeOf(in) != reflect.TypeOf(&SCMT_Integer{}) {
+	if reflect.TypeOf(in) != reflect.TypeOf(&PlainInt{}) {
 		t.Error()
 	}
-	if in.(*SCMT_Integer).Value != 31337 {
+	if in.(*PlainInt).Value != 31337 {
 		t.Error()
 	}
 	if in.String() != "31337" {
@@ -22,7 +22,7 @@ func Test_Integer(t *testing.T) {
 func Test_Pair(t *testing.T) {
 	// A test with the singleton (556677)
 	sing := Cons(Make_SCMT(556677), Make_SCMT(nil))
-	if reflect.TypeOf(sing) != reflect.TypeOf(&SCMT_Pair{}) {
+	if reflect.TypeOf(sing) != reflect.TypeOf(&Pair{}) {
 		t.Error()
 	}
 	if sing.String() != "(556677)" {
@@ -31,7 +31,7 @@ func Test_Pair(t *testing.T) {
 	
 	// A test with the pair (4 . 5)
 	pair := Cons(Make_SCMT(4), Make_SCMT(5))
-	if reflect.TypeOf(pair) != reflect.TypeOf(&SCMT_Pair{}) {
+	if reflect.TypeOf(pair) != reflect.TypeOf(&Pair{}) {
 		t.Error()
 	}
 	if pair.String() != "(4 . 5)" {
@@ -50,7 +50,7 @@ func Test_Pair(t *testing.T) {
 	list = Cons(Make_SCMT(3), list)
 	list = Cons(Make_SCMT(2), list)
 	list = Cons(Make_SCMT(1), list)
-	if reflect.TypeOf(list) != reflect.TypeOf(&SCMT_Pair{}) {
+	if reflect.TypeOf(list) != reflect.TypeOf(&Pair{}) {
 		t.Error()
 	}
 	if list.String() != "(1 2 3 4 5 6 7 8 9)" {
@@ -65,7 +65,7 @@ func Test_Pair(t *testing.T) {
 		Make_SCMT(88),
 		Make_SCMT(99),
 	)
-	if reflect.TypeOf(list2) != reflect.TypeOf(&SCMT_Pair{}) {
+	if reflect.TypeOf(list2) != reflect.TypeOf(&Pair{}) {
 		t.Error(reflect.TypeOf(list2))
 	}
 	if list2.String() != "(55 66 77 88 99)" {
@@ -75,13 +75,13 @@ func Test_Pair(t *testing.T) {
 
 func Test_Nil(t *testing.T) {
 	n := Make_SCMT(nil)
-	if reflect.TypeOf(n) != reflect.TypeOf(&SCMT_Pair{}) {
+	if reflect.TypeOf(n) != reflect.TypeOf(&Pair{}) {
 		t.Error()
 	}
 	if n.String() != "()" {
 		t.Error()
 	}
-	if n.(*SCMT_Pair).IsNil() != true {
+	if n.(*Pair).IsNil() != true {
 		t.Error()
 	}
 }
@@ -89,7 +89,7 @@ func Test_Nil(t *testing.T) {
 func Test_Symbol(t *testing.T) {
 	s := Make_Symbol("Foo-bar")
 
-	if reflect.TypeOf(s) != reflect.TypeOf(&SCMT_Symbol{}) {
+	if reflect.TypeOf(s) != reflect.TypeOf(&Symbol{}) {
 		t.Error()
 	}
 	if s.String() != "FOO-BAR" {
@@ -100,7 +100,7 @@ func Test_Symbol(t *testing.T) {
 func Test_Environment(t *testing.T) {
 	env := EnvEmpty(nil)
 
-	if reflect.TypeOf(env) != reflect.TypeOf(&SCMT_Env{}) {
+	if reflect.TypeOf(env) != reflect.TypeOf(&Environ{}) {
 		t.Error()
 	}
 	if env.String() != "#<environment>" {
@@ -112,7 +112,7 @@ func Test_Environment(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Integer{}) {
+	if reflect.TypeOf(ret) != reflect.TypeOf(&PlainInt{}) {
 		t.Error()
 	}
 	if ret.String() != "9987654" {
@@ -121,8 +121,8 @@ func Test_Environment(t *testing.T) {
 }
 
 func Test_Foreign(t *testing.T) {
-	f := func (list *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
-		n := list.Car.(*SCMT_Integer).Value
+	f := func (list *Pair, env *Environ) (SCMT, error) {
+		n := list.Car.(*PlainInt).Value
 		return Make_SCMT(n * n), nil
 	}
 
@@ -135,7 +135,7 @@ func Test_Foreign(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(sq) != reflect.TypeOf(&SCMT_Integer{}) {
+	if reflect.TypeOf(sq) != reflect.TypeOf(&PlainInt{}) {
 		t.Error()
 	}
 	if sq.String() != "169" {
@@ -152,10 +152,10 @@ func Test_Foreign_List(t *testing.T) {
 	)
 
 	env := EnvEmpty(nil)
-	env.BindForeign("+", func (args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
+	env.BindForeign("+", func (args *Pair, env *Environ) (SCMT, error) {
 		ret := 0
-		for ; !args.IsNil(); args = args.Cdr.(*SCMT_Pair) {
-			ret += args.Car.(*SCMT_Integer).Value
+		for ; !args.IsNil(); args = args.Cdr.(*Pair) {
+			ret += args.Car.(*PlainInt).Value
 		}
 		return Make_SCMT(ret), nil
 	})
@@ -164,7 +164,7 @@ func Test_Foreign_List(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Integer{}) {
+	if reflect.TypeOf(ret) != reflect.TypeOf(&PlainInt{}) {
 		t.Error()
 	}
 	if ret.String() != "204" {
@@ -174,7 +174,7 @@ func Test_Foreign_List(t *testing.T) {
 
 func Test_Special(t *testing.T) {
 	env := EnvEmpty(nil)
-	env.BindSpecial("quote", func (args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
+	env.BindSpecial("quote", func (args *Pair, env *Environ) (SCMT, error) {
 		return args, nil
 	})
 
@@ -191,7 +191,7 @@ func Test_Special(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(ret) != reflect.TypeOf(&SCMT_Pair{}) {
+	if reflect.TypeOf(ret) != reflect.TypeOf(&Pair{}) {
 		t.Error()
 	}
 	if ret.String() != "(A B C D E)" {
@@ -205,10 +205,10 @@ func Test_Proc(t *testing.T) {
 	env := EnvEmpty(nil)
 	
 	// We have to also provide a multiplication primitive
-	scm_multiply := func (args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
+	scm_multiply := func (args *Pair, env *Environ) (SCMT, error) {
 		ret := 1
-		for ; !args.IsNil(); args = args.Cdr.(*SCMT_Pair) {
-			ret *= args.Car.(*SCMT_Integer).Value
+		for ; !args.IsNil(); args = args.Cdr.(*Pair) {
+			ret *= args.Car.(*PlainInt).Value
 		}
 		return Make_SCMT(ret), nil
 	}
@@ -232,7 +232,7 @@ func Test_Proc(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if reflect.TypeOf(result) != reflect.TypeOf(&SCMT_Integer{}) {
+	if reflect.TypeOf(result) != reflect.TypeOf(&PlainInt{}) {
 		t.Error(reflect.TypeOf(result))
 	}
 	if result.String() != "15129" {
@@ -244,10 +244,10 @@ func Test_Proc(t *testing.T) {
 func Test_Bool(t *testing.T) {
 	// Test true
 	btrue := Make_SCMT(true)
-	if reflect.TypeOf(btrue) != reflect.TypeOf(&SCMT_Bool{}) {
+	if reflect.TypeOf(btrue) != reflect.TypeOf(&Boolean{}) {
 		t.Error(reflect.TypeOf(btrue).String())
 	}
-	if btrue.(*SCMT_Bool).Value != true {
+	if btrue.(*Boolean).Value != true {
 		t.Error(btrue)
 	}
 	if btrue.String() != "#t" {
@@ -256,10 +256,10 @@ func Test_Bool(t *testing.T) {
 	
 	// Test false
 	bfalse := Make_SCMT(false)
-	if reflect.TypeOf(bfalse) != reflect.TypeOf(&SCMT_Bool{}) {
+	if reflect.TypeOf(bfalse) != reflect.TypeOf(&Boolean{}) {
 		t.Error(reflect.TypeOf(bfalse).String())
 	}
-	if bfalse.(*SCMT_Bool).Value != false {
+	if bfalse.(*Boolean).Value != false {
 		t.Error(bfalse)
 	}
 	if bfalse.String() != "#f" {

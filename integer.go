@@ -4,14 +4,14 @@ import (
 	"strconv"
 )
 
-type SCMT_Integer struct {
+type PlainInt struct {
 	Value int
 }
 
-func (in *SCMT_Integer) String() string {
+func (in *PlainInt) String() string {
 	return strconv.Itoa(in.Value)
 }
 
-func (in *SCMT_Integer) Eval(*SCMT_Env) (SCMT, error) {
+func (in *PlainInt) Eval(*Environ) (SCMT, error) {
 	return in, nil
 }

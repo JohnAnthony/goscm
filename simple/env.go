@@ -7,7 +7,7 @@ import (
 	"errors"
 )
 
-func Env() *goscm.SCMT_Env {
+func Env() *goscm.Environ {
 	env := goscm.EnvEmpty(nil)
 	env.BindForeign("*", scm_multiply)
 	env.BindForeign("+", scm_add)
@@ -38,7 +38,7 @@ func Env() *goscm.SCMT_Env {
 	return env
 }
 
-func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_add(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -46,15 +46,15 @@ func scm_add(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 
 	ret := 0
 	for i := 0; i < len(argss); i++ {
-		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer type")
 		}
-		ret += argss[i].(*goscm.SCMT_Integer).Value
+		ret += argss[i].(*goscm.PlainInt).Value
 	}
 	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_multiply(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -62,15 +62,15 @@ func scm_multiply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 
 	ret := 1
 	for i := 0; i < len(argss); i++ {
-		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer type")
 		}
-		ret *= argss[i].(*goscm.SCMT_Integer).Value
+		ret *= argss[i].(*goscm.PlainInt).Value
 	}
 	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_subtract(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -80,21 +80,21 @@ func scm_subtract(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error
 		return goscm.SCMT_Nil, errors.New("Expected at least one argument")
 	}
 	
-	if reflect.TypeOf(argss[0]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+	if reflect.TypeOf(argss[0]) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCMT_Nil, errors.New("Expected integer type")
 	}
-	ret := argss[0].(*goscm.SCMT_Integer).Value
+	ret := argss[0].(*goscm.PlainInt).Value
 
 	for i := 1; i < len(argss); i++ {
-		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer type")
 		}
-		ret -= argss[i].(*goscm.SCMT_Integer).Value
+		ret -= argss[i].(*goscm.PlainInt).Value
 	}
 	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_divide(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -104,21 +104,21 @@ func scm_divide(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 		return goscm.SCMT_Nil, errors.New("Expected at least one argument")
 	}
 	
-	if reflect.TypeOf(argss[0]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+	if reflect.TypeOf(argss[0]) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCMT_Nil, errors.New("Expected integer type")
 	}
-	ret := argss[0].(*goscm.SCMT_Integer).Value
+	ret := argss[0].(*goscm.PlainInt).Value
 
 	for i := 1; i < len(argss); i++ {
-		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer type")
 		}
-		ret /= argss[i].(*goscm.SCMT_Integer).Value
+		ret /= argss[i].(*goscm.PlainInt).Value
 	}
 	return goscm.Make_SCMT(ret), nil
 }
 
-func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_car(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
@@ -135,7 +135,7 @@ func scm_car(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return target.Car, nil
 }
 
-func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_cdr(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
@@ -152,7 +152,7 @@ func scm_cdr(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return target.Cdr, nil
 }
 
-func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_cons(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	first := args.Car
 
 	second_cell, err := goscm.Cast_Pair(args.Cdr)
@@ -172,7 +172,7 @@ func scm_cons(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return goscm.Cons(first, second), nil
 }
 
-func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_map(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -190,11 +190,11 @@ func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, errors.New("Non-function in first position")
 	}
 
-	if reflect.TypeOf(argss[1]) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+	if reflect.TypeOf(argss[1]) != reflect.TypeOf(&goscm.Pair{}) {
 		return goscm.SCMT_Nil, errors.New("Expected pair")
 	}
 
-	tail, err := argss[1].(*goscm.SCMT_Pair).ToSlice()
+	tail, err := argss[1].(*goscm.Pair).ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
@@ -211,7 +211,7 @@ func scm_map(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return ret, nil
 }
 
-func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_apply(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	argss, err := args.ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -228,14 +228,14 @@ func scm_apply(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, errors.New("Attempt to apply non-function type")
 	}
 
-	if reflect.TypeOf(argss[1]) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+	if reflect.TypeOf(argss[1]) != reflect.TypeOf(&goscm.Pair{}) {
 		return goscm.SCMT_Nil, errors.New("Non-list to apply to")
 	}
-	target := argss[1].(*goscm.SCMT_Pair)
+	target := argss[1].(*goscm.Pair)
 	return f.Apply(target, env)
 }
 
-func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_quote(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.SCMT_Nil, errors.New("Too few arguments")
 	}
@@ -245,19 +245,19 @@ func scm_quote(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return args.Car, nil
 }
 
-func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_define(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	symb := args.Car
 	switch reflect.TypeOf(symb) {
-	case reflect.TypeOf(&goscm.SCMT_Symbol{}):
-		tobind, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+	case reflect.TypeOf(&goscm.Symbol{}):
+		tobind, err := args.Cdr.(*goscm.Pair).Car.Eval(env)
 		if err != nil {
 			return goscm.SCMT_Nil, err
 		}
-		env.Add(symb.(*goscm.SCMT_Symbol), tobind)
+		env.Add(symb.(*goscm.Symbol), tobind)
 		return symb, nil
-	case reflect.TypeOf(&goscm.SCMT_Pair{}):
-		name := symb.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Symbol)
-		proc_args := symb.(*goscm.SCMT_Pair).Cdr
+	case reflect.TypeOf(&goscm.Pair{}):
+		name := symb.(*goscm.Pair).Car.(*goscm.Symbol)
+		proc_args := symb.(*goscm.Pair).Cdr
 		proc_body := args.Cdr
 		proc_tail := goscm.Cons(proc_args, proc_body)
 		proc, err := scm_lambda(proc_tail, env)
@@ -272,7 +272,7 @@ func scm_define(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 	}
 }
 
-func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_begin(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	var result goscm.SCMT
 
 	argss, err := args.ToSlice()
@@ -290,13 +290,13 @@ func scm_begin(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return result, nil
 }
 
-func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	body := args.Cdr.(*goscm.SCMT_Pair)
+func scm_let(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
+	body := args.Cdr.(*goscm.Pair)
 	newenv := goscm.EnvEmpty(env)
 	
-	for vars := args.Car.(*goscm.SCMT_Pair); vars != goscm.SCMT_Nil; vars = vars.Cdr.(*goscm.SCMT_Pair) {
-		symb := vars.Car.(*goscm.SCMT_Pair).Car.(*goscm.SCMT_Symbol)
-		val, err := vars.Car.(*goscm.SCMT_Pair).Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+	for vars := args.Car.(*goscm.Pair); vars != goscm.SCMT_Nil; vars = vars.Cdr.(*goscm.Pair) {
+		symb := vars.Car.(*goscm.Pair).Car.(*goscm.Symbol)
+		val, err := vars.Car.(*goscm.Pair).Cdr.(*goscm.Pair).Car.Eval(env)
 		if err != nil {
 			return goscm.SCMT_Nil, err
 		}
@@ -306,10 +306,10 @@ func scm_let(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return scm_begin(body, newenv)
 }
 
-func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_lambda(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	proc, err := goscm.Make_Proc(
-		args.Car.(*goscm.SCMT_Pair),
-		args.Cdr.(*goscm.SCMT_Pair),
+		args.Car.(*goscm.Pair),
+		args.Cdr.(*goscm.Pair),
 		env,
 	)
 
@@ -320,16 +320,16 @@ func scm_lambda(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) 
 	return proc, nil
 }
 
-func scm_set_bang(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
-	symb := args.Car.(*goscm.SCMT_Symbol)
-	val, err := args.Cdr.(*goscm.SCMT_Pair).Car.Eval(env)
+func scm_set_bang(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
+	symb := args.Car.(*goscm.Symbol)
+	val, err := args.Cdr.(*goscm.Pair).Car.Eval(env)
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
 	return symb, env.Set(symb, val)
 }
 
-func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_numeq(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
@@ -339,14 +339,14 @@ func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.SCMT_Nil, err
 	}
 
-	base := argss[0].(*goscm.SCMT_Integer).Value
+	base := argss[0].(*goscm.PlainInt).Value
 
 	for i := 1; i < len(argss); i++ {
-		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		if reflect.TypeOf(argss[i]) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer argument")
 		}
 
-		if argss[i].(*goscm.SCMT_Integer).Value != base {
+		if argss[i].(*goscm.PlainInt).Value != base {
 			return goscm.Make_SCMT(false), nil
 		}
 	}
@@ -354,131 +354,131 @@ func scm_numeq(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return goscm.Make_SCMT(true), nil
 }
 
-func scm_lt(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_lt(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
 	if args.Cdr == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
-	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCMT_Nil, errors.New("Expected integer argument")
 	}
 
 	for args.Cdr != goscm.SCMT_Nil {
-		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 			return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
 		}
 		
-		next := args.Cdr.(*goscm.SCMT_Pair).Car
-		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		next := args.Cdr.(*goscm.Pair).Car
+		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer argument")
 		}
 
-		if args.Car.(*goscm.SCMT_Integer).Value >= next.(*goscm.SCMT_Integer).Value {
+		if args.Car.(*goscm.PlainInt).Value >= next.(*goscm.PlainInt).Value {
 			return goscm.Make_SCMT(false), nil
 		}
 
-		args = args.Cdr.(*goscm.SCMT_Pair)
+		args = args.Cdr.(*goscm.Pair)
 	}
 
 	return goscm.Make_SCMT(true), nil
 }
 
-func scm_gt(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_gt(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
 	if args.Cdr == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
-	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCMT_Nil, errors.New("Expected integer argument")
 	}
 
 	for args.Cdr != goscm.SCMT_Nil {
-		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 			return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
 		}
 		
-		next := args.Cdr.(*goscm.SCMT_Pair).Car
-		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		next := args.Cdr.(*goscm.Pair).Car
+		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer argument")
 		}
 
-		if args.Car.(*goscm.SCMT_Integer).Value <= next.(*goscm.SCMT_Integer).Value {
+		if args.Car.(*goscm.PlainInt).Value <= next.(*goscm.PlainInt).Value {
 			return goscm.Make_SCMT(false), nil
 		}
 
-		args = args.Cdr.(*goscm.SCMT_Pair)
+		args = args.Cdr.(*goscm.Pair)
 	}
 
 	return goscm.Make_SCMT(true), nil
 }
 
-func scm_le(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_le(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
 	if args.Cdr == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
-	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCMT_Nil, errors.New("Expected integer argument")
 	}
 
 	for args.Cdr != goscm.SCMT_Nil {
-		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 			return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
 		}
 		
-		next := args.Cdr.(*goscm.SCMT_Pair).Car
-		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		next := args.Cdr.(*goscm.Pair).Car
+		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer argument")
 		}
 
-		if !(args.Car.(*goscm.SCMT_Integer).Value <= next.(*goscm.SCMT_Integer).Value) {
+		if !(args.Car.(*goscm.PlainInt).Value <= next.(*goscm.PlainInt).Value) {
 			return goscm.Make_SCMT(false), nil
 		}
 
-		args = args.Cdr.(*goscm.SCMT_Pair)
+		args = args.Cdr.(*goscm.Pair)
 	}
 
 	return goscm.Make_SCMT(true), nil
 }
 
-func scm_ge(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_ge(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
 	if args.Cdr == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
-	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCMT_Nil, errors.New("Expected integer argument")
 	}
 
 	for args.Cdr != goscm.SCMT_Nil {
-		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 			return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
 		}
 		
-		next := args.Cdr.(*goscm.SCMT_Pair).Car
-		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.SCMT_Integer{}) {
+		next := args.Cdr.(*goscm.Pair).Car
+		if reflect.TypeOf(next) != reflect.TypeOf(&goscm.PlainInt{}) {
 			return goscm.SCMT_Nil, errors.New("Expected integer argument")
 		}
 
-		if !(args.Car.(*goscm.SCMT_Integer).Value >= next.(*goscm.SCMT_Integer).Value) {
+		if !(args.Car.(*goscm.PlainInt).Value >= next.(*goscm.PlainInt).Value) {
 			return goscm.Make_SCMT(false), nil
 		}
 
-		args = args.Cdr.(*goscm.SCMT_Pair)
+		args = args.Cdr.(*goscm.Pair)
 	}
 
 	return goscm.Make_SCMT(true), nil
 }
 
-func scm_and(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_and(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(true), nil
 	}
@@ -492,14 +492,14 @@ func scm_and(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.Make_SCMT(false), nil
 	}
 
-	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 		return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
 	}
 
-	return scm_and(args.Cdr.(*goscm.SCMT_Pair), env)
+	return scm_and(args.Cdr.(*goscm.Pair), env)
 }
 
-func scm_or(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_or(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.Make_SCMT(false), nil
 	}
@@ -513,14 +513,14 @@ func scm_or(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 		return goscm.Make_SCMT(true), nil
 	}
 
-	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 		return goscm.SCMT_Nil, errors.New("Expected nil-terminated list")
 	}
 
-	return scm_or(args.Cdr.(*goscm.SCMT_Pair), env)
+	return scm_or(args.Cdr.(*goscm.Pair), env)
 }
 
-func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_if(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	expanded, err := scm_if_expand(args, env)
 	if err != nil {
 		return goscm.SCMT_Nil, err
@@ -528,52 +528,52 @@ func scm_if(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
 	return expanded.Eval(env)
 }
 
-func scm_if_expand(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_if_expand(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	predicate, err := args.Car.Eval(env)
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
 	
-	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 		return goscm.SCMT_Nil, errors.New("Wrong type")
 	}
 	
-	if reflect.TypeOf(predicate) == reflect.TypeOf(&goscm.SCMT_Bool{}) &&
-		predicate.(*goscm.SCMT_Bool).Value == false {
+	if reflect.TypeOf(predicate) == reflect.TypeOf(&goscm.Boolean{}) &&
+		predicate.(*goscm.Boolean).Value == false {
 
-		if reflect.TypeOf(args.Cdr.(*goscm.SCMT_Pair).Cdr) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+		if reflect.TypeOf(args.Cdr.(*goscm.Pair).Cdr) != reflect.TypeOf(&goscm.Pair{}) {
 			return goscm.SCMT_Nil, errors.New("Wrong type")
 		}
-		return args.Cdr.(*goscm.SCMT_Pair).Cdr.(*goscm.SCMT_Pair).Car, nil
+		return args.Cdr.(*goscm.Pair).Cdr.(*goscm.Pair).Car, nil
 	}
 	
-	return args.Cdr.(*goscm.SCMT_Pair).Car, nil
+	return args.Cdr.(*goscm.Pair).Car, nil
 }
 
-func scm_not(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_not(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args.Cdr != goscm.SCMT_Nil {
 		return goscm.SCMT_Nil, errors.New("Too many arguments")
 	}
 	
-	if reflect.TypeOf(args.Car) == reflect.TypeOf(&goscm.SCMT_Bool{}) {
-		return goscm.Make_SCMT(!args.Car.(*goscm.SCMT_Bool).Value), nil
+	if reflect.TypeOf(args.Car) == reflect.TypeOf(&goscm.Boolean{}) {
+		return goscm.Make_SCMT(!args.Car.(*goscm.Boolean).Value), nil
 	}
 
 	return goscm.Make_SCMT(false), nil
 }
 
-func scm_reverse(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_reverse(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCMT_Nil {
 		return goscm.SCMT_Nil, errors.New("Expected exactly one argument")
 	}
 	if args.Cdr != goscm.SCMT_Nil {
 		return goscm.SCMT_Nil, errors.New("Expected exactly one argument")
 	}
-	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.SCMT_Pair{}) {
+	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.Pair{}) {
 		return goscm.SCMT_Nil, errors.New("Expected list type")
 	}
 
-	list, err := args.Car.(*goscm.SCMT_Pair).ToSlice()
+	list, err := args.Car.(*goscm.Pair).ToSlice()
 	if err != nil {
 		return goscm.SCMT_Nil, err
 	}
@@ -585,6 +585,6 @@ func scm_reverse(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error)
 	return ret, nil
 }
 
-func scm_list(args *goscm.SCMT_Pair, env *goscm.SCMT_Env) (goscm.SCMT, error) {
+func scm_list(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	return args, nil
 }

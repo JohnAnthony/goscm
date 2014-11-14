@@ -1,20 +1,20 @@
 package goscm
 
-type SCMT_Foreign struct {
-	function func (*SCMT_Pair, *SCMT_Env) (SCMT, error)
+type Foreign struct {
+	function func (*Pair, *Environ) (SCMT, error)
 }
 
-func (fo *SCMT_Foreign) Eval(*SCMT_Env) (SCMT, error) {
+func (fo *Foreign) Eval(*Environ) (SCMT, error) {
 	return fo, nil
 }
 
-func (*SCMT_Foreign) String() string {
+func (*Foreign) String() string {
 	return "#<foreign function>"
 }
 
-func (fo *SCMT_Foreign) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
+func (fo *Foreign) Apply(args *Pair, env *Environ) (SCMT, error) {
 	newargs := SCMT_Nil
-	for ; !args.IsNil(); args = args.Cdr.(*SCMT_Pair) {
+	for ; !args.IsNil(); args = args.Cdr.(*Pair) {
 		val, err := args.Car.Eval(env)
 		if err != nil {
 			return SCMT_Nil, err
@@ -25,8 +25,8 @@ func (fo *SCMT_Foreign) Apply(args *SCMT_Pair, env *SCMT_Env) (SCMT, error) {
 	return fo.function(newargs, env)
 }
 
-func Make_Foreign(f func (*SCMT_Pair, *SCMT_Env) (SCMT, error)) *SCMT_Foreign {
-	return &SCMT_Foreign {
+func Make_Foreign(f func (*Pair, *Environ) (SCMT, error)) *Foreign {
+	return &Foreign {
 		function: f,
 	}
 }

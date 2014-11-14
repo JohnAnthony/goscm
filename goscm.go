@@ -9,12 +9,12 @@ import (
 )
 
 type SCMT interface {
-	Eval(*SCMT_Env) (SCMT, error)
+	Eval(*Environ) (SCMT, error)
 	String() string
 }
 
 type SCMT_Func interface {
-	Apply(*SCMT_Pair, *SCMT_Env) (SCMT, error)
+	Apply(*Pair, *Environ) (SCMT, error)
 }
 
 func Make_SCMT(in interface {}) SCMT {
@@ -24,16 +24,16 @@ func Make_SCMT(in interface {}) SCMT {
 
 	switch reflect.TypeOf(in).Kind() {
 	case reflect.Int:
-		return &SCMT_Integer { Value: in.(int) }
+		return &PlainInt { Value: in.(int) }
 	case reflect.Bool:
-		return &SCMT_Bool { Value: in.(bool) }
+		return &Boolean { Value: in.(bool) }
 	default:
 		// TODO: We probably need to put an error here
 		return nil
 	}
 }
 
-func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) {
+func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *Environ) {
 	for {
 		r, err := read(in)
 		if err != nil && err.Error() == "EOF" {
@@ -52,7 +52,7 @@ func REPL(in *bufio.Reader, read func(*bufio.Reader) (SCMT, error), env *SCMT_En
 	}
 }
 
-func EvalStr(str string, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) (SCMT, error) {
+func EvalStr(str string, read func(*bufio.Reader) (SCMT, error), env *Environ) (SCMT, error) {
 	b := bufio.NewReader(strings.NewReader(str))
 	r, err := read(b)
 	if err != nil && err.Error() != "EOF" {
@@ -61,7 +61,7 @@ func EvalStr(str string, read func(*bufio.Reader) (SCMT, error), env *SCMT_Env) 
 	return r.Eval(env)
 }
 
-func MapEval(list *SCMT_Pair, env *SCMT_Env) (*SCMT_Pair, error) {
+func MapEval(list *Pair, env *Environ) (*Pair, error) {
 	if list == SCMT_Nil {
 		return SCMT_Nil, nil
 	}
@@ -71,11 +71,11 @@ func MapEval(list *SCMT_Pair, env *SCMT_Env) (*SCMT_Pair, error) {
 		return SCMT_Nil, nil
 	}
 
-	if reflect.TypeOf(list.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+	if reflect.TypeOf(list.Cdr) != reflect.TypeOf(&Pair{}) {
 		return SCMT_Nil, errors.New("List is not nil-terminated")
 	}
 
-	tail, err := MapEval(list.Cdr.(*SCMT_Pair), env)
+	tail, err := MapEval(list.Cdr.(*Pair), env)
 	if err != nil {
 		return SCMT_Nil, nil
 	}
@@ -84,8 +84,8 @@ func MapEval(list *SCMT_Pair, env *SCMT_Env) (*SCMT_Pair, error) {
 }
 
 func IsTrue(s SCMT) bool {
-	if reflect.TypeOf(s) == reflect.TypeOf(&SCMT_Bool{}) {
-		return s.(*SCMT_Bool).Value
+	if reflect.TypeOf(s) == reflect.TypeOf(&Boolean{}) {
+		return s.(*Boolean).Value
 	}
 	return true
 }

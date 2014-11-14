@@ -5,24 +5,24 @@ import (
 	"reflect"
 )
 
-type SCMT_Env struct {
+type Environ struct {
 	table map[string]SCMT
-	parent *SCMT_Env
+	parent *Environ
 }
 
-func (env *SCMT_Env) Eval(*SCMT_Env) (SCMT, error) {
+func (env *Environ) Eval(*Environ) (SCMT, error) {
 	return env, nil
 }
 
-func (*SCMT_Env) String() string {
+func (*Environ) String() string {
 	return "#<environment>"
 }
 
-func (env *SCMT_Env) Add(symb *SCMT_Symbol, val SCMT) {
+func (env *Environ) Add(symb *Symbol, val SCMT) {
 	env.table[symb.Value] = val
 }
 
-func (env *SCMT_Env) Find(symb *SCMT_Symbol) (SCMT, error) {
+func (env *Environ) Find(symb *Symbol) (SCMT, error) {
 	ret := env.table[symb.Value]
 	if ret != nil {
 		return ret, nil
@@ -33,7 +33,7 @@ func (env *SCMT_Env) Find(symb *SCMT_Symbol) (SCMT, error) {
 	return env.parent.Find(symb)
 }
 
-func (env *SCMT_Env) AddArgs(symbs *SCMT_Pair, vals *SCMT_Pair) error {
+func (env *Environ) AddArgs(symbs *Pair, vals *Pair) error {
 	for {
 		if symbs == SCMT_Nil && vals == SCMT_Nil {
 			// Natural end
@@ -48,27 +48,27 @@ func (env *SCMT_Env) AddArgs(symbs *SCMT_Pair, vals *SCMT_Pair) error {
 			return errors.New("Too few arguments")
 		}
 		
-		if reflect.TypeOf(symbs.Car) != reflect.TypeOf(&SCMT_Symbol{}) {
+		if reflect.TypeOf(symbs.Car) != reflect.TypeOf(&Symbol{}) {
 			return errors.New("Non-symbol passed as identifier")
 		}
 
-		env.Add(symbs.Car.(*SCMT_Symbol), vals.Car)
+		env.Add(symbs.Car.(*Symbol), vals.Car)
 		
-		if reflect.TypeOf(symbs.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
-			env.Add(symbs.Cdr.(*SCMT_Symbol), vals.Cdr)
+		if reflect.TypeOf(symbs.Cdr) != reflect.TypeOf(&Pair{}) {
+			env.Add(symbs.Cdr.(*Symbol), vals.Cdr)
 			return nil
 		}
 		
-		if reflect.TypeOf(vals.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+		if reflect.TypeOf(vals.Cdr) != reflect.TypeOf(&Pair{}) {
 			return errors.New("Dotted argument list")
 		}
 		
-		symbs = symbs.Cdr.(*SCMT_Pair)
-		vals = vals.Cdr.(*SCMT_Pair)
+		symbs = symbs.Cdr.(*Pair)
+		vals = vals.Cdr.(*Pair)
 	}
 }
 
-func (env *SCMT_Env) Set(symb *SCMT_Symbol, val SCMT) error {
+func (env *Environ) Set(symb *Symbol, val SCMT) error {
 	ret := env.table[symb.Value]
 	if ret != nil {
 		env.table[symb.Value] = val
@@ -80,16 +80,16 @@ func (env *SCMT_Env) Set(symb *SCMT_Symbol, val SCMT) error {
 	return env.parent.Set(symb, val)
 }
 
-func (env *SCMT_Env) BindForeign(name string, f func (*SCMT_Pair, *SCMT_Env) (SCMT, error)) {
+func (env *Environ) BindForeign(name string, f func (*Pair, *Environ) (SCMT, error)) {
 	env.Add(Make_Symbol(name), Make_Foreign(f))
 }
 
-func (env *SCMT_Env) BindSpecial(name string, f func (*SCMT_Pair, *SCMT_Env) (SCMT, error)) {
+func (env *Environ) BindSpecial(name string, f func (*Pair, *Environ) (SCMT, error)) {
 	env.Add(Make_Symbol(name), Make_Special(f))
 }
 
-func EnvEmpty(parent *SCMT_Env) *SCMT_Env {
-	return &SCMT_Env {
+func EnvEmpty(parent *Environ) *Environ {
+	return &Environ {
 		table: make(map[string]SCMT),
 		parent: parent,
 	}

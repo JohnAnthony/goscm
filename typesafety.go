@@ -5,15 +5,15 @@ import (
 	"errors"
 )
 
-func EnsureAll(pair *SCMT_Pair, t reflect.Type) error {
+func EnsureAll(pair *Pair, t reflect.Type) error {
 	for pair != SCMT_Nil {
 		if reflect.TypeOf(pair.Car) != t {
 			return errors.New("Wrong type")
 		}
-		if reflect.TypeOf(pair.Cdr) != reflect.TypeOf(&SCMT_Pair{}) {
+		if reflect.TypeOf(pair.Cdr) != reflect.TypeOf(&Pair{}) {
 			return errors.New("Dotted list")
 		}
-		pair = pair.Cdr.(*SCMT_Pair)
+		pair = pair.Cdr.(*Pair)
 	}
 
 	return nil
