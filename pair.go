@@ -1,9 +1,6 @@
 package goscm
 
-import (
-	"reflect"
-	"errors"
-)
+import "errors"
 
 type Pair struct {
 	Car SCMT
@@ -13,47 +10,44 @@ type Pair struct {
 var SCM_Nil = &Pair {}
 
 func (pair *Pair) Eval(env *Environ) (SCMT, error) {
-	if pair.IsNil() {
+	if pair == SCM_Nil {
 		return SCM_Nil, errors.New("Cannot eval empty list")
 	}
+
 	proc, err := pair.Car.Eval(env)
-	if err != nil {
-		return SCM_Nil, err
+	if err != nil {	return SCM_Nil, err	}
+
+	args, ok := pair.Cdr.(*Pair)
+	if !ok {
+		return SCM_Nil, errors.New("Cannot eval tupple")
 	}
-	args := pair.Cdr.(*Pair)
-	return proc.(Func).Apply(args, env)
+	
+	f, ok := proc.(Func)
+	if !ok {
+		return SCM_Nil, errors.New("Attempting to apply non-function")
+	}
+
+	return f.Apply(args, env)
 }
 
 func (pair *Pair) String() string {
-	if pair.IsNil() { 
-		return "()"
-	}
+	var ok bool
 
 	ret := "("
-	for {
+	for pair != SCM_Nil {
 		ret += pair.Car.String()
-		if reflect.TypeOf(pair.Cdr) != reflect.TypeOf(&Pair{}) {
-			ret = ret + " . " + pair.Cdr.String()
+		
+		pair, ok = pair.Cdr.(*Pair)
+		if !ok { // A dotted list
+			ret += " . "
+			ret += pair.Cdr.String()
 			break
 		}
-		if pair.Cdr.(*Pair).IsNil() {
-			break
-		} else {
-			ret += " "
-		}
-		pair = pair.Cdr.(*Pair)
+
+		ret += " "
 	}
 	return ret + ")"
 }
-
-func Cast_Pair(scm SCMT) (*Pair, error) {
-	if reflect.TypeOf(scm) != reflect.TypeOf(&Pair{}) {
-		return SCM_Nil, errors.New("Cast failed: Pair")
-	}
-	return scm.(*Pair), nil
-}
-
-// Helpers
 
 func Make_List(args ...SCMT) *Pair {
 	list := SCM_Nil
@@ -63,22 +57,21 @@ func Make_List(args ...SCMT) *Pair {
 	return list
 }
 
+// Helpers
+
 func (p *Pair) ToSlice() ([]SCMT, error) {
 	var s []SCMT
-	var err error
+	var ok bool
 
 	for p != SCM_Nil {
 		s = append(s, p.Car)
-		p, err = Cast_Pair(p.Cdr)
-		if err != nil {
-			return s, errors.New("Non-nil terminated list")
+		p, ok = p.Cdr.(*Pair)
+		if !ok {
+			s = append(s, p.Cdr)
+			break
 		}
 	}
 	return s, nil
-}
-
-func (pair *Pair) IsNil() bool {
-	return pair == SCM_Nil
 }
 
 func Cons(car SCMT, cdr SCMT) *Pair {
@@ -88,10 +81,16 @@ func Cons(car SCMT, cdr SCMT) *Pair {
 	}
 }
 
-func Reverse(pair *Pair) *Pair {
+func Reverse(pair *Pair) (*Pair, error) {
+	var ok bool
 	ret := SCM_Nil
-	for ; !pair.IsNil(); pair = pair.Cdr.(*Pair) {
+
+	for pair != SCM_Nil {
 		ret = Cons(pair.Car, ret)
+		pair, ok = pair.Cdr.(*Pair) 
+		if !ok {
+			return SCM_Nil, errors.New("Attempt to reverse dotted list")
+		}
 	}
-	return ret
+	return ret, nil
 }

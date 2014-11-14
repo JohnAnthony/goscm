@@ -16,6 +16,7 @@ func (*Foreign) String() string {
 
 func (fo *Foreign) Apply(args *Pair, env *Environ) (SCMT, error) {
 	var ok bool
+	var err error
 	var ret *Pair
 
 	for ret = SCM_Nil; args != SCM_Nil; args, ok = args.Cdr.(*Pair) {
@@ -29,7 +30,9 @@ func (fo *Foreign) Apply(args *Pair, env *Environ) (SCMT, error) {
 		ret = Cons(val, ret)
 	}
 
-	ret = Reverse(ret)
+	ret, err = Reverse(ret)
+	if err != nil { return SCM_Nil, err }
+
 	return fo.function(ret, env)
 }
 
