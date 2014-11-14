@@ -81,11 +81,17 @@ TCO_TOP:
 }
 
 func Make_Proc(args *Pair, body *Pair, env *Environ) (*Proc, error) {
-	for a := args; a != SCM_Nil; a = a.Cdr.(*Pair) {
-		if reflect.TypeOf(a.Cdr) == reflect.TypeOf(&Symbol{}) {
-			break
-		}
-		if reflect.TypeOf(a.Cdr) != reflect.TypeOf(&Pair{}) {
+	var ok bool
+
+	// Check that all of our arguments are symbols. Also accept a cdr that is a
+	// symbol because that is a dotted list used for variadic functions.
+	a := args
+	for a != SCM_Nil {
+		_, ok = a.Cdr.(*Symbol)
+		if ok { break }
+
+		a, ok = a.Cdr.(*Pair)
+		if !ok {
 			return nil, errors.New("Non-symbol used to create procedure")
 		}
 	}
