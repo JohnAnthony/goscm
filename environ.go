@@ -48,3 +48,42 @@ func EnvEmpty(parent *Environ) *Environ {
 		parent: parent,
 	}
 }
+
+// Helpers
+
+func (e *Environ) AddArgs(symbs *Pair, vals *Pair) error {
+	var ok bool
+
+	// Both lists should terminate at the same time
+	for symbs != SCM_Nil && vals != SCM_Nil {
+		// Ran out of symbols first
+		if symbs == SCM_Nil {
+			return errors.New("Too many arguments")
+		}
+
+		// Ran out of arguments first
+		if vals == SCM_Nil {
+			return errors.New("Too few arguments")
+		}
+		
+		symb, ok := symbs.Car.(*Symbol)
+		if !ok {
+			return errors.New("Argument list contained a non-symbol")
+		}
+
+		e.Add(symb, vals.Car)
+		
+		symbs, ok = symbs.Cdr.(*Pair)
+		if !ok { // This is a dotted list
+			symb, ok = symbs.Cdr.(*Symbol)
+			if !ok {
+				return errors.New("Argument list dotted with non-symbol")
+			}
+
+			e.Add(symb, vals.Cdr)
+			break
+		}
+	}
+
+	return nil
+}

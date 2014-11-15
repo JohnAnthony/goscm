@@ -74,6 +74,21 @@ func (p *Pair) ToSlice() ([]SCMT, error) {
 	return s, nil
 }
 
+func (list *Pair) MapEval(env *Environ) (*Pair, error) {
+	ret := SCM_Nil
+	listt, err := list.ToSlice()
+	if err != nil { return SCM_Nil, err }
+	
+	for i := len(listt); i >= 0; i-- {
+		newval, err := listt[i].Eval(env)
+		if err != nil { return SCM_Nil, err }
+
+		ret = Cons(newval, ret)
+	}
+
+	return ret, nil
+}
+
 func Cons(car SCMT, cdr SCMT) *Pair {
 	return &Pair {
 		Car: car,

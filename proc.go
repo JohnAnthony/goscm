@@ -1,9 +1,6 @@
 package goscm
 
-import (
-	"errors"
-	"reflect"
-)
+import "errors"
 
 type Proc struct {
 	args *Pair
@@ -24,7 +21,7 @@ func (p *Proc) Apply(args *Pair, env *Environ) (SCMT, error) {
 
 TCO_TOP:
 	for {
-		args, err = MapEval(args, env)
+		args, err = args.MapEval(env)
 		if err != nil {	return SCM_Nil, err }
 
 		newenv := EnvEmpty(env)
@@ -33,34 +30,56 @@ TCO_TOP:
 		if err != nil {	return SCM_Nil, err }
 
 		for i := 0; i < len(body); i++ {
-			
 			// This is the last call in the body. We might need to TCO
 			if i == len(body) - 1 {
-				for reflect.TypeOf(body[i]) == reflect.TypeOf(&Pair{}) {
-					tail_pair := body[i].(*Pair)
+				// We use a for loop here because later we may be replacing
+				// body[i] as we partiall evaluate special forms that allow for
+				// TCO. If we get another special form that may allow TCO we
+				// have to jump back to this point and do it all again. Repeat
+				// until we're out of expandable special forms or TCO is
+				// confirmed.
+				for {
+					// If it's not a pair, it can't be a TCO candidate
+					tail_pair, ok := body[i].(*Pair)
+					if !ok { break }
 					
-					if reflect.TypeOf(tail_pair.Car) != reflect.TypeOf(&Symbol{}) {
-						break
-					}
+					// If it's not a symbol, it can't be a TCO candidate
+					symb, ok := tail_pair.Car.(*Symbol)
+					if !ok { break }
 
-					tail_func, err := tail_pair.Car.(*Symbol).Eval(newenv)
+					// Eval the symbol to get what's actually in TCO position
+					tail_func, err := symb.Eval(newenv)
 					if err != nil { return SCM_Nil, err }
 					
-					if reflect.TypeOf(tail_func) == reflect.TypeOf(&SCMT_Special{}) {
-						if tail_func.(*SCMT_Special).Expand != nil {
-							// TODO: Check that body[i].Cdr is a *Pair
-							body[i], err = tail_func.(*SCMT_Special).Expand(body[i].(*Pair).Cdr.(*Pair), newenv)
+					// Some special forms can provide TCO, but we have to expand
+					// them first to find out.
+					if spesh, ok := tail_func.(*SCMT_Special); ok {
+						if spesh.Expand != nil {
+							spesh_args, ok := tail_pair.Cdr.(*Pair)
+							if !ok { break }
+
+							body[i], err = spesh.Expand(spesh_args, newenv)
 							if err != nil { return SCM_Nil, err }
+							
+							// We've replaced body[i] with something else. It
+							// might be suitable for TCO, but we need to check
+							// everything we just checked all over again. Back
+							// to the top.
 							continue
 						}
 					}
 
+					// If the TCO position Proc matches we have TCO. Stat from
+					// the top of the function again with arguments swapped to
+					// the new ones.
 					if tail_func == p {
 						env = newenv
 						args = body[i].(*Pair).Cdr.(*Pair)
 						continue TCO_TOP
 					}
 
+					// If we get here, TCo has failed. We have some function
+					// other than p in tail position.
 					break
 				}
 			}
@@ -74,7 +93,7 @@ TCO_TOP:
 			}
 		}
 
-		break // Should never get here, but if we do we want to get out and error
+		break // Should never get here, but if we do we want to error out
 	}
 	
 	return SCM_Nil, errors.New("Execution flow got somewhere it shouldn't")
