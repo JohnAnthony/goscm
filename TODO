@@ -1,11 +1,9 @@
-Tests for PlainInt as plainint_test.go
-Tests for Pair as pair_test.go
 Contin type for continuations
 Tests for Contin as contin_test.go
-Remove typesafety.go
 Tests for Symbol as symbol_test.go
+Rework symbol.go
 Tests for Special a special_test.go
+Rework special.go
 PreFunc interface and make Special a part of it
-Tests for Proc as proc_test.go
 Macro type for natively-defined PreFuncs as macro.go
 Tests for Macro as macro_test.go
