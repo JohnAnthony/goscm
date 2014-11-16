@@ -727,6 +727,15 @@ func Test_Env(t *testing.T) {
 	if my_square.String() != "10000" {
 		t.Error(my_square)
 	}
+	
+	// A basic test for cond
+	// TODO: Check what happens on complete fallthrough and that only the
+	// condition which is selected it evaluated
+	cond, err := goscm.EvalStr(`(cond ((#f (+ 2 4 5))
+                                       (#f (* 10 20))
+                                       (#t 55)))`, Read, env)
+	if err != nil { t.Error(err) }
+	if cond.String() != "55" { t.Error(cond) }
 }
 
 func Test_Read(t *testing.T) {

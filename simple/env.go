@@ -35,6 +35,7 @@ func Env() *goscm.Environ {
 	env.Add(goscm.NewSymbol("quote"), goscm.NewSpecial(scm_quote))
 	env.Add(goscm.NewSymbol("set!"), goscm.NewSpecial(scm_set_bang))
 	env.Add(goscm.NewSymbol("if"), goscm.NewSpecialTCO(scm_if))
+	//env.Add(goscm.NewSymbol("cond"), goscm.NewSpecialTCO(scm_cond))
 	return env
 }
 
@@ -522,14 +523,6 @@ func scm_or(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 }
 
 func scm_if(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
-	expanded, err := scm_if_expand(args, env)
-	if err != nil {
-		return goscm.SCM_Nil, err
-	}
-	return expanded.Eval(env)
-}
-
-func scm_if_expand(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	predicate, err := args.Car.Eval(env)
 	if err != nil {
 		return goscm.SCM_Nil, err

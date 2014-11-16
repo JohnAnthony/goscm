@@ -85,7 +85,7 @@ func (e *Environ) AddArgs(symbs *Pair, vals *Pair) error {
 		}
 		
 		symbs = symbs.Cdr.(*Pair)
-		vals, ok = vals.Cdr.(*Pair) // Do we need to handle this safely?
+		vals, _ = vals.Cdr.(*Pair) // Do we need to handle this safely?
 	}
 
 	return nil
