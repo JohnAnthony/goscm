@@ -15,9 +15,9 @@ func (*Foreign) String() string {
 }
 
 func (fo *Foreign) Apply(args *Pair, env *Environ) (SCMT, error) {
-	var ok bool
 	var err error
 	var ret *Pair
+	ok := true
 
 	for ret = SCM_Nil; args != SCM_Nil; args, ok = args.Cdr.(*Pair) {
 		if !ok { // This is a dotted list

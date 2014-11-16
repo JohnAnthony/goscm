@@ -52,8 +52,6 @@ func EnvEmpty(parent *Environ) *Environ {
 // Helpers
 
 func (e *Environ) AddArgs(symbs *Pair, vals *Pair) error {
-	var ok bool
-
 	// Both lists should terminate at the same time
 	for symbs != SCM_Nil && vals != SCM_Nil {
 		// Ran out of symbols first

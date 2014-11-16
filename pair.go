@@ -32,15 +32,23 @@ func (pair *Pair) Eval(env *Environ) (SCMT, error) {
 
 func (pair *Pair) String() string {
 	var ok bool
+	
+	if pair == SCM_Nil {
+		return "()"
+	}
 
 	ret := "("
-	for pair != SCM_Nil {
+	for {
 		ret += pair.Car.String()
 		
 		pair, ok = pair.Cdr.(*Pair)
 		if !ok { // A dotted list
 			ret += " . "
 			ret += pair.Cdr.String()
+			break
+		}
+
+		if pair == SCM_Nil {
 			break
 		}
 

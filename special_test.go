@@ -50,10 +50,10 @@ func Test_Special(t *testing.T) {
 	// Check it applies properly
 	exeval, err := list2.Eval(env)
 	if err != nil {	t.Error(err) }
-	if ret.String() != "22234" { t.Error(ret) }
+	if exeval.String() != "22234" { t.Error(exeval) }
 
 	// Check it expands properly
 	exex, err := if_spesh.Expand(list2.Cdr.(*Pair), env)
 	if err != nil { t.Error(err) }
-	if ret.String() != "A" { t.Error(ret) }
+	if exex.String() != "A" { t.Error(exex) }
 }
