@@ -23,19 +23,27 @@ func Test_Special(t *testing.T) {
 	)
 	
 	ret, err := list.Eval(env)
-	if err != nil {
-		t.Error(err)
-	}
-	if ret.String() != "(A B C D E)" {
-		t.Error(ret)
-	}
+	if err != nil {	t.Error(err) }
+	if ret.String() != "(A B C D E)" { t.Error(ret)	}
 	
 	//
 	// An expanding special form
 	//
-	if_spesh := NewSpecial(func (args *Pair, env *Environ) (SCMT, error) {
-		return args, nil
-	})
+	scm_if := func (args *Pair, env *Environ) (SCMT, error) {
+		argss, err := args.ToSlice()
+		if err != nil { return SCM_Nil, err }
+
+		pred, err := argss[0].Eval(env)
+		if err != nil { return SCM_Nil, err }
+
+		if pred.(*Boolean).Value {
+			return argss[1], nil
+		}
+
+		return argss[2], nil
+	}
+	
+	if_spesh := NewSpecialTCO(scm_if)
 	env.Add(NewSymbol("if"), if_spesh)
 	env.Add(NewSymbol("a"), NewPlainInt(22234))
 	env.Add(NewSymbol("b"), NewPlainInt(33345))
