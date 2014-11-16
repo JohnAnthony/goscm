@@ -1,9 +1,6 @@
-Contin type for continuations
-Tests for Contin as contin_test.go
 Tests for Symbol as symbol_test.go
 Rework symbol.go
 Tests for Special a special_test.go
 Rework special.go
-PreFunc interface and make Special a part of it
-Macro type for natively-defined PreFuncs as macro.go
+Macro type
 Tests for Macro as macro_test.go
