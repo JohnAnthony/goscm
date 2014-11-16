@@ -371,15 +371,8 @@ func Test_Env(t *testing.T) {
 		t.Error(err)
 	}
 	altdefine, err := goscm.EvalStr("(square-plus-cube 11 17)", Read, env)
-	if err != nil {
-		t.Error(err)
-	}
-	if reflect.TypeOf(altdefine) != reflect.TypeOf(&goscm.PlainInt{}) {
-		t.Error(reflect.TypeOf(altdefine))
-	}
-	if altdefine.String() != "5034" {
-		t.Error(altdefine)
-	}
+	if err != nil {	t.Error(err) }
+	if altdefine.String() != "5034" { t.Error(altdefine) }
 	
 	// Test the numerical equality operator for success
 	// (= 182736 182736) => #t

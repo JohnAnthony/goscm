@@ -9,32 +9,32 @@ import (
 
 func Env() *goscm.Environ {
 	env := goscm.EnvEmpty(nil)
-	env.BindForeign("*", scm_multiply)
-	env.BindForeign("+", scm_add)
-	env.BindForeign("-", scm_subtract)
-	env.BindForeign("/", scm_divide)
-	env.BindForeign("<", scm_lt)
-	env.BindForeign("<=", scm_le)
-	env.BindForeign("=", scm_numeq)
-	env.BindForeign(">", scm_gt)
-	env.BindForeign(">=", scm_ge)
-	env.BindForeign("apply", scm_apply)
-	env.BindForeign("car", scm_car)
-	env.BindForeign("cdr", scm_cdr)
-	env.BindForeign("cons", scm_cons)
-	env.BindForeign("list", scm_list)
-	env.BindForeign("map", scm_map)
-	env.BindForeign("not", scm_not)
-	env.BindForeign("reverse", scm_reverse)
-	env.BindSpecial("and", scm_and)
-	env.BindSpecial("begin", scm_begin)
-	env.BindSpecial("define", scm_define)
-	env.BindSpecial("lambda", scm_lambda)
-	env.BindSpecial("let", scm_let)
-	env.BindSpecial("or", scm_or)
-	env.BindSpecial("quote", scm_quote)
-	env.BindSpecial("set!", scm_set_bang)
-	env.Add(goscm.NewSymbol("if"), goscm.NewSpecialExpandable(scm_if, scm_if_expand))
+	env.Add(goscm.NewSymbol("*"), goscm.NewForeign(scm_multiply))
+	env.Add(goscm.NewSymbol("+"), goscm.NewForeign(scm_add))
+	env.Add(goscm.NewSymbol("-"), goscm.NewForeign(scm_subtract))
+	env.Add(goscm.NewSymbol("/"), goscm.NewForeign(scm_divide))
+	env.Add(goscm.NewSymbol("<"), goscm.NewForeign(scm_lt))
+	env.Add(goscm.NewSymbol("<="), goscm.NewForeign(scm_le))
+	env.Add(goscm.NewSymbol("="), goscm.NewForeign(scm_numeq))
+	env.Add(goscm.NewSymbol(">"), goscm.NewForeign(scm_gt))
+	env.Add(goscm.NewSymbol(">="), goscm.NewForeign(scm_ge))
+	env.Add(goscm.NewSymbol("apply"), goscm.NewForeign(scm_apply))
+	env.Add(goscm.NewSymbol("car"), goscm.NewForeign(scm_car))
+	env.Add(goscm.NewSymbol("cdr"), goscm.NewForeign(scm_cdr))
+	env.Add(goscm.NewSymbol("cons"), goscm.NewForeign(scm_cons))
+	env.Add(goscm.NewSymbol("list"), goscm.NewForeign(scm_list))
+	env.Add(goscm.NewSymbol("map"), goscm.NewForeign(scm_map))
+	env.Add(goscm.NewSymbol("not"), goscm.NewForeign(scm_not))
+	env.Add(goscm.NewSymbol("reverse"), goscm.NewForeign(scm_reverse))
+	env.Add(goscm.NewSymbol("and"), goscm.NewSpecial(scm_and))
+	env.Add(goscm.NewSymbol("begin"), goscm.NewSpecial(scm_begin))
+	env.Add(goscm.NewSymbol("define"), goscm.NewSpecial(scm_define))
+	env.Add(goscm.NewSymbol("lambda"), goscm.NewSpecial(scm_lambda))
+	env.Add(goscm.NewSymbol("let"), goscm.NewSpecial(scm_let))
+	env.Add(goscm.NewSymbol("or"), goscm.NewSpecial(scm_or))
+	env.Add(goscm.NewSymbol("quote"), goscm.NewSpecial(scm_quote))
+	env.Add(goscm.NewSymbol("set!"), goscm.NewSpecial(scm_set_bang))
+	env.Add(goscm.NewSymbol("if"), goscm.NewSpecialTCO(scm_if))
 	return env
 }
 
@@ -123,9 +123,9 @@ func scm_car(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		return goscm.SCM_Nil, errors.New("Too few arguments")
 	}
 
-	target, err := goscm.Cast_Pair(args.Car)
-	if err != nil {
-		return goscm.SCM_Nil, err
+	target, ok := args.Car.(*goscm.Pair)
+	if !ok {
+		return goscm.SCM_Nil, errors.New("Attempt to take Car of non-list")
 	}
 	
 	if args.Cdr != goscm.SCM_Nil {
@@ -140,9 +140,9 @@ func scm_cdr(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		return goscm.SCM_Nil, errors.New("Too few arguments")
 	}
 
-	target, err := goscm.Cast_Pair(args.Car)
-	if err != nil {
-		return goscm.SCM_Nil, err
+	target, ok := args.Car.(*goscm.Pair)
+	if !ok {
+		return goscm.SCM_Nil, errors.New("Attempt to take cdr of non-list")
 	}
 	
 	if args.Cdr != goscm.SCM_Nil {
@@ -155,10 +155,11 @@ func scm_cdr(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 func scm_cons(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	first := args.Car
 
-	second_cell, err := goscm.Cast_Pair(args.Cdr)
-	if err != nil {
-		return goscm.SCM_Nil, err
+	second_cell, ok := args.Cdr.(*goscm.Pair)
+	if !ok {
+		return goscm.SCM_Nil, errors.New("Weird (unexpected) dotted list")
 	}
+
 	if second_cell == goscm.SCM_Nil {
 		return goscm.SCM_Nil, errors.New("Too few arguments")
 	}

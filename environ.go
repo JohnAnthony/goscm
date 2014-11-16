@@ -1,6 +1,9 @@
 package goscm
 
-import "errors"
+import (
+	"errors"
+	"reflect"
+)
 
 type Environ struct {
 	table map[string]SCMT
@@ -71,8 +74,7 @@ func (e *Environ) AddArgs(symbs *Pair, vals *Pair) error {
 
 		e.Add(symb, vals.Car)
 		
-		symbs, ok = symbs.Cdr.(*Pair)
-		if !ok { // This is a dotted list
+		if reflect.TypeOf(symbs.Cdr) != reflect.TypeOf(&Pair{}) {
 			symb, ok = symbs.Cdr.(*Symbol)
 			if !ok {
 				return errors.New("Argument list dotted with non-symbol")
@@ -81,6 +83,9 @@ func (e *Environ) AddArgs(symbs *Pair, vals *Pair) error {
 			e.Add(symb, vals.Cdr)
 			break
 		}
+		
+		symbs = symbs.Cdr.(*Pair)
+		vals, ok = vals.Cdr.(*Pair) // Do we need to handle this safely?
 	}
 
 	return nil
