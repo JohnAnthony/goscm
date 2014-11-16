@@ -84,7 +84,7 @@ func (list *Pair) MapEval(env *Environ) (*Pair, error) {
 	listt, err := list.ToSlice()
 	if err != nil { return SCM_Nil, err }
 	
-	for i := len(listt); i >= 0; i-- {
+	for i := len(listt) - 1; i >= 0; i-- {
 		newval, err := listt[i].Eval(env)
 		if err != nil { return SCM_Nil, err }
 
