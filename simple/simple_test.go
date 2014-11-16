@@ -10,12 +10,12 @@ func Test_Env(t *testing.T) {
 	env := Env()
 
 	// Test define
-	goscm.Make_List(
-		goscm.Make_Symbol("define"),
-		goscm.Make_Symbol("a"),
-		goscm.Make_SCMT(1234),
+	goscm.NewList(
+		goscm.NewSymbol("define"),
+		goscm.NewSymbol("a"),
+		goscm.NewSCMT(1234),
 	).Eval(env)
-	a_result, err := goscm.Make_Symbol("a").Eval(env)
+	a_result, err := goscm.NewSymbol("a").Eval(env)
 	if err != nil {
 		t.Error(err)
 	}
@@ -27,12 +27,12 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test +
-	add_result, err := goscm.Make_List(
-		goscm.Make_Symbol("+"),
-		goscm.Make_SCMT(321),
-		goscm.Make_Symbol("a"),
-		goscm.Make_SCMT(222),
-		goscm.Make_SCMT(1000),
+	add_result, err := goscm.NewList(
+		goscm.NewSymbol("+"),
+		goscm.NewSCMT(321),
+		goscm.NewSymbol("a"),
+		goscm.NewSCMT(222),
+		goscm.NewSCMT(1000),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
@@ -45,11 +45,11 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test -
-	sub_result, err := goscm.Make_List(
-		goscm.Make_Symbol("-"),
-		goscm.Make_SCMT(100),
-		goscm.Make_SCMT(9),
-		goscm.Make_SCMT(90),
+	sub_result, err := goscm.NewList(
+		goscm.NewSymbol("-"),
+		goscm.NewSCMT(100),
+		goscm.NewSCMT(9),
+		goscm.NewSCMT(90),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
@@ -62,13 +62,13 @@ func Test_Env(t *testing.T) {
 	}
 
 	// Test *
-	mult_result, err := goscm.Make_List(
-		goscm.Make_Symbol("*"),
-		goscm.Make_SCMT(1),
-		goscm.Make_SCMT(2),
-		goscm.Make_SCMT(3),
-		goscm.Make_SCMT(4),
-		goscm.Make_SCMT(5),
+	mult_result, err := goscm.NewList(
+		goscm.NewSymbol("*"),
+		goscm.NewSCMT(1),
+		goscm.NewSCMT(2),
+		goscm.NewSCMT(3),
+		goscm.NewSCMT(4),
+		goscm.NewSCMT(5),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
@@ -81,11 +81,11 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test /
-	div_result, err := goscm.Make_List(
-		goscm.Make_Symbol("/"),
-		goscm.Make_SCMT(66),
-		goscm.Make_SCMT(3),
-		goscm.Make_SCMT(2),
+	div_result, err := goscm.NewList(
+		goscm.NewSymbol("/"),
+		goscm.NewSCMT(66),
+		goscm.NewSCMT(3),
+		goscm.NewSCMT(2),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
@@ -98,10 +98,10 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test cons
-	cons_result, err := goscm.Make_List(
-		goscm.Make_Symbol("cons"),
-		goscm.Make_SCMT(2),
-		goscm.Make_SCMT(5),
+	cons_result, err := goscm.NewList(
+		goscm.NewSymbol("cons"),
+		goscm.NewSCMT(2),
+		goscm.NewSCMT(5),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
@@ -114,12 +114,12 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test car
-	car_result, err := goscm.Make_List(
-		goscm.Make_Symbol("car"),
-		goscm.Make_List(
-			goscm.Make_Symbol("cons"),
-			goscm.Make_SCMT(333),
-			goscm.Make_SCMT(444),
+	car_result, err := goscm.NewList(
+		goscm.NewSymbol("car"),
+		goscm.NewList(
+			goscm.NewSymbol("cons"),
+			goscm.NewSCMT(333),
+			goscm.NewSCMT(444),
 		),
 	).Eval(env)
 	if err != nil {
@@ -133,12 +133,12 @@ func Test_Env(t *testing.T) {
 	}
 
 	// Test cdr
-	cdr_result, err := goscm.Make_List(
-		goscm.Make_Symbol("cdr"),
-		goscm.Make_List(
-			goscm.Make_Symbol("cons"),
-			goscm.Make_SCMT(555),
-			goscm.Make_SCMT(666),
+	cdr_result, err := goscm.NewList(
+		goscm.NewSymbol("cdr"),
+		goscm.NewList(
+			goscm.NewSymbol("cons"),
+			goscm.NewSCMT(555),
+			goscm.NewSCMT(666),
 		),
 	).Eval(env)
 	if err != nil {
@@ -152,21 +152,21 @@ func Test_Env(t *testing.T) {
 	}
 	
 	// Test quote
-	quote_result, err := goscm.Make_List(
-		goscm.Make_Symbol("quote"),
-		goscm.Make_List(
-			goscm.Make_Symbol("roar"),
-			goscm.Make_SCMT(1),
-			goscm.Make_SCMT(2),
-			goscm.Make_Symbol("squeak"),
-			goscm.Make_SCMT(3),
-			goscm.Make_SCMT(4),
-			goscm.Make_SCMT(5),
-			goscm.Make_SCMT(6),
-			goscm.Make_Symbol("honk"),
-			goscm.Make_SCMT(7),
-			goscm.Make_SCMT(8),
-			goscm.Make_SCMT(9),
+	quote_result, err := goscm.NewList(
+		goscm.NewSymbol("quote"),
+		goscm.NewList(
+			goscm.NewSymbol("roar"),
+			goscm.NewSCMT(1),
+			goscm.NewSCMT(2),
+			goscm.NewSymbol("squeak"),
+			goscm.NewSCMT(3),
+			goscm.NewSCMT(4),
+			goscm.NewSCMT(5),
+			goscm.NewSCMT(6),
+			goscm.NewSymbol("honk"),
+			goscm.NewSCMT(7),
+			goscm.NewSCMT(8),
+			goscm.NewSCMT(9),
 		),
 	).Eval(env)
 	if err != nil {
@@ -183,17 +183,17 @@ func Test_Env(t *testing.T) {
 	// (begin
 	//  (define x 10)
 	//  (* x 3)) => 30
-	begin_result, err := goscm.Make_List(
-		goscm.Make_Symbol("begin"),
-		goscm.Make_List(
-			goscm.Make_Symbol("define"),
-			goscm.Make_Symbol("x"),
-			goscm.Make_SCMT(10),
+	begin_result, err := goscm.NewList(
+		goscm.NewSymbol("begin"),
+		goscm.NewList(
+			goscm.NewSymbol("define"),
+			goscm.NewSymbol("x"),
+			goscm.NewSCMT(10),
 		),
-		goscm.Make_List(
-			goscm.Make_Symbol("*"),
-			goscm.Make_Symbol("x"),
-			goscm.Make_SCMT(3),
+		goscm.NewList(
+			goscm.NewSymbol("*"),
+			goscm.NewSymbol("x"),
+			goscm.NewSCMT(3),
 		),
 	).Eval(env)
 	if err != nil {
@@ -211,22 +211,22 @@ func Test_Env(t *testing.T) {
 	//       (b 12))
 	//   (* a b))
 	// Note: This should clobber the top-level environment's symbol "A"
-	let_result, err := goscm.Make_List(
-		goscm.Make_Symbol("let"),
-		goscm.Make_List(
-			goscm.Make_List(
-				goscm.Make_Symbol("a"),
-				goscm.Make_SCMT(11),
+	let_result, err := goscm.NewList(
+		goscm.NewSymbol("let"),
+		goscm.NewList(
+			goscm.NewList(
+				goscm.NewSymbol("a"),
+				goscm.NewSCMT(11),
 			),
-			goscm.Make_List(
-				goscm.Make_Symbol("b"),
-				goscm.Make_SCMT(12),
+			goscm.NewList(
+				goscm.NewSymbol("b"),
+				goscm.NewSCMT(12),
 			),
 		),
-		goscm.Make_List(
-			goscm.Make_Symbol("*"),
-			goscm.Make_Symbol("a"),
-			goscm.Make_Symbol("b"),
+		goscm.NewList(
+			goscm.NewSymbol("*"),
+			goscm.NewSymbol("a"),
+			goscm.NewSymbol("b"),
 		),
 	).Eval(env)
 	if err != nil {
@@ -241,19 +241,19 @@ func Test_Env(t *testing.T) {
 
 	// Test lambda
 	// ((lambda (x) (+ x 2)) 58835) => 58837
-	lambda_result, err := goscm.Make_List(
-		goscm.Make_List(
-			goscm.Make_Symbol("lambda"),
-			goscm.Make_List(
-				goscm.Make_Symbol("x"),
+	lambda_result, err := goscm.NewList(
+		goscm.NewList(
+			goscm.NewSymbol("lambda"),
+			goscm.NewList(
+				goscm.NewSymbol("x"),
 			),
-			goscm.Make_List(
-				goscm.Make_Symbol("+"),
-				goscm.Make_Symbol("x"),
-				goscm.Make_SCMT(2),
+			goscm.NewList(
+				goscm.NewSymbol("+"),
+				goscm.NewSymbol("x"),
+				goscm.NewSCMT(2),
 			),
 		),
-		goscm.Make_SCMT(58835),
+		goscm.NewSCMT(58835),
 	).Eval(env)
 	if err != nil {
 		t.Error(err)
@@ -268,33 +268,33 @@ func Test_Env(t *testing.T) {
 	// Test map
 	// (define square (lambda (x) (* x x)))
 	// (map square (quote (2 3 4 5 6))) => (4 9 16 25 36)
-	goscm.Make_List(
-		goscm.Make_Symbol("define"),
-		goscm.Make_Symbol("square"),
-		goscm.Make_List(
-			goscm.Make_Symbol("lambda"),
-			goscm.Make_List(
-				goscm.Make_Symbol("x"),
+	goscm.NewList(
+		goscm.NewSymbol("define"),
+		goscm.NewSymbol("square"),
+		goscm.NewList(
+			goscm.NewSymbol("lambda"),
+			goscm.NewList(
+				goscm.NewSymbol("x"),
 			),
-			goscm.Make_List(
-				goscm.Make_Symbol("*"),
-				goscm.Make_Symbol("x"),
-				goscm.Make_Symbol("x"),
+			goscm.NewList(
+				goscm.NewSymbol("*"),
+				goscm.NewSymbol("x"),
+				goscm.NewSymbol("x"),
 			),
 		),
 	).Eval(env)
 
-	map_result, err := goscm.Make_List(
-		goscm.Make_Symbol("map"),
-		goscm.Make_Symbol("square"),
-		goscm.Make_List(
-			goscm.Make_Symbol("quote"),
-			goscm.Make_List(
-				goscm.Make_SCMT(2),
-				goscm.Make_SCMT(3),
-				goscm.Make_SCMT(4),
-				goscm.Make_SCMT(5),
-				goscm.Make_SCMT(6),
+	map_result, err := goscm.NewList(
+		goscm.NewSymbol("map"),
+		goscm.NewSymbol("square"),
+		goscm.NewList(
+			goscm.NewSymbol("quote"),
+			goscm.NewList(
+				goscm.NewSCMT(2),
+				goscm.NewSCMT(3),
+				goscm.NewSCMT(4),
+				goscm.NewSCMT(5),
+				goscm.NewSCMT(6),
 			),
 		),
 	).Eval(env)
@@ -311,18 +311,18 @@ func Test_Env(t *testing.T) {
 	
 	// Test apply
 	// (apply + (quote (1 2 3 4 5 6))) => 21
-	apply_result, err := goscm.Make_List(
-		goscm.Make_Symbol("apply"),
-		goscm.Make_Symbol("+"),
-		goscm.Make_List(
-			goscm.Make_Symbol("quote"),
-			goscm.Make_List(
-				goscm.Make_SCMT(1),
-				goscm.Make_SCMT(2),
-				goscm.Make_SCMT(3),
-				goscm.Make_SCMT(4),
-				goscm.Make_SCMT(5),
-				goscm.Make_SCMT(6),
+	apply_result, err := goscm.NewList(
+		goscm.NewSymbol("apply"),
+		goscm.NewSymbol("+"),
+		goscm.NewList(
+			goscm.NewSymbol("quote"),
+			goscm.NewList(
+				goscm.NewSCMT(1),
+				goscm.NewSCMT(2),
+				goscm.NewSCMT(3),
+				goscm.NewSCMT(4),
+				goscm.NewSCMT(5),
+				goscm.NewSCMT(6),
 			),
 		),
 	).Eval(env)

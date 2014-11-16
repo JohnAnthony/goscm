@@ -26,22 +26,22 @@ func Test_Proc(t *testing.T) {
 				return SCM_Nil, errors.New("Can't operate on dotted list")
 			}
 		}
-		return Make_SCMT(ret), nil
+		return NewSCMT(ret), nil
 	}
-	env.Add(Make_Symbol("*"), Make_Foreign(scm_multiply))
+	env.Add(NewSymbol("*"), NewForeign(scm_multiply))
 
 	// args = (n)
 	// body = ((* n n))
-	args := Make_List(Make_Symbol("n"))
-	body := Make_List(Make_List(
-		Make_Symbol("*"),
-		Make_Symbol("n"),
-		Make_Symbol("n"),
+	args := NewList(NewSymbol("n"))
+	body := NewList(NewList(
+		NewSymbol("*"),
+		NewSymbol("n"),
+		NewSymbol("n"),
 	))
-	proc, err := Make_Proc(args, body, env)
+	proc, err := NewProc(args, body, env)
 	if err != nil { t.Error(err) }
 
-	expr := Make_List(proc, Make_SCMT(123))
+	expr := NewList(proc, NewSCMT(123))
 	result, err := expr.Eval(env)
 	if err != nil {	t.Error(err) }
 	

@@ -36,7 +36,7 @@ func (fo *Foreign) Apply(args *Pair, env *Environ) (SCMT, error) {
 	return fo.function(ret, env)
 }
 
-func Make_Foreign(f func (*Pair, *Environ) (SCMT, error)) *Foreign {
+func NewForeign(f func (*Pair, *Environ) (SCMT, error)) *Foreign {
 	return &Foreign {
 		function: f,
 	}

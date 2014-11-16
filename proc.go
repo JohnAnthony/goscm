@@ -99,7 +99,7 @@ TCO_TOP:
 	return SCM_Nil, errors.New("Execution flow got somewhere it shouldn't")
 }
 
-func Make_Proc(args *Pair, body *Pair, env *Environ) (*Proc, error) {
+func NewProc(args *Pair, body *Pair, env *Environ) (*Proc, error) {
 	var ok bool
 
 	// Check that all of our arguments are symbols. Also accept a cdr that is a

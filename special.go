@@ -17,14 +17,14 @@ func (sp *SCMT_Special) Apply(args *Pair, env *Environ) (SCMT, error) {
 	return sp.function(args, env)
 }
 
-func Make_Special(f func (*Pair, *Environ) (SCMT, error)) *SCMT_Special {
+func NewSpecial(f func (*Pair, *Environ) (SCMT, error)) *SCMT_Special {
 	return &SCMT_Special {
 		function: f,
 		Expand: nil,
 	}
 }
 
-func Make_SpecialExpandable(f func (*Pair, *Environ) (SCMT, error), ex func (*Pair, *Environ) (SCMT, error)) *SCMT_Special {
+func NewSpecialExpandable(f func (*Pair, *Environ) (SCMT, error), ex func (*Pair, *Environ) (SCMT, error)) *SCMT_Special {
 	return &SCMT_Special {
 		function: f,
 		Expand: ex,

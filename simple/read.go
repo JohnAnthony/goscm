@@ -39,8 +39,8 @@ func Read(b *bufio.Reader) (goscm.SCMT, error) {
 		if err != nil {
 			return goscm.SCM_Nil, err
 		}
-		return goscm.Make_List(
-			goscm.Make_Symbol("quote"),
+		return goscm.NewList(
+			goscm.NewSymbol("quote"),
 			subexpr), nil
 	case c >= '0' && c <= '9':
 		// An integer
@@ -100,7 +100,7 @@ func read_symbol(b *bufio.Reader) (goscm.SCMT, error) {
 		}
 		ret = string(append([]byte(ret), c))
 	}
-	return goscm.Make_Symbol(ret), err
+	return goscm.NewSymbol(ret), err
 }
 
 func read_string(b *bufio.Reader) (goscm.SCMT, error) {
@@ -118,7 +118,7 @@ func read_string(b *bufio.Reader) (goscm.SCMT, error) {
 		}
 		ret = string(append([]byte(ret), c))
 	}
-	return goscm.Make_SCMT(ret), err
+	return goscm.NewSCMT(ret), err
 }
 
 func read_integer(b *bufio.Reader) (goscm.SCMT, error) {
@@ -145,7 +145,7 @@ func read_integer(b *bufio.Reader) (goscm.SCMT, error) {
 		ret = string(append([]byte(ret), c))
 	}
 	retn, _ := strconv.Atoi(ret)
-	return goscm.Make_SCMT(retn), err
+	return goscm.NewSCMT(retn), err
 }
 
 func read_list(b *bufio.Reader) (goscm.SCMT, error) {
@@ -196,9 +196,9 @@ func read_bool(b *bufio.Reader) (goscm.SCMT, error) {
 	case err != nil:
 		return goscm.SCM_Nil, err
 	case c == 'f':
-		return goscm.Make_SCMT(false), nil
+		return goscm.NewSCMT(false), nil
 	case c == 't':
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	default:
 		return goscm.SCM_Nil, errors.New("Error reading bool")
 	}

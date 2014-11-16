@@ -12,8 +12,8 @@ func Test_Environment(t *testing.T) {
 	}
 
 	// Adding to an environment and retrieving
-	top.Add(Make_Symbol("foo"), Make_PlainInt(9987654))
-	ret, err := top.Find(Make_Symbol("BAr"))
+	top.Add(NewSymbol("foo"), NewPlainInt(9987654))
+	ret, err := top.Find(NewSymbol("BAr"))
 	if err != nil {	t.Error(err) }
 	ans, ok := ret.(*PlainInt)
 	if !ok { t.Error(ok) }
@@ -23,8 +23,8 @@ func Test_Environment(t *testing.T) {
 	
 	// Making a child environment and retrieving from it
 	env := EnvEmpty(top)
-	env.Add(Make_Symbol("bar"), Make_PlainInt(9987666))
-	ret, err = env.Find(Make_Symbol("FOO"))
+	env.Add(NewSymbol("bar"), NewPlainInt(9987666))
+	ret, err = env.Find(NewSymbol("FOO"))
 	if err != nil { t.Error(err) }
 	ans, ok = ret.(*PlainInt)
 	if !ok { t.Error(ok) }
@@ -33,7 +33,7 @@ func Test_Environment(t *testing.T) {
 	}
 	
 	// Retrieving from a parent environment from a child
-	ret, err = env.Find(Make_Symbol("BAr"))
+	ret, err = env.Find(NewSymbol("BAr"))
 	if err != nil { t.Error(err) }
 	ans, ok = ret.(*PlainInt)
 	if !ok { t.Error(ok) }

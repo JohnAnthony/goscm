@@ -6,7 +6,7 @@ import (
 )
 
 func Test_Symbol(t *testing.T) {
-	s := Make_Symbol("Foo-bar")
+	s := NewSymbol("Foo-bar")
 
 	if reflect.TypeOf(s) != reflect.TypeOf(&Symbol{}) {
 		t.Error()
@@ -17,11 +17,11 @@ func Test_Symbol(t *testing.T) {
 }
 
 func Test_Foreign_List(t *testing.T) {
-	list := Make_List(
-		Make_Symbol("+"),
-		Make_SCMT(190),
-		Make_SCMT(3),
-		Make_SCMT(11),
+	list := NewList(
+		NewSymbol("+"),
+		NewSCMT(190),
+		NewSCMT(3),
+		NewSCMT(11),
 	)
 
 	env := EnvEmpty(nil)
@@ -30,7 +30,7 @@ func Test_Foreign_List(t *testing.T) {
 		for ; !args.IsNil(); args = args.Cdr.(*Pair) {
 			ret += args.Car.(*PlainInt).Value
 		}
-		return Make_SCMT(ret), nil
+		return NewSCMT(ret), nil
 	})
 
 	ret, err := list.Eval(env)
@@ -51,13 +51,13 @@ func Test_Special(t *testing.T) {
 		return args, nil
 	})
 
-	list := Make_List(
-		Make_Symbol("quote"),
-		Make_Symbol("a"),
-		Make_Symbol("b"),
-		Make_Symbol("c"),
-		Make_Symbol("d"),
-		Make_Symbol("e"),
+	list := NewList(
+		NewSymbol("quote"),
+		NewSymbol("a"),
+		NewSymbol("b"),
+		NewSymbol("c"),
+		NewSymbol("d"),
+		NewSymbol("e"),
 	)
 	
 	ret, err := list.Eval(env)

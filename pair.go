@@ -49,7 +49,7 @@ func (pair *Pair) String() string {
 	return ret + ")"
 }
 
-func Make_List(args ...SCMT) *Pair {
+func NewList(args ...SCMT) *Pair {
 	list := SCM_Nil
 	for i := len(args) - 1; i >= 0; i-- {
 		list = Cons(args[i], list)

@@ -34,7 +34,7 @@ func Env() *goscm.Environ {
 	env.BindSpecial("or", scm_or)
 	env.BindSpecial("quote", scm_quote)
 	env.BindSpecial("set!", scm_set_bang)
-	env.Add(goscm.Make_Symbol("if"), goscm.Make_SpecialExpandable(scm_if, scm_if_expand))
+	env.Add(goscm.NewSymbol("if"), goscm.NewSpecialExpandable(scm_if, scm_if_expand))
 	return env
 }
 
@@ -51,7 +51,7 @@ func scm_add(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 		ret += argss[i].(*goscm.PlainInt).Value
 	}
-	return goscm.Make_SCMT(ret), nil
+	return goscm.NewSCMT(ret), nil
 }
 
 func scm_multiply(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
@@ -67,7 +67,7 @@ func scm_multiply(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 		ret *= argss[i].(*goscm.PlainInt).Value
 	}
-	return goscm.Make_SCMT(ret), nil
+	return goscm.NewSCMT(ret), nil
 }
 
 func scm_subtract(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
@@ -91,7 +91,7 @@ func scm_subtract(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 		ret -= argss[i].(*goscm.PlainInt).Value
 	}
-	return goscm.Make_SCMT(ret), nil
+	return goscm.NewSCMT(ret), nil
 }
 
 func scm_divide(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
@@ -115,7 +115,7 @@ func scm_divide(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 		ret /= argss[i].(*goscm.PlainInt).Value
 	}
-	return goscm.Make_SCMT(ret), nil
+	return goscm.NewSCMT(ret), nil
 }
 
 func scm_car(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
@@ -201,7 +201,7 @@ func scm_map(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 
 	ret := goscm.SCM_Nil
 	for i := len(tail) - 1; i >= 0; i-- {
-		result, err := proc.Apply(goscm.Make_List(tail[i]), env)
+		result, err := proc.Apply(goscm.NewList(tail[i]), env)
 		if err != nil {
 			return goscm.SCM_Nil, err
 		}
@@ -307,7 +307,7 @@ func scm_let(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 }
 
 func scm_lambda(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
-	proc, err := goscm.Make_Proc(
+	proc, err := goscm.NewProc(
 		args.Car.(*goscm.Pair),
 		args.Cdr.(*goscm.Pair),
 		env,
@@ -331,7 +331,7 @@ func scm_set_bang(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 
 func scm_numeq(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 
 	argss, err := args.ToSlice()
@@ -347,19 +347,19 @@ func scm_numeq(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 
 		if argss[i].(*goscm.PlainInt).Value != base {
-			return goscm.Make_SCMT(false), nil
+			return goscm.NewSCMT(false), nil
 		}
 	}
 
-	return goscm.Make_SCMT(true), nil
+	return goscm.NewSCMT(true), nil
 }
 
 func scm_lt(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if args.Cdr == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCM_Nil, errors.New("Expected integer argument")
@@ -376,21 +376,21 @@ func scm_lt(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 
 		if args.Car.(*goscm.PlainInt).Value >= next.(*goscm.PlainInt).Value {
-			return goscm.Make_SCMT(false), nil
+			return goscm.NewSCMT(false), nil
 		}
 
 		args = args.Cdr.(*goscm.Pair)
 	}
 
-	return goscm.Make_SCMT(true), nil
+	return goscm.NewSCMT(true), nil
 }
 
 func scm_gt(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if args.Cdr == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCM_Nil, errors.New("Expected integer argument")
@@ -407,21 +407,21 @@ func scm_gt(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 
 		if args.Car.(*goscm.PlainInt).Value <= next.(*goscm.PlainInt).Value {
-			return goscm.Make_SCMT(false), nil
+			return goscm.NewSCMT(false), nil
 		}
 
 		args = args.Cdr.(*goscm.Pair)
 	}
 
-	return goscm.Make_SCMT(true), nil
+	return goscm.NewSCMT(true), nil
 }
 
 func scm_le(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if args.Cdr == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCM_Nil, errors.New("Expected integer argument")
@@ -438,21 +438,21 @@ func scm_le(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 
 		if !(args.Car.(*goscm.PlainInt).Value <= next.(*goscm.PlainInt).Value) {
-			return goscm.Make_SCMT(false), nil
+			return goscm.NewSCMT(false), nil
 		}
 
 		args = args.Cdr.(*goscm.Pair)
 	}
 
-	return goscm.Make_SCMT(true), nil
+	return goscm.NewSCMT(true), nil
 }
 
 func scm_ge(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if args.Cdr == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 	if reflect.TypeOf(args.Car) != reflect.TypeOf(&goscm.PlainInt{}) {
 		return goscm.SCM_Nil, errors.New("Expected integer argument")
@@ -469,18 +469,18 @@ func scm_ge(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		}
 
 		if !(args.Car.(*goscm.PlainInt).Value >= next.(*goscm.PlainInt).Value) {
-			return goscm.Make_SCMT(false), nil
+			return goscm.NewSCMT(false), nil
 		}
 
 		args = args.Cdr.(*goscm.Pair)
 	}
 
-	return goscm.Make_SCMT(true), nil
+	return goscm.NewSCMT(true), nil
 }
 
 func scm_and(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCM_Nil {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 
 	result, err := args.Car.Eval(env)
@@ -489,7 +489,7 @@ func scm_and(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	}
 
 	if !goscm.IsTrue(result) {
-		return goscm.Make_SCMT(false), nil
+		return goscm.NewSCMT(false), nil
 	}
 
 	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
@@ -501,7 +501,7 @@ func scm_and(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 
 func scm_or(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	if args == goscm.SCM_Nil {
-		return goscm.Make_SCMT(false), nil
+		return goscm.NewSCMT(false), nil
 	}
 
 	result, err := args.Car.Eval(env)
@@ -510,7 +510,7 @@ func scm_or(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	}
 
 	if goscm.IsTrue(result) {
-		return goscm.Make_SCMT(true), nil
+		return goscm.NewSCMT(true), nil
 	}
 
 	if reflect.TypeOf(args.Cdr) != reflect.TypeOf(&goscm.Pair{}) {
@@ -556,10 +556,10 @@ func scm_not(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	}
 	
 	if reflect.TypeOf(args.Car) == reflect.TypeOf(&goscm.Boolean{}) {
-		return goscm.Make_SCMT(!args.Car.(*goscm.Boolean).Value), nil
+		return goscm.NewSCMT(!args.Car.(*goscm.Boolean).Value), nil
 	}
 
-	return goscm.Make_SCMT(false), nil
+	return goscm.NewSCMT(false), nil
 }
 
 func scm_reverse(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {

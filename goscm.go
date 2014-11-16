@@ -21,7 +21,7 @@ type PreFunc interface {
 	Expand(*Pair, *Environ) (SCMT, error)
 }
 
-func Make_SCMT(in interface {}) SCMT {
+func NewSCMT(in interface {}) SCMT {
 	if in == nil {
 		return SCM_Nil
 	}

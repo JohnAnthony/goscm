@@ -16,7 +16,7 @@ func (symb *Symbol) String() string {
 
 // Helpers
 
-func Make_Symbol(s string) *Symbol {
+func NewSymbol(s string) *Symbol {
 	return &Symbol {
 		Value: strings.ToUpper(s),
 	}
