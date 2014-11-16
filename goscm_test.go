@@ -5,17 +5,6 @@ import (
 	"reflect"
 )
 
-func Test_Symbol(t *testing.T) {
-	s := NewSymbol("Foo-bar")
-
-	if reflect.TypeOf(s) != reflect.TypeOf(&Symbol{}) {
-		t.Error()
-	}
-	if s.String() != "FOO-BAR" {
-		t.Error()
-	}
-}
-
 func Test_Foreign_List(t *testing.T) {
 	list := NewList(
 		NewSymbol("+"),

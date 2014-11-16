@@ -1,5 +1,3 @@
-Tests for Symbol as symbol_test.go
-Rework symbol.go
 Tests for Special a special_test.go
 Rework special.go
 Macro type
