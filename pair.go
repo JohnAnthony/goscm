@@ -2,6 +2,7 @@ package goscm
 
 import (
 	"errors"
+	"reflect"
 )
 
 type Pair struct {
@@ -33,8 +34,6 @@ func (pair *Pair) Eval(env *Environ) (SCMT, error) {
 }
 
 func (pair *Pair) String() string {
-	var ok bool
-
 	ret := "("
 	for pair != SCM_Nil {
 		ret += pair.Car.String()
@@ -43,13 +42,13 @@ func (pair *Pair) String() string {
 			break
 		}
 
-		pair, ok = pair.Cdr.(*Pair)
-		if !ok {
+		if reflect.TypeOf(pair.Cdr) != reflect.TypeOf(&Pair{}) {
 			ret += " . "
 			ret += pair.Cdr.String()
 			break
 		}
 
+		pair = pair.Cdr.(*Pair)
 		ret += " "
 	}
 	return ret + ")"
