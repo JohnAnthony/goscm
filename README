@@ -1,6 +1,6 @@
-GoSCM is an interpreter for Scheme which embeddable in Go as a core reason for
-existing. It's also more than that; it's a full toolkit for creating a scheme
-suitable for extending your program.
+GoSCM is a Scheme interpreter for which being embeddable in Go as a core reason
+for existing. It's also more than that; it's a full toolkit for creating a
+scheme suitable for extending your program.
 
 Data Types
 ==
