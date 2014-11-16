@@ -53,7 +53,7 @@ TCO_TOP:
 					
 					// Some special forms can provide TCO, but we have to expand
 					// them first to find out.
-					if spesh, ok := tail_func.(*SCMT_Special); ok {
+					if spesh, ok := tail_func.(*Special); ok {
 						if spesh.Expand != nil {
 							spesh_args, ok := tail_pair.Cdr.(*Pair)
 							if !ok { break }
