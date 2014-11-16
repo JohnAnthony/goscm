@@ -14,3 +14,7 @@ func (b *Boolean) String() string {
 func (in *Boolean) Eval(*Environ) (SCMT, error) {
 	return in, nil
 }
+
+func NewBoolean(b bool) *Boolean {
+	return &Boolean { Value: b }
+}

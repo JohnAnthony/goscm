@@ -34,29 +34,3 @@ func Test_Foreign_List(t *testing.T) {
 	}
 }
 
-func Test_Special(t *testing.T) {
-	env := EnvEmpty(nil)
-	env.BindSpecial("quote", func (args *Pair, env *Environ) (SCMT, error) {
-		return args, nil
-	})
-
-	list := NewList(
-		NewSymbol("quote"),
-		NewSymbol("a"),
-		NewSymbol("b"),
-		NewSymbol("c"),
-		NewSymbol("d"),
-		NewSymbol("e"),
-	)
-	
-	ret, err := list.Eval(env)
-	if err != nil {
-		t.Error(err)
-	}
-	if reflect.TypeOf(ret) != reflect.TypeOf(&Pair{}) {
-		t.Error()
-	}
-	if ret.String() != "(A B C D E)" {
-		t.Error()
-	}
-}
