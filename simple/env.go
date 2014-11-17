@@ -1,6 +1,5 @@
 package simple
 
-
 import (
 	"github.com/JohnAnthony/goscm"
 	"reflect"
@@ -35,7 +34,7 @@ func Env() *goscm.Environ {
 	env.Add(goscm.NewSymbol("quote"), goscm.NewSpecial(scm_quote))
 	env.Add(goscm.NewSymbol("set!"), goscm.NewSpecial(scm_set_bang))
 	env.Add(goscm.NewSymbol("if"), goscm.NewSpecialTCO(scm_if))
-	//env.Add(goscm.NewSymbol("cond"), goscm.NewSpecialTCO(scm_cond))
+	env.Add(goscm.NewSymbol("cond"), goscm.NewSpecialTCO(scm_cond))
 	return env
 }
 
@@ -490,7 +489,7 @@ func scm_and(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		return goscm.SCM_Nil, err
 	}
 
-	if !goscm.IsTrue(result) {
+	if !goscm.SCMTrue(result) {
 		return goscm.NewSCMT(false), nil
 	}
 
@@ -511,7 +510,7 @@ func scm_or(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 		return goscm.SCM_Nil, err
 	}
 
-	if goscm.IsTrue(result) {
+	if goscm.SCMTrue(result) {
 		return goscm.NewSCMT(true), nil
 	}
 
@@ -542,6 +541,38 @@ func scm_if(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	}
 	
 	return args.Cdr.(*goscm.Pair).Car, nil
+}
+
+func scm_cond(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
+	for args != goscm.SCM_Nil {
+		condition, ok := args.Car.(*goscm.Pair)
+		if !ok {
+			return goscm.SCM_Nil, errors.New("Expected list")
+		}
+		
+		pred, err := condition.Car.Eval(env)
+		if err != nil { return goscm.SCM_Nil, err }
+
+		if goscm.SCMTrue(pred) {
+			consequent_cell, ok := condition.Cdr.(*goscm.Pair)
+			if !ok {
+				return goscm.SCM_Nil, errors.New("Cond entry list too short")
+			}
+
+			if consequent_cell.Cdr != goscm.SCM_Nil {
+				return goscm.SCM_Nil, errors.New("Trailing list elements in cond entry")
+			}
+
+			return consequent_cell.Car, nil
+		}
+		
+		args, ok = args.Cdr.(*goscm.Pair)
+		if !ok {
+			return goscm.SCM_Nil, errors.New("Condition entries are a dotted list?")
+		}
+	}
+
+	return goscm.SCM_Nil, nil
 }
 
 func scm_not(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {

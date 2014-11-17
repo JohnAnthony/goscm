@@ -87,7 +87,7 @@ func MapEval(list *Pair, env *Environ) (*Pair, error) {
 	return Cons(new, tail), nil
 }
 
-func IsTrue(s SCMT) bool {
+func SCMTrue(s SCMT) bool {
 	if reflect.TypeOf(s) == reflect.TypeOf(&Boolean{}) {
 		return s.(*Boolean).Value
 	}
