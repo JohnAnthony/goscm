@@ -24,7 +24,7 @@ TCO_TOP:
 		args, err = args.MapEval(env)
 		if err != nil {	return SCM_Nil, err }
 
-		newenv := EnvEmpty(env)
+		newenv := NewEnv(env)
 		newenv.AddArgs(p.args, args)
 		body, err := p.body.ToSlice()
 		if err != nil {	return SCM_Nil, err }

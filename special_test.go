@@ -3,7 +3,7 @@ package goscm
 import "testing"
 
 func Test_Special(t *testing.T) {
-	env := EnvEmpty(nil)
+	env := NewEnv(nil)
 	
 	//
 	// A non-expanding special form

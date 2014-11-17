@@ -45,7 +45,7 @@ func (env *Environ) Set(symb *Symbol, val SCMT) error {
 	return env.parent.Set(symb, val)
 }
 
-func EnvEmpty(parent *Environ) *Environ {
+func NewEnv(parent *Environ) *Environ {
 	return &Environ {
 		table: make(map[string]SCMT),
 		parent: parent,

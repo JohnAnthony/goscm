@@ -7,7 +7,7 @@ import (
 )
 
 func Env() *goscm.Environ {
-	env := goscm.EnvEmpty(nil)
+	env := goscm.NewEnv(nil)
 	env.Add(goscm.NewSymbol("*"), goscm.NewForeign(scm_multiply))
 	env.Add(goscm.NewSymbol("+"), goscm.NewForeign(scm_add))
 	env.Add(goscm.NewSymbol("-"), goscm.NewForeign(scm_subtract))
@@ -293,7 +293,7 @@ func scm_begin(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 
 func scm_let(args *goscm.Pair, env *goscm.Environ) (goscm.SCMT, error) {
 	body := args.Cdr.(*goscm.Pair)
-	newenv := goscm.EnvEmpty(env)
+	newenv := goscm.NewEnv(env)
 	
 	for vars := args.Car.(*goscm.Pair); vars != goscm.SCM_Nil; vars = vars.Cdr.(*goscm.Pair) {
 		symb := vars.Car.(*goscm.Pair).Car.(*goscm.Symbol)

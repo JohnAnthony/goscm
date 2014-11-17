@@ -6,7 +6,7 @@ import (
 
 func Test_Environment(t *testing.T) {
 	// Making a top-level environment
-	top := EnvEmpty(nil)
+	top := NewEnv(nil)
 	if top.String() != "#<environment>" {
 		t.Error()
 	}
@@ -20,7 +20,7 @@ func Test_Environment(t *testing.T) {
 	if ans.String() != "9987654" { t.Error(ans) }
 	
 	// Making a child environment and retrieving from it
-	env := EnvEmpty(top)
+	env := NewEnv(top)
 	env.Add(NewSymbol("bar"), NewPlainInt(9987666))
 	ret, err = env.Find(NewSymbol("BAR"))
 	if err != nil { t.Error(err) }

@@ -8,7 +8,7 @@ import (
 func Test_Proc(t *testing.T) {
 	// We're testing this:
 	// ((lambda (n) (* n n)) 123) => 15129
-	env := EnvEmpty(nil)
+	env := NewEnv(nil)
 	
 	// We have to also provide a multiplication primitive
 	scm_multiply := func (args *Pair, env *Environ) (SCMT, error) {

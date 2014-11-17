@@ -15,7 +15,7 @@ func Test_Foreign(t *testing.T) {
 	}
 
 	// Check that it returns the correct retuls
-	sq, err := scm_f.Apply(NewList(NewPlainInt(13)), EnvEmpty(nil))
+	sq, err := scm_f.Apply(NewList(NewPlainInt(13)), NewEnv(nil))
 	if err != nil {	t.Error(err) }
 	ans, ok := sq.(*PlainInt)
 	if !ok { t.Error(ok) }
@@ -32,7 +32,7 @@ func Test_Foreign_List(t *testing.T) {
 		NewSCMT(11),
 	)
 
-	env := EnvEmpty(nil)
+	env := NewEnv(nil)
 	add_func := func (args *Pair, env *Environ) (SCMT, error) {
 		ret := 0
 		for ; args != SCM_Nil; args = args.Cdr.(*Pair) {
