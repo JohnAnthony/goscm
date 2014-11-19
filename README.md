@@ -61,7 +61,7 @@ and
 
 ```
 func (mt *MyType) String() string {
-    return "#<mytype"
+    return "#<mytype>"
 }
 ```
 
