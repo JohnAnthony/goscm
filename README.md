@@ -71,7 +71,7 @@ might then want to create a constructor, like so:
 ```
 func scm_make_mytype(args *goscm.Pair, env *goscm.Environ) (SCMT, error) {
     if args != goscm.SCM_Nil {
-        return goscm.SCM_Nil, errors("Expected exactly one argument")
+        return goscm.SCM_Nil, errors("Expected zero arguments")
     }
 
     return &MyType { /* Your struct initialisers here */ }, nil
